@@ -105,7 +105,7 @@ Output in `build/`. The Chrome manifest is derived from the Firefox manifest.
 
 [Contributing and maintenance](CONTRIBUTING.en.md) · [Developer documentation](docs/DEVELOPMENT.en.md)
 
-[Security policy](SECURITY.md) · [Public baseline review](docs/PUBLICATION-AUDIT.md)
+[Security policy](SECURITY.md)
 
 ## Report an issue
 

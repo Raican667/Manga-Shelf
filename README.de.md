@@ -105,7 +105,7 @@ Ausgabe unter `build/`. Das Chrome-Manifest wird aus dem Firefox-Manifest abgele
 
 [Mitwirken und Wartung](CONTRIBUTING.md) · [Entwicklerdokumentation](docs/DEVELOPMENT.md)
 
-[Sicherheitsrichtlinie](SECURITY.md) · [Prüfung des öffentlichen Ausgangsstands](docs/PUBLICATION-AUDIT.md)
+[Sicherheitsrichtlinie](SECURITY.md)
 
 ## Fehler melden
 
