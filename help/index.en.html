@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Manga Shelf – Help</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#start" aria-label="Back to the beginning of this guide">
+      <img src="../icons/manga-regal.svg" alt="">
+      <span><strong>Manga Shelf</strong><small>Help & guide</small></span>
+    </a>
+    <div class="top-actions">
+      <span class="version">Version 0.20.8</span>
+      <a class="button" href="index.html" data-mobile-label="DE">DE</a>
+      <a class="button" href="../dashboard/index.html?view=admin" data-mobile-label="Settings">← Back to settings</a>
+    </div>
+  </header>
+
+  <nav class="help-tabs" aria-label="Help sections">
+    <a class="active" href="index.en.html" aria-current="page"><span>01</span> General guide</a>
+    <a href="settings.en.html"><span>02</span> Settings</a>
+  </nav>
+
+  <div class="page-shell">
+    <aside class="contents" aria-label="Table of contents">
+      <strong>Contents</strong>
+      <a href="#start">Quick start</a>
+      <a href="#save">Save manga</a>
+      <a href="#update">Update chapters</a>
+      <a href="#collection">Use the collection</a>
+      <a href="#categories">Categories & limit</a>
+      <a href="#bookmarks">Import bookmarks</a>
+      <a href="#covers">Covers & local storage</a>
+      <a href="#settings">Settings</a>
+      <a href="#sync">Firefox Sync</a>
+      <a href="#backup">Backup & logs</a>
+      <a href="#troubleshooting">Troubleshooting</a>
+    </aside>
+
+    <main>
+<div class="note"><strong>Chrome 148+:</strong> Extract the Chrome ZIP and load its folder through chrome://extensions → Developer mode → Load unpacked. Configure shortcuts through chrome://extensions/shortcuts. The collection works the same way in both browsers; references to Firefox bookmarks and Sync mean Chrome bookmarks and Sync in the Chrome package. The two Sync services do not connect; use JSON backups to transfer between browsers.</div>
+      <section class="hero" id="start">
+        <span class="eyebrow">Local Firefox extension</span>
+        <h1>Your Manga Shelf, step by step</h1>
+        <p>This guide covers every feature of the extension. Unless Firefox Sync is enabled, your collection, ratings, tags, and covers remain entirely in the local Firefox profile. Manga Shelf does not operate its own server.</p>
+        <div class="quick-grid">
+          <article><b>1</b><span>Open a manga page in Firefox</span></article>
+          <article><b>2</b><span>Click the Manga Shelf icon</span></article>
+          <article><b>3</b><span>Review the data and save</span></article>
+        </div>
+        <div class="note"><strong>Version 0.20.8:</strong> This guide describes the current interface, including localized help, automatic chapter and cover switches, and custom placeholder covers.</div>
+      </section>
+
+      <section id="save">
+        <span class="section-number">01</span>
+        <h2>Save a manga from the current tab</h2>
+        <p>Click the Manga Shelf icon in the Firefox toolbar. The form appears in the current website tab. Within the form, click its icon or title to open the collection. The Open Collection button is also available.</p>
+        <figure>
+          <img src="images/toolbar.svg" alt="Illustration of the Manga Shelf toolbar icon and save form">
+          <figcaption>The toolbar icon opens the form directly over the manga page you are visiting.</figcaption>
+        </figure>
+        <div class="steps">
+          <article><b>Detected automatically</b><p>Title, website address, description, current chapter, and an available cover are filled in whenever possible.</p></article>
+          <article><b>Before saving</b><p>You can correct or add the title, chapter, category, rating, and tags. New installations use five stars by default; ten stars remain available in Settings.</p></article>
+          <article><b>Per-manga automation</b><p>The small switch after the chapter field disables automatic detection only for this manga. The choice persists through future updates, while manual input remains available.</p></article>
+          <article><b>Confirmation</b><p>After saving, the form reports whether both manga and cover were stored locally or whether only the cover could not be loaded.</p></article>
+        </div>
+        <div class="note"><strong>Tip:</strong> If the icon is visible only in the Extensions menu, open the puzzle-piece menu and pin Manga Shelf to the toolbar.</div>
+      </section>
+
+      <section id="update">
+        <span class="section-number">02</span>
+        <h2>Update a chapter you have read</h2>
+        <p>When you open and save another chapter of the same manga, Manga Shelf compares the title with existing reading progress—not only the current source URL. A dialog suggests the best target, lets you change it, or creates a linked re-read.</p>
+        <ul class="check-list">
+          <li><strong>Update an existing entry:</strong> The URL and chapter normally change, while rating, tags, category, and local cover remain. If chapter automation is red for this manga, only the Continue Reading URL changes and the stored chapter stays frozen.</li>
+          <li><strong>Primary progress or re-read:</strong> A chapter at or below the primary progress suggests an existing re-read. A higher chapter suggests the primary entry. You can always change the target from the dropdown. The connection remains when a website changes its URL.</li>
+          <li><strong>Create as a new re-read:</strong> Creates a separate reading progress linked internally to the primary one. It can optionally receive the green Re-Read tag.</li>
+          <li><strong>Save separately:</strong> Deliberately creates another independent entry.</li>
+          <li><strong>Cover:</strong> A chapter update downloads a cover only when the entry has no local cover yet.</li>
+        </ul>
+      </section>
+
+      <section id="collection">
+        <span class="section-number">03</span>
+        <h2>Use the collection</h2>
+        <figure>
+          <img src="images/collection.svg" alt="Illustration of the collection table with filters, ratings, status, and actions">
+          <figcaption>The same manga data is available in both table and card views.</figcaption>
+        </figure>
+        <div class="feature-grid">
+          <article><h3>Continue reading</h3><p>Opens the stored chapter URL. Find New Source searches by title and chapter if the original website has closed.</p></article>
+          <article><h3>Filter & sort</h3><p>Search by title, website, or tag. Filter by every value in the five- or ten-star scale. Column headers sort text alphabetically and numeric values highest first.</p></article>
+          <article><h3>Edit directly</h3><p>Chapter, stars, tags, and status can be changed in the overview. The pencil opens the full entry; the trash icon removes it after confirmation.</p></article>
+          <article><h3>Table or cards</h3><p>Every category can have its own layout. Covers can additionally be hidden from table rows.</p></article>
+        </div>
+      </section>
+
+      <section id="categories">
+        <span class="section-number">04</span>
+        <h2>Categories, custom names, and reading limit</h2>
+        <p>The default views are <strong>Currently Reading</strong>, <strong>Active</strong>, <strong>On Hold</strong>, <strong>Dropped</strong>, <strong>Completed</strong>, and <strong>All</strong>. Their visible names can be changed, and additional categories can be created.</p>
+        <div class="split-card">
+          <div><h3>Currently Reading</h3><p>This area is intended for titles you are actively reading. Its occupancy is displayed, for example, as <strong>3/5</strong>. Once the configurable limit is reached, one title must be moved elsewhere first.</p></div>
+          <div><h3>Default for new manga</h3><p>Choose the initial category for entries created from the tab form, manual form, and bookmark import.</p></div>
+        </div>
+      </section>
+
+      <section id="bookmarks">
+        <span class="section-number">05</span>
+        <h2>Import and recreate Firefox bookmarks</h2>
+        <p>The import uses bookmark information provided by Firefox. When chapter detection is enabled, matching progress is added from the URL; otherwise the optional field remains open for manual input.</p>
+        <div class="steps">
+          <article><b>Select folders</b><p>Import only selected folders and optionally give every item in a folder the same rating.</p></article>
+          <article><b>Keyword</b><p>Import bookmarks whose title or address contains a term such as “Chapter”.</p></article>
+          <article><b>Manual selection</b><p>Select individual bookmarks from every Firefox folder.</p></article>
+        </div>
+        <p class="muted">The import button in the page header can be hidden completely in Settings.</p>
+        <div class="note"><strong>Back to Firefox:</strong> Settings can recreate the complete collection under a Manga-Regal root folder with one subfolder per category. This includes entries that were never imported from Firefox. Only title and current URL are exported.</div>
+      </section>
+
+      <section id="covers">
+        <span class="section-number">06</span>
+        <h2>How covers are stored and loaded locally</h2>
+        <figure>
+          <img src="images/storage.svg" alt="Illustration of separate local storage for manga metadata and covers">
+          <figcaption>Metadata and covers are stored separately; visible covers load only when needed.</figcaption>
+        </figure>
+        <ul class="check-list">
+          <li>When first saving an entry, the extension downloads the detected cover and stores it separately from the main dataset.</li>
+          <li>Collection images load only when their row or card enters the visible area, so the entire library is not rendered at once.</li>
+          <li>A normal chapter update preserves the existing cover. The small control after the cover address can permanently disable automatic cover detection for one manga.</li>
+          <li>Without a custom cover, Manga Shelf uses one of four local artworks. It selects by tag automatically, or you can assign a fixed artwork to each tag with drag and drop.</li>
+          <li>Each placeholder slot can be replaced with a custom JPG, PNG, or WebP image. The Show Placeholder Covers switch hides every replacement image without deleting artwork or mappings.</li>
+          <li>For Cloudflare-protected pages, Manga Shelf can reuse the image visible in the active tab. Cookies are never read, stored, or synchronized. Covers remain protected inside the Firefox profile, and JSON backups include them.</li>
+        </ul>
+      </section>
+
+      <section id="settings">
+        <span class="section-number">07</span>
+        <h2>Settings</h2>
+        <figure>
+          <img src="images/settings.svg" alt="Illustration of appearance, import, and category settings">
+          <figcaption>All customization is available in one Settings area.</figcaption>
+        </figure>
+        <div class="feature-grid">
+          <article><h3>Appearance</h3><p>Use switches for dark/light and German/English. Each category has its own table/card setting. Table covers are enabled for new installations.</p></article>
+          <article><h3>Tags</h3><p>Enable frequent tags, create custom presets, or remove misspelled presets. Tags already assigned to manga remain untouched.</p></article>
+          <article><h3>Search engine</h3><p>Use the Firefox default, an installed provider, one of six presets, or a custom URL containing <code>{query}</code>.</p></article>
+          <article><h3>First launch</h3><p>A brief starter dialog appears once after installation with the three essential steps and a link to this guide.</p></article>
+          <article><h3>Categories & stars</h3><p>Edit category name, layout, and order together. Drag rows or use arrow buttons. Reducing ten stars to five requires confirmation and caps only values above five.</p></article>
+          <article><h3>Keyboard shortcut</h3><p>Firefox requires <strong>Ctrl</strong> or <strong>Alt</strong> as the primary modifier; Shift may be added. Choose another combination if it is already assigned.</p></article>
+        </div>
+        <div class="note"><strong>Saving:</strong> Individual changes save automatically. The additional Save Settings button saves all visible settings together once more.</div>
+        <p><a class="button" href="settings.en.html">Open the Settings guide →</a></p>
+      </section>
+
+      <section id="sync">
+        <span class="section-number">08</span>
+        <h2>Transfer the collection with Firefox Sync</h2>
+        <p>Under <strong>Settings → Firefox Sync</strong>, you can enable synchronization, run it immediately, or load an existing Sync snapshot. Firefox must be signed in to a Mozilla account with add-on synchronization enabled. On first activation, Firefox displays its native optional-data consent dialog.</p>
+        <div class="split-card">
+          <div><h3>What is synchronized</h3><p>Title, URL, chapter, rating, tags, category, and settings are gzip-compressed as one snapshot. The prepared local copy is refreshed after changes and uploaded in size-limited transport chunks.</p></div>
+          <div><h3>What remains local</h3><p>Covers, favicons, logs, Firefox bookmark IDs, and folder paths are excluded. Loading a Sync snapshot preserves matching local covers already present on the device.</p></div>
+        </div>
+        <div class="warning"><strong>Storage limit:</strong> Firefox provides approximately 100 KB of Sync storage per extension. Settings show manga count, chunks, used storage, and compression ratio. Use JSON export for a complete backup including covers.</div>
+      </section>
+
+      <section id="backup">
+        <span class="section-number">09</span>
+        <h2>Backup and logs</h2>
+        <div class="split-card">
+          <div><h3>JSON backup</h3><p>Download collection, settings, logs, and local covers in one portable file. Import restores a previously created Manga Shelf backup.</p></div>
+          <div><h3>Import & error log</h3><p>The local log shows imports, warnings, and errors. It can be filtered by level and text or cleared completely.</p></div>
+        </div>
+        <div class="warning"><strong>Important:</strong> Create a JSON backup before removing the extension. Firefox normally deletes an extension's local storage during uninstall.</div>
+      </section>
+
+      <section id="troubleshooting">
+        <span class="section-number">10</span>
+        <h2>Troubleshooting</h2>
+        <details><summary>A cover is not displayed</summary><p>Open the entry with the pencil and check its cover address. Some websites or Cloudflare block direct extension requests. Save another direct image address or open the manga page in the active tab so the visible image can be reused. Placeholder covers are available when no own image can be stored.</p></details>
+        <details><summary>The icon or popup is missing</summary><p>Open <strong>about:debugging#/runtime/this-firefox</strong> and click Reload for Manga Shelf. If the icon is only in the Extensions menu, pin it through the puzzle-piece menu. On internal Firefox pages, the toolbar click opens the collection instead.</p></details>
+        <details><summary>The keyboard shortcut cannot be saved</summary><p>Use Ctrl or Alt plus another key, for example <strong>Alt + Shift + M</strong>. Shift+D alone is invalid in Firefox. Choose another combination if Firefox reports a conflict.</p></details>
+        <details><summary>Currently Reading rejects another manga</summary><p>The displayed limit has been reached. Move one title to Active, On Hold, Dropped, or Completed, or increase the limit in Settings.</p></details>
+        <details><summary>Continue Reading opens a closed website</summary><p>Use Find New Source directly below it. Manga Shelf opens a search containing the title and stored chapter.</p></details>
+        <details><summary>Where is my data on Windows?</summary><p>It is stored in the extension storage inside the local Firefox profile. Use JSON backup when you need a normal portable Windows file.</p></details>
+      </section>
+
+      <footer>
+        <img src="../icons/manga-regal.svg" alt="">
+        <p><strong>Manga Shelf</strong><br><span>Local Firefox collection · Version 0.20.8</span></p>
+        <a href="#start">Back to top ↑</a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="../shared/store.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

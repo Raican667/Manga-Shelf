@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Manga-Regal – Hilfe</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#start" aria-label="Zum Anfang der Hilfe">
+      <img src="../icons/manga-regal.svg" alt="">
+      <span><strong>Manga-Regal</strong><small>Hilfe & Anleitung</small></span>
+    </a>
+    <div class="top-actions">
+      <span class="version">Version 0.20.8</span>
+      <a class="button" href="index.en.html" data-mobile-label="EN">EN</a>
+      <a class="button" href="../dashboard/index.html?view=admin" data-mobile-label="Einstellungen">← Zu den Einstellungen</a>
+    </div>
+  </header>
+
+  <nav class="help-tabs" aria-label="Hilfebereiche">
+    <a class="active" href="index.html" aria-current="page"><span>01</span> Allgemeine Anleitung</a>
+    <a href="settings.html"><span>02</span> Einstellungen</a>
+  </nav>
+
+  <div class="page-shell">
+    <aside class="contents" aria-label="Inhaltsverzeichnis">
+      <strong>Inhalt</strong>
+      <a href="#start">Schnellstart</a>
+      <a href="#speichern">Manga speichern</a>
+      <a href="#aktualisieren">Kapitel aktualisieren</a>
+      <a href="#sammlung">Sammlung bedienen</a>
+      <a href="#kategorien">Kategorien & Limit</a>
+      <a href="#lesezeichen">Lesezeichen importieren</a>
+      <a href="#cover">Cover & lokaler Speicher</a>
+      <a href="#einstellungen">Einstellungen</a>
+      <a href="#sync">Firefox Sync</a>
+      <a href="#sicherung">Sicherung & Protokoll</a>
+      <a href="#fehlerhilfe">Probleme lösen</a>
+    </aside>
+
+    <main>
+<div class="note"><strong>Chrome ab 148:</strong> Die Chrome-ZIP entpacken und den Ordner über chrome://extensions → Entwicklermodus → Entpackte Erweiterung laden auswählen. Tastenkürzel werden über chrome://extensions/shortcuts eingestellt. Die Sammlung funktioniert in beiden Browsern gleich; Firefox-Lesezeichen und Sync entsprechen im Chrome-Paket den Chrome-Lesezeichen und Chrome Sync. Die Dienste verbinden sich nicht miteinander; zum Wechsel JSON-Datensicherungen verwenden.</div>
+      <section class="hero" id="start">
+        <span class="eyebrow">Lokale Firefox-Erweiterung</span>
+        <h1>Dein Manga-Regal – Schritt für Schritt</h1>
+        <p>Hier findest du alle Funktionen des Add-ons. Ohne aktivierten Firefox Sync bleiben Sammlung, Bewertungen, Tags und Cover vollständig im lokalen Firefox-Profil. Manga-Regal betreibt keinen eigenen Server.</p>
+        <div class="quick-grid">
+          <article><b>1</b><span>Manga-Seite in Firefox öffnen</span></article>
+          <article><b>2</b><span>Manga-Regal-Symbol anklicken</span></article>
+          <article><b>3</b><span>Angaben prüfen und speichern</span></article>
+        </div>
+        <div class="note"><strong>Version 0.20.8:</strong> Diese Anleitung beschreibt die aktuelle Oberfläche einschließlich lokalisierter Hilfe, automatischer Kapitel- und Cover-Schalter sowie eigener Platzhalter-Cover.</div>
+      </section>
+
+      <section id="speichern">
+        <span class="section-number">01</span>
+        <h2>Einen Manga aus dem aktuellen Tab speichern</h2>
+        <p>Klicke oben rechts in Firefox auf das Manga-Regal-Symbol. Das Formular erscheint im aktuellen Webseiten-Tab. Im Formular öffnen das Symbol und der Titel „Im Manga-Regal speichern“ die Sammlung; auch der Knopf „Sammlung öffnen“ bleibt verfügbar.</p>
+        <figure>
+          <img src="images/toolbar.svg" alt="Illustration: Manga-Regal-Symbol in Firefox und eingeblendetes Speicherformular">
+          <figcaption>Das Werkzeugleisten-Symbol öffnet das Formular direkt über der gerade besuchten Manga-Seite.</figcaption>
+        </figure>
+        <div class="steps">
+          <article><b>Automatisch erkannt</b><p>Titel, Webseitenadresse, Beschreibung, aktuelles Kapitel und ein verfügbares Cover werden soweit möglich übernommen.</p></article>
+          <article><b>Vor dem Speichern</b><p>Du kannst Titel, Kapitel, Kategorie, Bewertung und Tags korrigieren oder ergänzen. Neue Installationen verwenden standardmäßig fünf Sterne; in den Einstellungen kannst du optional auf zehn Sterne wechseln.</p></article>
+          <article><b>Automatik pro Manga</b><p>Der kleine Schalter direkt hinter dem Kapitelfeld deaktiviert die automatische Erkennung nur für diesen Manga. Die Auswahl bleibt auch bei späteren Kapitelupdates erhalten; das Kapitel kann weiterhin manuell eingetragen werden.</p></article>
+          <article><b>Rückmeldung</b><p>Nach dem Speichern zeigt das Formular an, ob Manga und Cover lokal gespeichert wurden oder nur das Cover nicht geladen werden konnte.</p></article>
+        </div>
+        <div class="note"><strong>Tipp:</strong> Ist das Symbol nur im Erweiterungsmenü zu sehen, öffne das Puzzleteil-Menü und hefte Manga-Regal an die Symbolleiste an.</div>
+      </section>
+
+      <section id="aktualisieren">
+        <span class="section-number">02</span>
+        <h2>Ein gelesenes Kapitel aktualisieren</h2>
+        <p>Öffnest du ein weiteres Kapitel desselben Mangas und speicherst es, vergleicht Manga-Regal den Titel mit deinen vorhandenen Leseständen – nicht nur die aktuelle Quelladresse. Ein Dialog schlägt den passenden Stand vor, lässt dich das Ziel ändern oder einen verbundenen Re-Read neu anlegen.</p>
+        <ul class="check-list">
+          <li><strong>Bestehenden Eintrag aktualisieren:</strong> Adresse und Kapitelstand werden normalerweise ersetzt; Bewertung, Tags, Kategorie und vorhandenes Cover bleiben erhalten. Ist die Kapitel-Automatik für den Manga rot ausgeschaltet, wird nur der Weiterlesen-Link aktualisiert und das gespeicherte Kapitel bleibt unverändert. Eine anschließende manuelle Eingabe bleibt möglich.</li>
+          <li><strong>Hauptstand oder Re-Read:</strong> Liegt das neue Kapitel unter oder auf dem Hauptstand, wird ein vorhandener Re-Read vorgeschlagen. Liegt es darüber, wird der Hauptstand vorgeschlagen. Über das Dropdown kannst du die Auswahl vor dem Speichern jederzeit korrigieren. Die Zuordnung bleibt auch erhalten, wenn die Website ihre URL ändert.</li>
+          <li><strong>Als Re-Read neu anlegen:</strong> Erstellt einen getrennten Lesestand und verbindet ihn intern mit dem Hauptstand. Optional erhält er automatisch den grünen Tag „Re-Read“.</li>
+          <li><strong>Separat speichern:</strong> Erstellt bewusst einen zweiten Eintrag.</li>
+          <li><strong>Cover:</strong> Bei einem Kapitelupdate wird es nur nachgeladen, wenn für den Eintrag noch kein lokales Cover vorhanden ist.</li>
+        </ul>
+      </section>
+
+      <section id="sammlung">
+        <span class="section-number">03</span>
+        <h2>Die Sammlung bedienen</h2>
+        <figure>
+          <img src="images/collection.svg" alt="Illustration: Tabellenansicht mit Filter, Sternen, Status und Aktionen">
+          <figcaption>In Tabelle und Kacheln stehen dieselben Manga-Daten zur Verfügung.</figcaption>
+        </figure>
+        <div class="feature-grid">
+          <article><h3>Weiterlesen</h3><p>Öffnet den gespeicherten Kapitel-Link. Darunter sucht „Neue Quelle suchen“ nach Titel und Kapitel, falls eine Manga-Seite geschlossen wurde.</p></article>
+          <article><h3>Filtern & sortieren</h3><p>Suche nach Titel, Website oder Tag. Filtere nach jedem Wert deiner 5- oder 10-Sterne-Skala. Ein Klick auf einen Spaltenkopf sortiert Texte alphabetisch und Werte zuerst absteigend.</p></article>
+          <article><h3>Direkt bearbeiten</h3><p>Kapitel, Sterne, Tags und Status lassen sich in der Übersicht ändern. Der Stift öffnet den ganzen Eintrag, der Papierkorb entfernt ihn nach Bestätigung.</p></article>
+          <article><h3>Tabelle oder Kacheln</h3><p>Für jede Kategorie kann in den Einstellungen eine eigene Ansicht gewählt werden. Cover in Tabellen lassen sich zusätzlich ausblenden.</p></article>
+        </div>
+      </section>
+
+      <section id="kategorien">
+        <span class="section-number">04</span>
+        <h2>Kategorien, eigene Namen und Leselimit</h2>
+        <p>Standardmäßig gibt es <strong>Lese ich gerade</strong>, <strong>Aktiv</strong>, <strong>On Hold</strong>, <strong>Gedroppt</strong>, <strong>Abgeschlossen</strong> und <strong>Alle</strong>. In den Einstellungen kannst du ihre sichtbaren Namen ändern und weitere Kategorien anlegen.</p>
+        <div class="split-card">
+          <div><h3>„Lese ich gerade“</h3><p>Dieser Bereich ist für die Titel gedacht, die du im Moment wirklich liest. Die Belegung wird als beispielsweise <strong>3/5</strong> angezeigt. Ist das einstellbare Limit erreicht, muss zuerst ein Titel in eine andere Kategorie verschoben werden.</p></div>
+          <div><h3>Standard für neue Manga</h3><p>Lege fest, in welcher Kategorie neue Einträge aus dem Tab-Formular, dem manuellen Formular und dem Lesezeichenimport landen.</p></div>
+        </div>
+      </section>
+
+      <section id="lesezeichen">
+        <span class="section-number">05</span>
+        <h2>Firefox-Lesezeichen importieren und wieder erstellen</h2>
+        <p>Der Import übernimmt die von Firefox bereitgestellten Lesezeichendaten. Ist die Kapitel-Link-Erkennung eingeschaltet, werden passende Kapitelstände aus der Adresse ergänzt; andernfalls bleibt das Feld offen und kann optional manuell gepflegt werden.</p>
+        <div class="steps">
+          <article><b>Ordner auswählen</b><p>Importiere nur markierte Ordner. Pro Ordner kann direkt eine gemeinsame Bewertung vergeben werden.</p></article>
+          <article><b>Schlüsselwort</b><p>Importiere alle Lesezeichen, deren Titel oder Adresse zum Beispiel „Chapter“ enthält.</p></article>
+          <article><b>Manuelle Auswahl</b><p>Wähle einzelne Lesezeichen aus allen Firefox-Ordnern aus.</p></article>
+        </div>
+        <p class="muted">Der Importknopf im Kopfbereich kann in den Einstellungen vollständig ausgeblendet werden.</p>
+        <div class="note"><strong>Zurück zu Firefox:</strong> In den Einstellungen kannst du die komplette Sammlung als Oberordner „Manga-Regal“ mit Unterordnern je Kategorie wieder in Firefox anlegen. Das gilt auch für Manga, die nie aus einem Firefox-Lesezeichen importiert wurden. Dabei werden nur Titel und aktuelle Adresse übernommen.</div>
+      </section>
+
+      <section id="cover">
+        <span class="section-number">06</span>
+        <h2>Wie Cover lokal gespeichert und geladen werden</h2>
+        <figure>
+          <img src="images/storage.svg" alt="Illustration: Getrennter lokaler Speicher für Manga-Daten und Cover">
+          <figcaption>Metadaten und Cover werden getrennt gespeichert; sichtbare Cover werden erst bei Bedarf angezeigt.</figcaption>
+        </figure>
+        <ul class="check-list">
+          <li>Beim ersten Speichern lädt das Add-on das gefundene Cover herunter und legt es getrennt vom Hauptdatensatz im lokalen Erweiterungsspeicher ab.</li>
+          <li>In der Sammlung werden Bilder erst geladen, wenn ihre Zeile oder Kachel in den sichtbaren Bereich kommt. So werden nicht alle Cover gleichzeitig aufgebaut.</li>
+          <li>Bei einem normalen Kapitelupdate bleibt das vorhandene Cover unverändert. Mit dem kleinen Automatikknopf hinter der Cover-Adresse lässt sich die automatische Cover-Erkennung für diesen Manga dauerhaft abschalten.</li>
+          <li>Fehlt ein eigenes Cover, zeigt Manga-Regal eines von vier lokalen Motiven. Der verwendete Platzhalter wird automatisch nach Tags gewählt oder kann in der Tag-Vorauswahl per Drag-and-drop fest zugeordnet werden.</li>
+          <li>In der Tag-Vorauswahl kannst du jedes der vier Motive durch ein eigenes JPG-, PNG- oder WebP-Bild ersetzen. Der Schalter „Platzhalter-Cover anzeigen“ blendet alle Ersatzbilder aus, ohne Bilder oder Zuordnungen zu löschen.</li>
+          <li>Auf Cloudflare-geschützten Seiten versucht Manga-Regal, das aktuell sichtbare Bild aus dem geöffneten Tab zu übernehmen. Cookies werden dabei nicht gelesen, gespeichert oder synchronisiert. Die Cover liegen geschützt im Firefox-Profil; der JSON-Export nimmt sie in die Sicherung auf.</li>
+        </ul>
+      </section>
+
+      <section id="einstellungen">
+        <span class="section-number">07</span>
+        <h2>Die Einstellungen</h2>
+        <figure>
+          <img src="images/settings.svg" alt="Illustration: Einstellungen für Darstellung, Import und Kategorien">
+          <figcaption>Alle Anpassungen befinden sich jetzt verständlich unter „Einstellungen“.</figcaption>
+        </figure>
+        <div class="feature-grid">
+          <article><h3>Darstellung</h3><p>Dunkel/Hell und Deutsch/Englisch werden per Schalter gewählt. Die Tabellen- oder Kachelansicht ist für jede Kategorie einzeln einstellbar. Tabellen-Cover sind bei einer neuen Installation eingeschaltet.</p></article>
+          <article><h3>Tags</h3><p>Aktiviere häufige Tags, erstelle eigene Vorgaben oder entferne falsch geschriebene Tags aus der Vorauswahl. Bereits vergebene Manga-Tags bleiben dabei erhalten.</p></article>
+          <article><h3>Suchmaschine</h3><p>Nutze die Firefox-Standardsuche, eine installierte Suchmaschine, eine der Vorgaben oder eine eigene Adresse mit <code>{query}</code> als Platzhalter.</p></article>
+          <article><h3>Erster Start</h3><p>Nach einer Neuinstallation öffnet sich einmalig ein kurzer Startdialog mit den drei wichtigsten Schritten und einem Link zu dieser Anleitung.</p></article>
+          <article><h3>Kategorien & Sterne</h3><p>Ändere Name, Tabellen-/Kachelansicht und Reihenfolge gemeinsam in einem Kategorien-Editor. Ziehe eine Zeile am Griff oder nutze die Pfeile. Beim Wechsel von zehn auf fünf Sterne warnt ein Bestätigungsdialog, wenn höhere Bewertungen vorhanden sind. Nach der Bestätigung werden nur Werte über fünf auf fünf gesetzt; Werte von eins bis fünf bleiben unverändert.</p></article>
+          <article><h3>Tastenkürzel</h3><p>Firefox verlangt <strong>Strg</strong> oder <strong>Alt</strong> als Haupttaste; Umschalt darf hinzukommen. Ist ein Kürzel belegt, wähle eine andere Kombination.</p></article>
+        </div>
+        <div class="note"><strong>Speichern:</strong> Einzelne Änderungen werden automatisch gesichert. Der zusätzliche Knopf „Einstellungen speichern“ übernimmt alle sichtbaren Einstellungsfelder noch einmal gemeinsam.</div>
+        <p><a class="button" href="settings.html">Zum Tab „Einstellungen“ wechseln →</a></p>
+      </section>
+
+      <section id="sync">
+        <span class="section-number">08</span>
+        <h2>Sammlung mit Firefox Sync übertragen</h2>
+        <p>Unter <strong>Einstellungen → Firefox Sync</strong> kannst du die Synchronisierung einschalten, sofort ausführen oder einen vorhandenen Sync-Stand laden. Dafür muss Firefox mit deinem Mozilla-Konto angemeldet und die Add-on-Synchronisierung aktiviert sein. Beim ersten Einschalten zeigt Firefox seinen eigenen Dialog für die optionalen Datenberechtigungen. Ohne Zustimmung bleibt Sync ausgeschaltet.</p>
+        <div class="split-card">
+          <div><h3>Was synchronisiert wird</h3><p>Titel, Adresse, Kapitel, Bewertung, Tags, Kategorie sowie die Einstellungen werden als gemeinsamer Snapshot mit gzip komprimiert. Diese komprimierte Sync-Kopie bleibt lokal vorbereitet und wird nach Änderungen im Hintergrund erneuert. Beim Synchronisieren muss sie dann nur noch in größenbegrenzten Transportstücken hochgeladen werden.</p></div>
+          <div><h3>Was lokal bleibt</h3><p>Cover, Favicons, Protokolle, Firefox-Lesezeichen-IDs und Ordnerpfade werden nicht synchronisiert. Beim Laden eines Sync-Stands bleiben bereits vorhandene lokale Cover passender Manga erhalten.</p></div>
+        </div>
+        <div class="warning"><strong>Speichergrenze:</strong> Firefox stellt einer Erweiterung ungefähr 100 KB Sync-Speicher zur Verfügung. Die Einstellungen zeigen Manga-Anzahl, Transportstücke, belegten Speicher und Kompressionsfaktor. Für eine vollständige Sicherung inklusive Cover bleibt der JSON-Export vorgesehen.</div>
+      </section>
+
+      <section id="sicherung">
+        <span class="section-number">09</span>
+        <h2>Datensicherung und Protokoll</h2>
+        <div class="split-card">
+          <div><h3>JSON-Sicherung</h3><p>„JSON-Sicherung herunterladen“ speichert Sammlung, Einstellungen, Protokolle und lokale Cover in einer Datei. Über „JSON-Sicherung importieren“ stellst du diese Daten wieder her.</p></div>
+          <div><h3>Import- & Fehlerprotokoll</h3><p>Das lokale Protokoll zeigt Importe, Warnungen und Fehler. Es kann nach Stufe und Text gefiltert oder vollständig geleert werden.</p></div>
+        </div>
+        <div class="warning"><strong>Wichtig:</strong> Erstelle vor dem Entfernen des Add-ons eine JSON-Sicherung. Firefox löscht beim Deinstallieren normalerweise auch den lokalen Erweiterungsspeicher.</div>
+      </section>
+
+      <section id="fehlerhilfe">
+        <span class="section-number">10</span>
+        <h2>Häufige Probleme lösen</h2>
+        <details><summary>Ein Cover wird nicht angezeigt</summary><p>Öffne den Manga über den Stift und prüfe die Cover-Adresse. Manche Webseiten oder Cloudflare blockieren direkte Erweiterungsanfragen. Speichere eine andere direkte Bildadresse oder öffne die Manga-Seite zuerst im aktiven Tab, damit das sichtbare Bild übernommen werden kann. Ohne eigenes Bild kannst du Platzhalter-Cover aktivieren.</p></details>
+        <details><summary>Das Symbol oder das Pop-up fehlt</summary><p>Öffne <strong>about:debugging#/runtime/this-firefox</strong> und klicke bei Manga-Regal auf „Neu laden“. Ist das Symbol nur im Erweiterungsmenü zu sehen, hefte es über das Puzzleteil-Menü an. Bei internen Firefox-Seiten öffnet der Toolbar-Klick stattdessen die Sammlung.</p></details>
+        <details><summary>Das Tastenkürzel lässt sich nicht speichern</summary><p>Verwende Strg oder Alt plus eine weitere Taste, zum Beispiel <strong>Alt + Umschalt + M</strong>. Reines „Umschalt + D“ ist in Firefox nicht gültig. Bei „bereits belegt“ muss eine andere Kombination gewählt werden.</p></details>
+        <details><summary>„Lese ich gerade“ nimmt keinen weiteren Manga an</summary><p>Das angezeigte Limit ist erreicht. Verschiebe einen Manga nach Aktiv, On Hold, Gedroppt oder Abgeschlossen – oder erhöhe das Limit in den Einstellungen.</p></details>
+        <details><summary>„Weiterlesen“ führt zu einer geschlossenen Seite</summary><p>Klicke direkt darunter auf „Neue Quelle suchen“. Manga-Regal öffnet eine Suche mit Titel und gespeichertem Kapitel.</p></details>
+        <details><summary>Wo sind meine Daten unter Windows?</summary><p>Sie liegen im lokalen Firefox-Profil im Erweiterungsspeicher. Verwende die JSON-Sicherung, wenn du eine normale, transportierbare Datei auf Windows ablegen möchtest.</p></details>
+      </section>
+
+      <footer>
+        <img src="../icons/manga-regal.svg" alt="">
+        <p><strong>Manga-Regal</strong><br><span>Lokale Sammlung für Firefox · Version 0.20.8</span></p>
+        <a href="#start">Nach oben ↑</a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="../shared/store.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

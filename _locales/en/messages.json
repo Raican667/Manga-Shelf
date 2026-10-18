@@ -1,0 +1,14 @@
+{
+  "extensionName": {
+    "message": "Manga Shelf"
+  },
+  "extensionDescription": {
+    "message": "Save, rate, tag, and organize manga pages directly from Firefox."
+  },
+  "actionTitle": {
+    "message": "Open Manga Shelf in the current tab"
+  },
+  "commandDescription": {
+    "message": "Show or hide Manga Shelf in the current tab"
+  }
+}

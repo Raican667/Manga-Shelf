@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Manga-Regal</title>
+  <link rel="icon" href="../icons/manga-regal.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="app-header">
+      <div class="brand">
+        <img src="../icons/manga-regal.svg" alt="">
+        <div><h1 data-i18n="brandName">Manga-Regal</h1><p data-i18n="brandSubtitle">Lokale Firefox-Sammlung</p></div>
+      </div>
+      <div class="header-actions">
+        <button class="button secondary" id="syncBookmarks" data-i18n="syncBookmarks">Firefox-Lesezeichen einlesen</button>
+        <button class="button primary" id="addEntry" data-i18n="addManga">＋ Manga hinzufügen</button>
+      </div>
+    </header>
+
+    <nav class="view-nav" id="viewNav" aria-label="Sammlungsbereich" data-i18n-aria-label="collectionArea">
+      <div class="category-nav-items" id="categoryNavItems"></div>
+      <button class="nav-item admin-link" data-view="admin" data-i18n="navAdmin">Einstellungen</button>
+    </nav>
+
+    <section id="collectionView">
+      <div class="hero">
+        <div><span class="eyebrow" data-i18n="collectionEyebrow">Deine Sammlung</span><h2 id="viewTitle">Lese ich gerade</h2><p data-i18n="collectionDescription">Bewerte, kategorisiere und öffne deine gespeicherten Manga-Seiten.</p></div>
+        <div class="hero-stats"><div><strong id="totalCount">0</strong><span data-i18n="entries">Einträge</span></div><div><strong id="averageRating">–</strong><span data-i18n="averageStars">Ø Sterne</span></div></div>
+      </div>
+
+      <div class="toolbar">
+        <label class="search"><span aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="Titel, Website oder Tag suchen …" data-i18n-placeholder="searchPlaceholder"></label>
+        <select id="ratingFilter" aria-label="Bewertung filtern" data-i18n-aria-label="filterRating"></select>
+        <select id="sortSelect" aria-label="Sortierung" data-i18n-aria-label="sorting"><option value="new" data-i18n="sortNew">Zuletzt geändert</option><option value="rating" data-i18n="sortRating">Beste Bewertung</option><option value="title" data-i18n="sortTitle">Titel A–Z</option></select>
+      </div>
+
+      <div class="card-grid" id="collectionCards" hidden></div>
+      <div class="table-shell" id="collectionTable">
+        <table class="collection-table">
+          <colgroup><col class="col-title"><col class="col-read"><col class="col-chapter"><col class="col-tags"><col class="col-rating"><col class="col-status"><col class="col-modified"><col class="col-actions"></colgroup>
+          <thead><tr><th><button class="sort-header" data-sort-column="title"><b data-i18n="title">Titel</b> <span></span></button></th><th><button class="sort-header" data-sort-column="source"><b data-i18n="continue">Weiterlesen</b> <span></span></button></th><th><button class="sort-header" data-sort-column="chapter"><b data-i18n="chapter">Aktuelles Kapitel</b> <span></span></button></th><th><button class="sort-header" data-sort-column="tags"><b data-i18n="tags">Tags</b> <span></span></button></th><th><button class="sort-header" data-sort-column="rating"><b data-i18n="rating">Bewertung</b> <span></span></button></th><th><button class="sort-header" data-sort-column="status"><b data-i18n="status">Status</b> <span></span></button></th><th><button class="sort-header active" data-sort-column="modified"><b data-i18n="modified">Geändert</b> <span>↓</span></button></th><th class="actions-heading" data-i18n="actions">Aktionen</th></tr></thead>
+          <tbody id="collectionRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="adminView" hidden>
+      <div class="admin-hero"><div><span class="eyebrow" data-i18n="adminEyebrow">Verwaltung</span><h2 data-i18n="adminTitle">Einstellungen & Datensicherung</h2><p data-i18n="adminDescription">Passe das Manga-Regal an und verwalte deine lokalen Daten.</p></div><div class="admin-hero-actions"><a class="help-button" href="../help/settings.html" data-help-page="settings" target="_blank" rel="noopener" title="Einstellungen erklären" data-i18n-title="settingsHelpTitle"><b aria-hidden="true">?</b><span data-i18n="help">Hilfe</span></a><span class="storage-pill"><i></i><b data-i18n="storageActive">Autospeichern aktiv</b></span><button class="button primary" id="saveAdminSettings" type="button" data-i18n="saveAdmin">Einstellungen speichern</button></div></div>
+      <div class="admin-grid">
+        <article class="panel backup-panel"><div class="panel-head"><div><h3 data-i18n="backupTitle">Datensicherung</h3><p data-i18n="backupDescription">Deine Bewertungen und Tags bleiben in Firefox gespeichert.</p></div></div><div class="panel-body"><div class="action-stack"><button class="button secondary" id="exportJson" data-i18n="exportBackup">JSON-Sicherung herunterladen</button><label class="button secondary file-button"><span data-i18n="importBackup">JSON-Sicherung importieren</span><input id="importJson" type="file" accept="application/json,.json"></label></div><p class="hint" data-i18n="backupHint">Ein JSON-Export ist empfehlenswert, bevor du das Add-on entfernst. Beim Entfernen löcht Firefox normalerweise auch den Erweiterungsspeicher.</p></div></article>
+        <article class="panel sync-panel">
+          <div class="panel-head"><div><h3 data-i18n="firefoxSyncTitle">Firefox Sync</h3><p data-i18n="firefoxSyncDescription">Sammlung zwischen Firefox-Profilen synchronisieren.</p></div></div>
+          <div class="panel-body">
+            <div class="preference-row"><span><strong data-i18n="firefoxSync">Automatisch synchronisieren</strong><small data-i18n="firefoxSyncHint">Benötigt ein angemeldetes Mozilla-Konto und aktivierte Add-on-Synchronisierung.</small></span><button class="switch-control" id="syncEnabledSetting" type="button" role="switch" aria-checked="false"><span class="switch-track"><i></i></span><b data-switch-label>Aus</b></button></div>
+            <div class="sync-status" aria-live="polite"><div><strong id="syncItemCount">0</strong><span data-i18n="syncManga">Manga</span></div><div><strong id="syncChunkCount">0</strong><span data-i18n="syncBundles">Bündel</span></div><div><strong id="syncStorageUsage">0 KB</strong><span data-i18n="syncStorage">komprimiert von 100 KB</span></div><div><strong id="syncCompressionRatio">–</strong><span data-i18n="syncCompression">Komprimierung</span></div></div>
+            <div class="action-stack"><button class="button primary" id="syncNow" type="button" data-i18n="syncNow">Jetzt synchronisieren</button><button class="button secondary" id="restoreSync" type="button" data-i18n="restoreSync">Vom Sync laden</button></div>
+            <p class="hint sync-status-text" id="syncStatusText">Firefox Sync ist ausgeschaltet.</p>
+            <p class="hint" data-i18n="syncNoCovers">Cover und lokale Protokolle bleiben auf diesem Gerät und werden nicht synchronisiert.</p>
+          </div>
+        </article>
+        <article class="panel integration-panel">
+          <div class="panel-head"><div><h3 data-i18n="integrationTitle">Firefox-Integration</h3><p data-i18n="integrationDescription">Das Symbol befindet sich in der Firefox-Werkzeugleiste.</p></div></div>
+          <div class="panel-body">
+            <dl class="facts"><div><dt data-i18n="toolbarSymbol">Werkzeugleisten-Symbol</dt><dd data-i18n="toolbarSymbolDetail">Öffnet das Formular im aktuellen Tab</dd></div><div><dt data-i18n="internalPages">Interne Seiten</dt><dd data-i18n="internalPagesDetail">Öffnen stattdessen diese Sammlung</dd></div></dl>
+            <div class="admin-setting shortcut-setting"><div><strong data-i18n="shortcut">Tastenkürzel</strong><span data-i18n="shortcutHint">In das Feld klicken und das eigene Kürzel drücken</span></div><input id="shortcutInput" type="text" value="Alt+Shift+M" spellcheck="false" aria-label="Tastenkürzel"><button class="button secondary" id="saveShortcut" type="button" data-i18n="saveShortcut">Kürzel speichern</button><button class="text-button" id="resetShortcut" type="button" data-i18n="resetShortcut">Standard</button></div>
+            <div class="admin-setting"><div><strong id="currentLimitLabel">Limit für „Lese ich gerade“</strong><span data-i18n="currentLimitHint">Wie viele Manga dürfen gleichzeitig aktiv gelesen werden?</span></div><input id="readingLimitInput" type="number" min="1" max="50" value="5" aria-label="Limit für Lese ich gerade"><button class="button secondary" id="saveReadingLimit" type="button" data-i18n="saveLimit">Limit speichern</button></div>
+            <section class="admin-subsection import-settings"><div class="subsection-head"><h4 data-i18n="bookmarkImportTitle">Lesezeichen-Import</h4><p data-i18n="bookmarkImportHint">Lege fest, welche Lesezeichen beim Öffnen des Imports angeboten werden.</p></div><label class="preference-row"><span><strong data-i18n="defaultNewStatus">Standardkategorie für neue Einträge</strong><small data-i18n="defaultNewStatusHint">Gilt für das Tab-Formular, manuelle Einträge und Firefox-Importe.</small></span><select id="defaultNewStatusSetting"></select></label><label class="preference-row"><span><strong data-i18n="importMode">Importart</strong></span><select id="bookmarkImportModeSetting"><option value="folders" data-i18n="importFoldersMode">Ordner auswählen</option><option value="keyword" data-i18n="importKeywordMode">Alle mit Schlüsselwort</option><option value="manual" data-i18n="importManualMode">Lesezeichen einzeln auswählen</option></select></label><label class="preference-row" id="bookmarkKeywordRow"><span><strong data-i18n="importKeyword">Schlüsselwort</strong><small data-i18n="importKeywordHint">Sucht in Titel und Adresse, z. B. Chapter</small></span><input id="bookmarkImportKeywordSetting" type="text" maxlength="100" value="chapter"></label><div class="preference-row"><span><strong data-i18n="showImportButton">Importknopf anzeigen</strong><small data-i18n="showImportButtonHint">Blendet den Knopf im Kopfbereich ein oder aus.</small></span><button class="switch-control" id="showBookmarkImportButtonSetting" type="button" role="switch" aria-checked="true"><span class="switch-track"><i></i></span><b data-switch-label>Ein</b></button></div></section>
+          </div>
+        </article>
+        <article class="panel bookmark-export-panel">
+          <div class="panel-head"><div><h3 data-i18n="bookmarkExportTitle">Zurück zu Firefox</h3><p data-i18n="bookmarkExportDescription">Erstellt aus der Sammlung wieder geordnete Firefox-Lesezeichen.</p></div></div>
+          <div class="panel-body">
+            <dl class="facts bookmark-export-facts">
+              <div><dt data-i18n="bookmarkExportDestination">Ziel</dt><dd data-i18n="bookmarkExportDestinationDetail">Weitere Lesezeichen / Manga-Regal</dd></div>
+              <div><dt data-i18n="bookmarkExportStructure">Struktur</dt><dd data-i18n="bookmarkExportStructureDetail">Ein Unterordner je Kategorie</dd></div>
+              <div><dt data-i18n="bookmarkExportData">Enthaltene Daten</dt><dd data-i18n="bookmarkExportDataDetail">Nur Titel und aktuelle Adresse</dd></div>
+            </dl>
+            <div class="bookmark-export-summary" aria-live="polite"><span class="bookmark-export-icon" aria-hidden="true">⇧</span><div><strong id="bookmarkExportSummary">Noch kein Manga-Regal-Ordner erstellt.</strong><small id="bookmarkExportDetail">Bewertungen, Tags, Cover und Protokolle werden nicht als Lesezeichen gespeichert.</small></div></div>
+            <button class="button primary" id="exportFirefoxBookmarks" type="button" data-i18n="bookmarkExportAction">Manga-Regal-Ordner erstellen</button>
+            <p class="hint" data-i18n="bookmarkExportHint">Bei einem erneuten Export wird nur der zuvor von Manga-Regal erzeugte Ordner ersetzt. Die Gesamtansicht „Alle“ wird nicht doppelt angelegt.</p>
+          </div>
+        </article>
+        <article class="panel appearance-panel">
+          <div class="panel-head"><div><h3 data-i18n="appearanceTitle">Oberfläche</h3><p data-i18n="appearanceDescription">Ansicht, Sprache und Farbschema der Erweiterung.</p></div></div>
+          <div class="panel-body">
+            <div class="preference-list compact-preferences">
+              <div class="preference-row"><span><strong data-i18n="language">Sprache</strong><small data-i18n="languageHint">Oberfläche und Einblendungsformular</small></span><button class="switch-control labeled-switch" id="languageSetting" type="button" role="switch" aria-checked="false"><span class="switch-side">DE</span><span class="switch-track"><i></i></span><span class="switch-side">EN</span></button></div>
+              <div class="preference-row"><span><strong data-i18n="colorMode">Farbschema</strong><small data-i18n="colorModeHint">Dunkle oder helle Darstellung</small></span><button class="switch-control labeled-switch" id="colorModeSetting" type="button" role="switch" aria-checked="false"><span class="switch-side">☾</span><span class="switch-track"><i></i></span><span class="switch-side">☀</span></button></div>
+              <div class="preference-row"><span><strong data-i18n="tableCovers">Cover in Tabellen</strong><small data-i18n="tableCoversHint">Cover nur in der Tabellenansicht einblenden.</small></span><button class="switch-control" id="showCoversInTableSetting" type="button" role="switch" aria-checked="false"><span class="switch-track"><i></i></span><b data-switch-label>Aus</b></button></div>
+              <div class="preference-row"><span><strong data-i18n="startupDialog">Startdialog anzeigen</strong><small data-i18n="startupDialogHint">Begrüßung und Kurzanleitung beim ersten Öffnen ein- oder ausschalten.</small></span><button class="switch-control" id="showOnboardingSetting" type="button" role="switch" aria-checked="true"><span class="switch-track"><i></i></span><b data-switch-label>Ein</b></button></div>
+              <div class="preference-row"><span><strong data-i18n="chapterDetection">Kapitel aus Links erkennen</strong><small data-i18n="chapterDetectionHint">Kann für Light Novels und uneindeutige Adressen ausgeschaltet werden. Manuelle Eingaben bleiben möglich.</small></span><button class="switch-control" id="chapterDetectionSetting" type="button" role="switch" aria-checked="true"><span class="switch-track"><i></i></span><b data-switch-label>Ein</b></button></div>
+              <div class="preference-row"><span><strong data-i18n="rereadOption">Re-Read-Option anbieten</strong><small data-i18n="rereadOptionHint">Zeigt im Aktualisierungsdialog die Möglichkeit für einen getrennten neuen Lesedurchlauf.</small></span><button class="switch-control" id="offerRereadSetting" type="button" role="switch" aria-checked="true"><span class="switch-track"><i></i></span><b data-switch-label>Ein</b></button></div>
+              <div class="preference-row"><span><strong data-i18n="rereadTag">Re-Reads automatisch taggen</strong><small data-i18n="rereadTagHint">Fügt neuen Re-Reads den sichtbaren Tag „Re-Read“ hinzu. Die interne Zuordnung bleibt unabhängig davon erhalten.</small></span><button class="switch-control" id="autoTagRereadsSetting" type="button" role="switch" aria-checked="true"><span class="switch-track"><i></i></span><b data-switch-label>Ein</b></button></div>
+              <label class="preference-row"><span><strong data-i18n="ratingScale">Bewertungsskala</strong><small data-i18n="ratingScaleHint">Fünf oder zehn Sterne verwenden</small></span><select id="ratingScaleSetting"><option value="5">5 ★</option><option value="10">10 ★</option></select></label>
+              <label class="preference-row"><span><strong data-i18n="searchEngine">Suchmaschine</strong><small data-i18n="searchEngineHint">Standardmäßig wird die Firefox-Auswahl verwendet.</small></span><select id="searchEngineSetting"></select></label>
+            </div>
+            <section class="admin-subsection"><div class="subsection-head"><h4 data-i18n="customSearchTitle">Weitere Suchmaschine</h4><p data-i18n="customSearchHint">In der Adresse muss {query} als Platzhalter stehen.</p></div><div class="custom-engine-row"><input id="customSearchName" type="text" maxlength="50" placeholder="Name"><input id="customSearchUrl" type="url" maxlength="500" placeholder="https://example.com/search?q={query}"><button class="button secondary" id="addSearchEngine" type="button" data-i18n="addSearchEngine">＋ Hinzufügen</button></div><div class="custom-engine-list" id="customSearchEngineList"></div></section>
+            <section class="admin-subsection"><div class="subsection-head"><h4 data-i18n="categoryNamesTitle">Kategorien verwalten</h4><p data-i18n="categoryNamesHint">Name und Tabellen-/Kachelansicht festlegen oder die Zeile am Griff verschieben.</p></div><div class="category-order-list category-editor-list" id="categoryOrderList"></div><div class="new-category-row"><label><strong data-i18n="newCategory">Neue Kategorie</strong><input id="newCategoryInput" type="text" maxlength="40" placeholder="z. B. Später lesen" data-i18n-placeholder="newCategoryPlaceholder"></label><button class="button secondary" id="addCategory" type="button" data-i18n="addCategory">＋ Kategorie hinzufügen</button></div><button class="button secondary save-category-button" id="saveCategoryNames" type="button" data-i18n="saveCategoryNames">Änderungen speichern</button></section>
+          </div>
+        </article>
+        <article class="panel tag-preset-panel">
+          <div class="panel-head"><div><h3 data-i18n="tagPresetsTitle">Tag-Vorauswahl</h3><p data-i18n="tagPresetsDescription">Aktiviere häufig verwendete Tags für die Manga-Tag-Auswahl.</p></div><div class="panel-head-actions"><button class="text-button" id="selectAllTagPresets" type="button" data-i18n="selectAll">Alle auswählen</button><button class="text-button" id="clearTagPresets" type="button" data-i18n="selectNone">Keine auswählen</button></div></div>
+          <div class="panel-body">
+            <div class="tag-preset-grid" id="tagPresetGrid"></div>
+            <div class="new-preset-row"><label><strong data-i18n="newPresetTag">Eigenen Tag anlegen</strong><input id="newTagPresetInput" type="text" maxlength="40" placeholder="z. B. Reincarnation" data-i18n-placeholder="newPresetPlaceholder"></label><button class="button secondary" id="addTagPreset" type="button" data-i18n="addPresetTag">＋ Tag hinzufügen</button></div>
+            <section class="admin-subsection placeholder-cover-settings"><div class="subsection-head placeholder-cover-head"><div><h4 data-i18n="placeholderCoverTitle">Platzhalter-Cover nach Tag</h4><p data-i18n="placeholderCoverHint">Ersetze bei Bedarf eines der vier Motive und ziehe Tags auf den gewünschten Platzhalter.</p></div><button class="switch-control" id="placeholderCoversEnabledSetting" type="button" role="switch" aria-checked="true" title="Platzhalter-Cover anzeigen"><span class="switch-track"><i></i></span><b data-switch-label>Ein</b></button></div><div class="placeholder-tag-map" id="placeholderTagMap"></div></section>
+            <div class="preset-footer"><span data-i18n="tagPresetsHint">Bereits vergebene Tags bleiben beim Abwählen an den Manga erhalten.</span><button class="button secondary" id="saveTagPresets" type="button" data-i18n="saveTagPresets">Tag-Auswahl speichern</button></div>
+          </div>
+        </article>
+      </div>
+      <div class="settings-bottom-section">
+        <div class="settings-bottom-tabs" role="tablist" aria-label="Protokolle und Änderungen" data-i18n-aria-label="settingsTabs">
+          <button class="settings-bottom-tab active" id="showLogsTab" type="button" role="tab" aria-selected="true" aria-controls="logsPanel" data-i18n="logsTab">Import- & Fehlerprotokoll</button>
+          <button class="settings-bottom-tab" id="showPatchlogTab" type="button" role="tab" aria-selected="false" aria-controls="patchlogPanel" data-i18n="patchlogTab">Patchlog</button>
+        </div>
+        <article class="panel log-panel" id="logsPanel" role="tabpanel" aria-labelledby="showLogsTab"><div class="panel-head"><div><h3 data-i18n="logsTitle">Import- & Fehlerprotokoll</h3><p data-i18n="logsDescription">Die neuesten lokalen Ereignisse zuerst.</p></div><div class="panel-head-actions log-retention-controls"><label class="log-retention-label"><span data-i18n="limitLogs">Alte Einträge automatisch löschen</span><button class="switch-control" id="limitLogsSetting" type="button" role="switch" aria-checked="true" aria-label="Alte Einträge automatisch löschen" data-i18n-aria-label="limitLogs" data-i18n-title="limitLogsHint"><span class="switch-track"><i></i></span><b data-switch-label>Ein</b></button></label><button class="text-button danger" id="clearLogs" data-i18n="clearLogs">Protokoll leeren</button></div></div><div class="log-toolbar"><select id="logLevel"><option value="all" data-i18n="allLevels">Alle Stufen</option><option value="info">Info</option><option value="warning">Warning</option><option value="error">Error</option></select><input id="logSearch" type="search" placeholder="Protokoll durchsuchen …" data-i18n-placeholder="searchLogs"><span id="logCount"></span></div><div class="log-scroll"><table class="log-table"><thead><tr><th data-i18n="logTime">Zeit</th><th data-i18n="logLevel">Stufe</th><th data-i18n="logArea">Bereich</th><th data-i18n="logMessage">Meldung</th><th data-i18n="logDetails">Details</th></tr></thead><tbody id="logRows"></tbody></table></div></article>
+        <article class="panel patchlog-panel" id="patchlogPanel" role="tabpanel" aria-labelledby="showPatchlogTab" hidden><div class="panel-head"><div><h3 data-i18n="patchlogTitle">Patchlog</h3><p data-i18n="patchlogDescription">Hinweise zur aktuell installierten Version.</p></div><a class="text-button patchlog-help-link" href="../help/index.html" data-help-page="index" target="_blank" rel="noopener" data-i18n="openFullHelp">Vollständige Hilfe öffnen</a></div><a class="text-button patchlog-help-link" id="fullChangelogLink" href="https://github.com/Raican667/Manga-Regal/blob/main/CHANGELOG.en.md" target="_blank" rel="noopener" data-i18n="fullChangelog">Full version history</a><div class="patchlog-content" id="patchlogContent"></div></article>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="entryDialog">
+    <form id="entryForm" method="dialog">
+      <header class="dialog-head"><div><span class="eyebrow" data-i18n="entryEyebrow">Manga-Eintrag</span><h2 id="dialogTitle">Manga hinzufügen</h2></div><button class="close-button" type="button" id="closeDialog" aria-label="Schließen" data-i18n-aria-label="close">×</button></header>
+      <div class="dialog-body">
+        <input id="editId" type="hidden">
+        <label class="control"><span data-i18n="title">Titel</span><input id="titleInput" type="text" required></label>
+        <label class="control"><span data-i18n="website">Webseite</span><input id="urlInput" type="url" required></label>
+        <div class="control"><span data-i18n="tags">Tags</span><div id="entrySelectedTags" class="tag-list" hidden></div><button class="button secondary entry-tag-trigger" id="chooseEntryTags" type="button" data-i18n="editTagsTitle">Tags anpassen</button></div>
+        <div class="control"><span data-i18n="rating">Bewertung</span><div class="dialog-stars" id="dialogStars"></div></div>
+        <div class="form-row"><label class="control"><span data-i18n="chapter">Aktuelles Kapitel</span><input id="chapterInput" type="text" placeholder="z. B. 127.5"></label><label class="control"><span data-i18n="status">Status</span><select id="statusInput"><option value="active" data-i18n="active">Aktiv</option><option value="reading">Lese ich gerade (max. 5)</option><option value="hold">On Hold</option><option value="dropped" data-i18n="dropped">Gedroppt</option></select></label></div>
+        <label class="control"><span data-i18n="coverUrl">Cover-Adresse</span><input id="coverInput" type="url" placeholder="https://…"></label>
+        <footer class="dialog-actions"><button class="button secondary" type="button" id="cancelDialog" data-i18n="cancel">Abbrechen</button><button class="button primary" type="submit" data-i18n="save">Speichern</button></footer>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="tagEditorDialog" class="tag-editor-dialog">
+    <form id="tagEditorForm" method="dialog">
+      <header class="dialog-head"><div><span class="eyebrow" data-i18n="tagTableEyebrow">Direkt in der Sammlung</span><h2 data-i18n="editTagsTitle">Tags anpassen</h2></div><button class="close-button" type="button" id="closeTagEditor" aria-label="Schließen" data-i18n-aria-label="close">×</button></header>
+      <div class="dialog-body">
+        <input id="tagEditorItemId" type="hidden">
+        <div class="tag-choice-list" id="tagChoiceList"></div>
+        <footer class="dialog-actions"><button class="button secondary" type="button" id="cancelTagEditor" data-i18n="cancel">Abbrechen</button><button class="button primary" type="submit" data-i18n="applyTags">Tags übernehmen</button></footer>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="ratingScaleConfirmDialog" class="rating-scale-confirm-dialog">
+    <div class="dialog-head"><div><span class="eyebrow" data-i18n="ratingScaleWarningEyebrow">Bewertungen werden angepasst</span><h2 data-i18n="ratingScaleConfirmTitle">Bewertungsskala wirklich ändern?</h2></div></div>
+    <div class="dialog-body">
+      <p class="dialog-intro" id="ratingScaleWarningText"></p>
+      <div class="rating-conversion-example" data-i18n="ratingScaleConversionExample">Beispiel: 10 → 5, 8 → 5 und 6 → 5. Werte von 1 bis 5 ändern sich nicht.</div>
+      <p class="hint" data-i18n="ratingScaleWarningHint">Die Änderung wird erst nach deiner Bestätigung gespeichert.</p>
+      <div class="dialog-actions"><button class="button secondary" type="button" id="cancelRatingScaleChange" data-i18n="cancel">Abbrechen</button><button class="button primary" type="button" id="confirmRatingScaleChange" data-i18n="confirmRatingScaleChange">Auf 5 Sterne umstellen</button></div>
+    </div>
+  </dialog>
+
+  <dialog id="bookmarkDialog" class="bookmark-dialog">
+    <form id="bookmarkForm" method="dialog">
+      <header class="dialog-head"><div><span class="eyebrow" data-i18n="bookmarksEyebrow">Firefox-Lesezeichen</span><h2 id="bookmarkDialogTitle">Lesezeichen importieren</h2></div><button class="close-button" type="button" id="closeBookmarkDialog" aria-label="Schließen" data-i18n-aria-label="close">×</button></header>
+      <div class="dialog-body">
+        <p class="dialog-intro" id="bookmarkDialogHelp">Es werden nur markierte Ordner importiert. Optional kannst du allen Manga eines Ordners direkt eine Bewertung geben.</p>
+        <label class="select-all"><input id="selectAllFolders" type="checkbox"> <span data-i18n="selectAllDisplayed">Alle angezeigten Einträge auswählen</span></label>
+        <div class="folder-list" id="bookmarkFolderList"></div>
+        <footer class="dialog-actions"><button class="button secondary" type="button" id="cancelBookmarkDialog" data-i18n="cancel">Abbrechen</button><button class="button primary" type="submit" id="submitBookmarkImport" data-i18n="importSelection">Auswahl importieren</button></footer>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="chromeSyncConsentDialog" aria-labelledby="chromeSyncConsentTitle" aria-describedby="chromeSyncConsentText">
+    <div class="dialog-head"><h2 id="chromeSyncConsentTitle" data-i18n="chromeSyncConsentTitle">Chrome Sync aktivieren?</h2></div>
+    <div class="dialog-body">
+      <p id="chromeSyncConsentText" class="dialog-intro" data-i18n="chromeSyncConsentText">Deine gespeicherten Titel, Links, Kapitelstände, Bewertungen, Tags und Einstellungen werden über Chrome Sync synchronisiert, sofern Chrome Sync im Browser aktiviert ist. Cover und Protokolle bleiben ausschließlich lokal. Die Zustimmung gilt nur für dieses Gerät und kann durch Ausschalten von Sync widerrufen werden.</p>
+      <div class="dialog-actions"><button class="button secondary" id="cancelChromeSyncConsent" type="button" data-i18n="cancel">Abbrechen</button><button class="button primary" id="confirmChromeSyncConsent" type="button" data-i18n="chromeSyncConsentAccept">Sync erlauben</button></div>
+    </div>
+  </dialog>
+
+  <dialog id="onboardingDialog" class="onboarding-dialog" aria-labelledby="welcomeTitle" aria-describedby="welcomeDescription">
+    <div class="onboarding-shell">
+      <div class="onboarding-art" aria-hidden="true"><img src="../icons/manga-regal.svg" alt=""><strong data-i18n="brandName">Manga-Regal</strong></div>
+      <div class="onboarding-copy">
+        <span class="eyebrow" data-i18n="welcomeEyebrow">Willkommen</span>
+        <h2 id="welcomeTitle" data-i18n="welcomeTitle">Dein Manga-Regal ist bereit</h2>
+        <p id="welcomeDescription" data-i18n="welcomeText">Dein Platz für Manga und Light Novels: Behalte Lesestand, Bewertungen und Tags im Blick.</p>
+        <ol class="onboarding-steps">
+          <li><b aria-hidden="true">1</b><div><strong data-i18n="welcomeStepOneTitle">Ersten Titel speichern</strong><span data-i18n="welcomeStepOne">Öffne eine Manga-Seite und klicke auf das Manga-Regal-Symbol in der Firefox-Symbolleiste.</span></div></li>
+          <li><b aria-hidden="true">2</b><div><strong data-i18n="welcomeStepTwoTitle">Nach deinen Wünschen ordnen</strong><span data-i18n="welcomeStepTwo">Prüfe Titel und Kapitel, wähle eine Kategorie und ergänze bei Bedarf Sterne und Tags.</span></div></li>
+          <li><b aria-hidden="true">3</b><div><strong data-i18n="welcomeStepThreeTitle">Weiterlesen und aktualisieren</strong><span data-i18n="welcomeStepThree">Öffne den gespeicherten Link über „Weiterlesen“. Speichere nach dem Lesen die neue Kapitelseite über das Symbol.</span></div></li>
+        </ol>
+        <aside class="onboarding-note"><strong data-i18n="welcomeImportTitle">Schon Firefox-Lesezeichen vorhanden?</strong><p data-i18n="welcomeImportText">Mit „Firefox-Lesezeichen einlesen“ kannst du ausgewählte Ordner oder einzelne Lesezeichen übernehmen. Die Importart legst du in den Einstellungen fest.</p></aside>
+        <p class="onboarding-storage" data-i18n="welcomeStorage">Deine Sammlung wird lokal in Firefox gespeichert. Firefox Sync ist optional; Cover bleiben lokal. Die Hilfe ist jederzeit über „?“ in den Einstellungen erreichbar.</p>
+        <div class="dialog-actions onboarding-actions"><a class="button secondary" href="../help/index.html" data-help-page="index" target="_blank" rel="noopener" data-i18n="openGuide">Ausführliche Hilfe</a><button class="button primary" id="finishOnboarding" type="button" data-i18n="startNow">Jetzt starten</button></div>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script src="../shared/platform.js"></script>
+  <script src="../shared/store.js"></script>
+  <script src="../shared/sync.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

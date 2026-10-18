@@ -1,0 +1,14 @@
+{
+  "extensionName": {
+    "message": "Manga-Regal"
+  },
+  "extensionDescription": {
+    "message": "Manga-Seiten direkt aus Firefox speichern, bewerten, taggen und verwalten."
+  },
+  "actionTitle": {
+    "message": "Manga-Regal im aktuellen Tab öffnen"
+  },
+  "commandDescription": {
+    "message": "Manga-Regal im aktuellen Tab ein- oder ausblenden"
+  }
+}

@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Manga Shelf – Settings guide</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#start" aria-label="Back to the beginning of the settings guide">
+      <img src="../icons/manga-regal.svg" alt="">
+      <span><strong>Manga Shelf</strong><small>Settings guide</small></span>
+    </a>
+    <div class="top-actions">
+      <span class="version">Version 0.20.8</span>
+      <a class="button" href="settings.html" data-mobile-label="DE">DE</a>
+      <a class="button" href="index.en.html" data-mobile-label="General help">General help</a>
+      <a class="button" href="../dashboard/index.html?view=admin" data-mobile-label="Settings">← Back to settings</a>
+    </div>
+  </header>
+
+  <nav class="help-tabs" aria-label="Help sections">
+    <a href="index.en.html"><span>01</span> General guide</a>
+    <a class="active" href="settings.en.html" aria-current="page"><span>02</span> Settings</a>
+  </nav>
+
+  <div class="page-shell">
+    <aside class="contents" aria-label="Table of contents">
+      <strong>Settings sections</strong>
+      <a href="#start">Overview</a>
+      <a href="#saving">Auto-save</a>
+      <a href="#backup">Backup</a>
+      <a href="#sync">Firefox Sync</a>
+      <a href="#integration">Firefox integration</a>
+      <a href="#import">Bookmark import</a>
+      <a href="#bookmark-export">Back to Firefox</a>
+      <a href="#appearance">Appearance & stars</a>
+      <a href="#search">Search engines</a>
+      <a href="#categories">Categories</a>
+      <a href="#tags">Tag presets</a>
+      <a href="#logs">Log & patch notes</a>
+    </aside>
+
+    <main>
+<div class="note"><strong>Chrome 148+:</strong> Extract the Chrome ZIP and load its folder through chrome://extensions → Developer mode → Load unpacked. Configure shortcuts through chrome://extensions/shortcuts. The collection works the same way in both browsers; references to Firefox bookmarks and Sync mean Chrome bookmarks and Sync in the Chrome package. The two Sync services do not connect; use JSON backups to transfer between browsers.</div>
+      <section class="hero" id="start">
+        <span class="eyebrow">Dedicated help page</span>
+        <h1>Every setting explained clearly</h1>
+        <p>This page explains not only what each control does, but also which stored data it affects. Changes with potentially destructive consequences require confirmation before they are saved.</p>
+        <div class="quick-grid">
+          <article><b>1</b><span>Select a section from the left navigation</span></article>
+          <article><b>2</b><span>Review the effect of the setting</span></article>
+          <article><b>3</b><span>Save automatically or as a group</span></article>
+        </div>
+        <div class="note"><strong>Version 0.20.8:</strong> This settings guide also covers local placeholder covers, language switching, and the current protections used for cover downloads.</div>
+      </section>
+
+      <section id="saving">
+        <span class="section-number">01</span>
+        <h2>Auto-save and the main save button</h2>
+        <div class="split-card">
+          <div><h3>Auto-save</h3><p>Switches and individual selections are stored locally immediately. This includes language, theme, cover visibility, chapter detection, search engine, import mode, and rating scale.</p></div>
+          <div><h3>Save Settings</h3><p>The main button saves every currently visible field together once more. It is an additional deliberate confirmation and does not replace auto-save.</p></div>
+        </div>
+        <div class="note"><strong>Storage location:</strong> The working dataset remains uncompressed in the local Firefox profile so search and editing stay responsive.</div>
+      </section>
+
+      <section id="backup">
+        <span class="section-number">02</span>
+        <h2>JSON backup</h2>
+        <ul class="check-list">
+          <li><strong>Export:</strong> Downloads the collection, settings, logs, and locally stored covers as one portable JSON backup.</li>
+          <li><strong>Import:</strong> Restores a backup previously created by Manga Shelf.</li>
+          <li><strong>Before uninstalling:</strong> Always create an export because Firefox normally deletes local extension storage when an add-on is removed.</li>
+        </ul>
+        <div class="warning"><strong>Difference from Firefox Sync:</strong> Only the JSON backup includes covers and local logs.</div>
+      </section>
+
+      <section id="sync">
+        <span class="section-number">03</span>
+        <h2>Firefox Sync</h2>
+        <div class="feature-grid">
+          <article><h3>Automatic synchronization</h3><p>Transfers manga metadata and settings between signed-in desktop Firefox profiles. Firefox requests optional data permissions on first activation. Nothing is transferred without consent.</p></article>
+          <article><h3>Compressed cache</h3><p>A gzip-compressed Sync copy remains prepared locally. Sync Now uploads this copy without recompressing unchanged data.</p></article>
+          <article><h3>Load from Sync</h3><p>After confirmation, replaces the local manga state with the complete remote snapshot. Existing local covers for matching manga are preserved.</p></article>
+          <article><h3>Status display</h3><p>Manga count, transport chunks, storage use, and compression ratio show how efficiently the quota is used.</p></article>
+        </div>
+        <div class="note"><strong>Privacy:</strong> Local use does not require data transfer. Sync uses the declared optional data types only after Firefox consent. Covers, favicons, cookies, logs, bookmark IDs, and folder paths remain on the current device.</div>
+      </section>
+
+      <section id="integration">
+        <span class="section-number">04</span>
+        <h2>Firefox integration, shortcut, and reading limit</h2>
+        <div class="steps">
+          <article><b>Toolbar icon</b><p>Opens the save form in the current website tab. On protected Firefox pages, it opens the collection instead.</p></article>
+          <article><b>Keyboard shortcut</b><p>Firefox requires Ctrl or Alt as the primary modifier. Shift may be added. Already assigned combinations must be replaced.</p></article>
+          <article><b>Reading limit</b><p>Sets the maximum number of entries in Currently Reading. It cannot be reduced below the current occupancy.</p></article>
+        </div>
+      </section>
+
+      <section id="import">
+        <span class="section-number">05</span>
+        <h2>Bookmark import</h2>
+        <div class="feature-grid">
+          <article><h3>Default category</h3><p>Determines where new entries from the tab form, manual form, and Firefox import are initially placed.</p></article>
+          <article><h3>Select folders</h3><p>Shows Firefox bookmark folders and imports only selected folders. One shared rating can be assigned to a complete folder.</p></article>
+          <article><h3>Keyword</h3><p>Imports bookmarks whose title or address contains the configured term, such as “Chapter”.</p></article>
+          <article><h3>Manual selection</h3><p>Shows every website bookmark for individual selection. The import button in the main header can be hidden completely.</p></article>
+        </div>
+      </section>
+
+      <section id="bookmark-export">
+        <span class="section-number">06</span>
+        <h2>Write the collection back to Firefox bookmarks</h2>
+        <p>The <strong>Back to Firefox</strong> section creates a <strong>Manga-Regal</strong> root under <strong>Other Bookmarks</strong>. It contains one subfolder for every real category, including custom categories.</p>
+        <div class="feature-grid">
+          <article><h3>Tool-created entries too</h3><p>Every manga in the collection is exported, regardless of whether it originated from Firefox or was saved directly through Manga Shelf.</p></article>
+          <article><h3>Bookmark data only</h3><p>Each Firefox bookmark contains only the manga title and current URL. Ratings, tags, covers, chapter metadata, and local logs are excluded.</p></article>
+          <article><h3>Safe updates</h3><p>A repeated export replaces only the folder whose device ID was stored by Manga Shelf. Unrelated folders with the same name remain untouched.</p></article>
+          <article><h3>No duplicate aggregate view</h3><p>All is only an aggregate view. Each manga appears exactly once in its category folder and is already accessible through the root folder.</p></article>
+        </div>
+        <div class="note"><strong>Process:</strong> Manga Shelf builds a complete new bookmark tree first. Only after every bookmark succeeds does it replace a previous managed export.</div>
+      </section>
+
+      <section id="appearance">
+        <span class="section-number">07</span>
+        <h2>Appearance, covers, and rating scale</h2>
+        <ul class="check-list">
+          <li><strong>Language:</strong> Switches the interface and injected tab form between German and English. The help opens the matching language page; the add-on description, toolbar tooltip, and shortcut text follow Firefox's locale.</li>
+          <li><strong>Theme:</strong> Switches between dark and light appearance.</li>
+          <li><strong>Table covers:</strong> Shows locally stored images in table rows. Images still load only when visible.</li>
+          <li><strong>Placeholder covers:</strong> Four bundled artworks add variety to entries without a cover. Assign tags to a specific artwork or keep automatic selection. Every artwork can be replaced, and the complete placeholder feature can be disabled without deleting assignments.</li>
+          <li><strong>Rating scale:</strong> New installations use five stars. Ten stars remain optional.</li>
+          <li><strong>Startup dialog:</strong> Enables or disables the welcome dialog. Completing it once prevents it from being forced again.</li>
+          <li><strong>Detect chapters from URLs:</strong> Globally enables or disables automatic URL-number analysis. Turning it off clears automatically detected values but preserves manually maintained chapters. The save form can additionally disable detection permanently for one manga.</li>
+          <li><strong>Offer re-read option:</strong> Shows the button for creating a second internally linked reading progress in the update dialog. The proposed target remains editable.</li>
+          <li><strong>Automatically tag re-reads:</strong> Adds the visible green Re-Read tag to newly created re-reads. Disabling it does not remove the internal link used for chapter targeting.</li>
+        </ul>
+        <div class="warning"><strong>From 10 to 5 stars:</strong> If ratings above five exist, a confirmation dialog appears first. After confirmation, only those ratings are capped at five; values from one through five remain unchanged.</div>
+      </section>
+
+      <section id="search">
+        <span class="section-number">08</span>
+        <h2>Search engines for replacement sources</h2>
+        <p>Find New Source uses the manga title and current chapter. Select the Firefox default, an installed provider, one of six presets, or a custom search URL.</p>
+        <div class="note"><strong>Custom search URL:</strong> It must start with <code>https://</code> or <code>http://</code> and contain <code>{query}</code>, for example <code>https://example.com/search?q={query}</code>.</div>
+      </section>
+
+      <section id="categories">
+        <span class="section-number">09</span>
+        <h2>Manage categories</h2>
+        <div class="feature-grid">
+          <article><h3>Name</h3><p>Standard categories can be renamed. An empty field or reset button restores the translated default name.</p></article>
+          <article><h3>View</h3><p>Every category has its own table or card layout. The selection is retained for future visits.</p></article>
+          <article><h3>Order</h3><p>Drag a row by its handle or use the arrow buttons. Navigation and category management use the same order.</p></article>
+          <article><h3>Custom categories</h3><p>Additional categories can be created and removed. Manga from a removed category are safely moved to Active.</p></article>
+        </div>
+        <p class="muted">All is an aggregate view rather than a status that can be assigned to a manga.</p>
+      </section>
+
+      <section id="tags">
+        <span class="section-number">10</span>
+        <h2>Tag presets</h2>
+        <p>The checkboxes control which frequent tags appear in the Edit Tags popup. Re-Read is directly available as a default preset. Custom presets can be added, while spelling mistakes can be corrected by removing and recreating a preset.</p>
+        <p>Under Placeholder Covers by Tag, drag tags onto one of the four artworks. Replace Image changes a fixed slot to a custom local image; Default Image restores only that slot. The slider hides every placeholder but retains artwork and assignments for later use.</p>
+        <div class="note"><strong>Storage:</strong> Custom placeholder images are included in JSON backups but excluded from Firefox Sync because of their size.</div>
+        <div class="note"><strong>Important:</strong> Removing or disabling a preset never removes that tag from manga already using it.</div>
+      </section>
+
+      <section id="logs">
+        <span class="section-number">11</span>
+        <h2>Import/error log and patch notes</h2>
+        <div class="split-card">
+          <div><h3>Import & error log</h3><p>Shows local events, warnings, and errors. Filter by level or text and clear the log when needed. Logs are not transferred through Firefox Sync.</p></div>
+          <div><h3>Patch notes</h3><p>Shows a concise summary of features and fixes in the currently installed version. The complete history is maintained in the linked GitHub changelog.</p></div>
+        </div>
+      </section>
+
+      <footer>
+        <img src="../icons/manga-regal.svg" alt="">
+        <p><strong>Manga Shelf</strong><br><span>Settings guide · Version 0.20.8</span></p>
+        <a href="#start">Back to top ↑</a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="../shared/store.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

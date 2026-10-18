@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manga-Regal Overlay-Test</title>
+  <link rel="stylesheet" href="../content/overlay.css">
+  <style>
+    body { min-height: 100vh; margin: 0; background: linear-gradient(135deg, #ddd, #9aa); font-family: sans-serif; }
+    main { max-width: 800px; margin: 80px auto; padding: 32px; background: #fff; border-radius: 18px; }
+  </style>
+</head>
+<body>
+  <main><h1>Lokale Testseite</h1><p>Diese Seite rendert das echte Speicher-Pop-up ohne Firefox-Daten.</p></main>
+  <script>
+    // Der schlanke Testadapter stellt nur die von overlay.js beim Öffnen
+    // benötigten Schnittstellen bereit. Dadurch prüft die Vorschau exakt das
+    // ausgelieferte Markup und CSS statt einer separat gepflegten Nachbildung.
+    const scale = new URLSearchParams(location.search).get('scale') === '10' ? 10 : 5;
+    const globalDetection = new URLSearchParams(location.search).get('global') === '1';
+    let overlayMessageHandler;
+    window.browser = {
+      runtime: {
+        onMessage: { addListener(handler) { overlayMessageHandler = handler; } },
+        sendMessage: async () => ({ ok: true })
+      }
+    };
+    window.MangaStore = {
+      load: async () => ({
+        items: [],
+        settings: {
+          language: 'de', ratingScale: scale, colorMode: 'dark',
+          chapterDetectionEnabled: globalDetection, categoryNames: {},
+          customCategories: [], defaultNewStatus: 'active', readingLimit: 5,
+          tagPresets: ['Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Re-Read']
+        }
+      }),
+      cleanTags: (tags) => [...new Set(tags)],
+      chapterFromUrl: () => '42',
+      findLikelyMatch: () => null,
+      findLikelyMatches: () => [],
+      getStoredCover: async () => '',
+      getReadingLimit: () => 5
+    };
+  </script>
+  <script src="../content/overlay.js"></script>
+  <script>overlayMessageHandler({ type: 'manga-regal:toggle-overlay' });</script>
+</body>
+</html>

@@ -1,0 +1,625 @@
+/*
+ * Darstellung der Einblendung im aktuellen Browser-Tab.
+ * Alle Selektoren beginnen mit #manga-regal-overlay, damit weder die Webseite
+ * das Add-on noch das Add-on die Webseite versehentlich umgestaltet.
+ */
+#manga-regal-overlay {
+  all: initial;
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  display: none;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #f2ede4;
+  pointer-events: none;
+}
+
+#manga-regal-overlay.mr-open {
+  display: block;
+}
+
+#manga-regal-overlay,
+#manga-regal-overlay * {
+  box-sizing: border-box;
+}
+
+#manga-regal-overlay .mr-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 6, 10, 0.35);
+  backdrop-filter: blur(2px);
+  pointer-events: auto;
+}
+
+#manga-regal-overlay .mr-panel {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: min(410px, calc(100vw - 24px));
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  border: 1px solid #493b4d;
+  border-radius: 18px;
+  background: #1c1721;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.58);
+  pointer-events: auto;
+  color-scheme: dark;
+}
+
+#manga-regal-overlay .mr-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 19px 15px;
+  border-bottom: 1px solid #39303f;
+  background: linear-gradient(130deg, #251d29, #1c1721);
+}
+
+#manga-regal-overlay .mr-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+#manga-regal-overlay .mr-logo {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid #554358;
+  border-radius: 11px;
+  background: #171219;
+  color: #e26042;
+}
+
+#manga-regal-overlay .mr-logo svg {
+  width: 23px;
+  height: 23px;
+}
+
+#manga-regal-overlay .mr-collection-link {
+  cursor: pointer;
+}
+
+#manga-regal-overlay .mr-logo {
+  padding: 0;
+  flex-shrink: 0;
+}
+
+#manga-regal-overlay .mr-title-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+#manga-regal-overlay .mr-title-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+#manga-regal-overlay .mr-collection-link:focus-visible {
+  outline: 2px solid #e26042;
+  outline-offset: 4px;
+}
+
+#manga-regal-overlay h2 {
+  margin: 0;
+  color: #f2ede4;
+  font: 700 17px/1.2 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+#manga-regal-overlay .mr-subtitle {
+  margin: 3px 0 0;
+  color: #a9a0ad;
+  font: 500 11px/1.3 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+#manga-regal-overlay .mr-icon-button {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #a9a0ad;
+  font: 400 25px/1 sans-serif;
+  cursor: pointer;
+}
+
+#manga-regal-overlay .mr-icon-button:hover {
+  background: #2b2330;
+  color: #f2ede4;
+}
+
+#manga-regal-overlay .mr-body {
+  padding: 17px 19px 19px;
+}
+
+#manga-regal-overlay .mr-note {
+  margin: 0 0 15px;
+  padding: 10px 11px;
+  border: 1px solid rgba(119, 197, 150, 0.22);
+  border-radius: 9px;
+  background: rgba(119, 197, 150, 0.06);
+  color: #c8d9ce;
+  font: 500 12px/1.45 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+#manga-regal-overlay .mr-field {
+  display: block;
+  margin: 0 0 12px;
+}
+
+#manga-regal-overlay .mr-field > span,
+#manga-regal-overlay .mr-field > .mr-field-label,
+#manga-regal-overlay .mr-label {
+  display: block;
+  margin: 0 0 6px;
+  color: #d7ced9;
+  font: 750 12px/1.3 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+#manga-regal-overlay input,
+#manga-regal-overlay select {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 11px;
+  border: 1px solid #443748;
+  border-radius: 9px;
+  outline: 0;
+  background: #17131a;
+  color: #f2ede4;
+  font: 500 13px/1.3 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+#manga-regal-overlay input:focus,
+#manga-regal-overlay select:focus {
+  border-color: #e26042;
+  box-shadow: 0 0 0 3px rgba(226, 96, 66, 0.14);
+}
+
+#manga-regal-overlay .mr-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 11px;
+}
+
+/* Die bestehende Kapitel-/Statuszeile bleibt unverändert. Nur innerhalb des
+   Kapitelfelds ergänzt der Schalter eine schmale zweite Spalte. */
+#manga-regal-overlay .mr-field > .mr-chapter-control {
+  display: block;
+  margin: 0;
+  color: inherit;
+  font: inherit;
+}
+
+#manga-regal-overlay .mr-field > .mr-chapter-control.mr-with-auto {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 34px;
+  align-items: stretch;
+  gap: 6px;
+}
+
+#manga-regal-overlay .mr-chapter-control input { min-width: 0; }
+
+#manga-regal-overlay .mr-chapter-auto {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  min-width: 34px;
+  min-height: 42px;
+  padding: 0;
+  border: 1px solid #443748;
+  border-radius: 9px;
+  background: #211a24;
+  color: #aaa0ad;
+  font: 800 16px/1 sans-serif;
+  cursor: pointer;
+}
+
+#manga-regal-overlay .mr-chapter-auto:hover,
+#manga-regal-overlay .mr-chapter-auto:focus-visible { border-color: #e26042; color: #f2ede4; }
+#manga-regal-overlay .mr-chapter-auto.mr-on {
+  border-color: rgba(119, 197, 150, 0.58);
+  background: rgba(119, 197, 150, 0.1);
+  color: #9ed9b4;
+}
+
+#manga-regal-overlay .mr-chapter-auto.mr-off {
+  border-color: rgba(226, 96, 66, 0.65);
+  background: rgba(226, 96, 66, 0.12);
+  color: #f08b72;
+}
+
+#manga-regal-overlay .mr-chapter-auto:disabled {
+  border-color: #3b323f;
+  background: #1b171e;
+  color: #716777;
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+#manga-regal-overlay .mr-stars {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 2px;
+  margin-bottom: 13px;
+}
+
+#manga-regal-overlay .mr-star {
+  min-width: 0;
+  padding: 5px 0;
+  border: 0;
+  background: transparent;
+  color: #5d5261;
+  font: 700 21px/1 sans-serif;
+  cursor: pointer;
+}
+
+#manga-regal-overlay .mr-star:hover,
+#manga-regal-overlay .mr-star.mr-on {
+  color: #e8bd69;
+}
+
+#manga-regal-overlay .mr-cover-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 14px;
+}
+
+#manga-regal-overlay .mr-cover {
+  width: 54px;
+  height: 70px;
+  flex: 0 0 auto;
+  border: 1px solid #443748;
+  border-radius: 7px;
+  background: #17131a;
+  object-fit: cover;
+}
+
+#manga-regal-overlay .mr-file {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 8px 11px;
+  border: 1px solid #443748;
+  border-radius: 9px;
+  color: #d8cfd9;
+  font: 700 12px/1 Inter, ui-sans-serif, system-ui, sans-serif;
+  cursor: pointer;
+}
+
+#manga-regal-overlay .mr-cover-controls {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+#manga-regal-overlay .mr-cover-status {
+  color: #a9a0ad;
+  font: 600 11px/1.35 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+#manga-regal-overlay .mr-cover-status.mr-cover-success {
+  color: #8dd0a8;
+}
+
+#manga-regal-overlay .mr-cover-status.mr-cover-warning {
+  color: #e8bd69;
+}
+
+#manga-regal-overlay .mr-file input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+#manga-regal-overlay .mr-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 9px;
+  padding-top: 4px;
+}
+
+#manga-regal-overlay .mr-button {
+  min-height: 42px;
+  padding: 9px 13px;
+  border: 1px solid #443748;
+  border-radius: 10px;
+  background: transparent;
+  color: #f2ede4;
+  font: 750 12px/1.2 Inter, ui-sans-serif, system-ui, sans-serif;
+  cursor: pointer;
+}
+
+#manga-regal-overlay .mr-button:hover {
+  border-color: #66536b;
+  background: #28202d;
+}
+
+#manga-regal-overlay .mr-button.mr-primary {
+  border-color: #e26042;
+  background: #e26042;
+  color: #1b0f0b;
+}
+
+#manga-regal-overlay .mr-button.mr-primary:hover {
+  background: #f17353;
+}
+
+#manga-regal-overlay .mr-message {
+  min-height: 17px;
+  margin: 11px 0 0;
+  color: #a9a0ad;
+  font: 600 11px/1.4 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+#manga-regal-overlay .mr-message.mr-success {
+  color: #8dd0a8;
+}
+
+#manga-regal-overlay .mr-message.mr-error {
+  color: #ff9a91;
+}
+
+#manga-regal-overlay .mr-message.mr-warning {
+  color: #e8bd69;
+}
+
+#manga-regal-overlay [hidden] {
+  display: none !important;
+}
+
+#manga-regal-overlay .mr-confirm-layer {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(8, 6, 10, 0.66);
+  backdrop-filter: blur(5px);
+  pointer-events: auto;
+}
+
+#manga-regal-overlay .mr-confirm-card {
+  width: min(420px, calc(100vw - 36px));
+  padding: 24px;
+  border: 1px solid #554358;
+  border-radius: 16px;
+  background: #1c1721;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.64);
+  text-align: center;
+}
+
+#manga-regal-overlay .mr-confirm-icon {
+  display: grid;
+  place-items: center;
+  width: 43px;
+  height: 43px;
+  margin: 0 auto 13px;
+  border-radius: 50%;
+  background: rgba(226, 96, 66, 0.12);
+  color: #e26042;
+  font: 700 25px/1 sans-serif;
+}
+
+#manga-regal-overlay .mr-confirm-card h3 {
+  margin: 0;
+  color: #f2ede4;
+  font: 750 18px/1.3 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+#manga-regal-overlay .mr-confirm-card > p {
+  margin: 9px 0 0;
+  color: #aaa0ad;
+  font: 500 12px/1.5 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+#manga-regal-overlay .mr-chapter-change {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 9px;
+  margin: 17px 0 4px;
+}
+
+#manga-regal-overlay .mr-confirm-target {
+  display: grid;
+  gap: 6px;
+  margin-top: 16px;
+  text-align: left;
+}
+
+#manga-regal-overlay .mr-confirm-target > span {
+  color: #d8cfd9;
+  font: 750 11px/1.3 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+#manga-regal-overlay .mr-confirm-target select {
+  width: 100%;
+  min-height: 39px;
+  padding: 8px 10px;
+  border: 1px solid #443748;
+  border-radius: 8px;
+  background: #17131a;
+  color: #f2ede4;
+  font: 650 12px/1.3 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+#manga-regal-overlay .mr-chapter-change span {
+  padding: 9px 8px;
+  border: 1px solid #443748;
+  border-radius: 8px;
+  background: #17131a;
+  color: #d8cfd9;
+  font: 750 11px/1.3 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+#manga-regal-overlay .mr-chapter-change b {
+  color: #e26042;
+  font: 800 16px/1 sans-serif;
+}
+
+#manga-regal-overlay .mr-confirm-card .mr-confirm-hint {
+  color: #8fc6a4;
+  font-size: 11px;
+}
+
+#manga-regal-overlay .mr-confirm-actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+#manga-regal-overlay .mr-text-button {
+  border: 0;
+  padding: 7px;
+  background: transparent;
+  color: #a9a0ad;
+  font: 700 11px/1.2 Inter, ui-sans-serif, system-ui, sans-serif;
+  cursor: pointer;
+}
+
+#manga-regal-overlay .mr-text-button:hover {
+  color: #f2ede4;
+}
+
+/* Das helle Schema wird aus derselben lokalen Admin-Einstellung geladen. */
+#manga-regal-overlay.mr-light {
+  color: #211923;
+}
+
+#manga-regal-overlay.mr-light .mr-panel,
+#manga-regal-overlay.mr-light .mr-confirm-card {
+  border-color: #d7cad5;
+  background: #fffdf9;
+  color-scheme: light;
+}
+
+#manga-regal-overlay.mr-light .mr-header {
+  border-color: #ded3dc;
+  background: linear-gradient(130deg, #fffaf4, #f2eae7);
+}
+
+#manga-regal-overlay.mr-light .mr-confirm-target > span {
+  color: #493d4c;
+}
+
+#manga-regal-overlay.mr-light .mr-confirm-target select {
+  border-color: #d7cad5;
+  background: #fffaf4;
+  color: #211923;
+}
+
+#manga-regal-overlay.mr-light .mr-logo,
+#manga-regal-overlay.mr-light input,
+#manga-regal-overlay.mr-light select,
+#manga-regal-overlay.mr-light .mr-chapter-auto,
+#manga-regal-overlay.mr-light .mr-chapter-change span {
+  border-color: #d7cad5;
+  background: #f7f1ed;
+  color: #211923;
+}
+
+#manga-regal-overlay.mr-light .mr-chapter-auto.mr-on {
+  border-color: rgba(52, 133, 83, 0.5);
+  background: rgba(52, 133, 83, 0.1);
+  color: #296d43;
+}
+
+#manga-regal-overlay.mr-light .mr-chapter-auto.mr-off {
+  border-color: rgba(183, 70, 42, 0.45);
+  background: rgba(183, 70, 42, 0.09);
+  color: #a13d27;
+}
+
+#manga-regal-overlay.mr-light h2,
+#manga-regal-overlay.mr-light .mr-confirm-card h3,
+#manga-regal-overlay.mr-light .mr-button {
+  color: #211923;
+}
+
+#manga-regal-overlay.mr-light .mr-subtitle,
+#manga-regal-overlay.mr-light .mr-message,
+#manga-regal-overlay.mr-light .mr-confirm-card > p,
+#manga-regal-overlay.mr-light .mr-text-button {
+  color: #6e6470;
+}
+
+#manga-regal-overlay.mr-light .mr-field > span,
+#manga-regal-overlay.mr-light .mr-label,
+#manga-regal-overlay.mr-light .mr-file {
+  color: #493d4c;
+}
+
+#manga-regal-overlay.mr-light .mr-button:hover,
+#manga-regal-overlay.mr-light .mr-icon-button:hover {
+  background: #f1e8ee;
+  color: #211923;
+}
+
+#manga-regal-overlay.mr-light .mr-button.mr-primary {
+  color: #fff;
+}
+
+#manga-regal-overlay .mr-selected-tags { display:flex; flex-wrap:wrap; gap:6px; color:inherit; font-size:12px; }
+#manga-regal-overlay .mr-selected-tags[hidden] { display:none; }
+#manga-regal-overlay .mr-tag-chip { padding:5px 9px; border:1px solid #775344; border-radius:20px; background:rgba(226,96,66,.14); color:inherit; font:inherit; cursor:pointer; }
+#manga-regal-overlay .mr-tag-trigger { align-self:flex-start; }
+#manga-regal-overlay .mr-tag-picker { position:fixed; inset:0; margin:auto; box-sizing:border-box; width:min(520px,calc(100vw - 32px)); max-height:calc(100vh - 32px); overflow:auto; padding:20px; border:1px solid #403546; border-radius:16px; background:#1c1721; color:#f2ede4; font:inherit; pointer-events:auto; box-shadow:0 24px 80px rgba(0,0,0,.4); color-scheme:dark; }
+#manga-regal-overlay .mr-tag-picker::backdrop { background:rgba(8,6,10,.55); }
+#manga-regal-overlay .mr-tag-picker h3 { margin:0 0 16px; font-size:15px; font-weight:750; }
+#manga-regal-overlay.mr-light .mr-tag-picker { background:#fffaf6; color:#211923; border-color:#d4c6cd; color-scheme:light; }
+#manga-regal-overlay .mr-tag-actions { display:flex; justify-content:flex-end; flex-wrap:wrap; gap:8px; margin-top:16px; padding-top:16px; border-top:1px solid #3b3141; }
+#manga-regal-overlay .mr-tag-picker[hidden] { display:none; }
+/* Compact wrapping chips match the settings tag palette, but remain native
+ * checkboxes so keyboard selection and assistive technology keep working. */
+#manga-regal-overlay .mr-tag-options { display:flex; flex-wrap:wrap; align-content:flex-start; gap:7px; max-height:300px; overflow:auto; padding:14px; border:1px dashed #514357; border-radius:12px; background:#251f2c; font-size:12px; }
+#manga-regal-overlay .mr-tag-options label { display:flex; align-items:center; gap:6px; max-width:100%; padding:7px 9px; border:1px solid #403546; border-radius:7px; background:#1c1721; cursor:pointer; color:inherit; font-weight:650; line-height:1.25; transition:background .15s,border-color .15s; }
+#manga-regal-overlay .mr-tag-options label span { overflow-wrap:anywhere; }
+#manga-regal-overlay .mr-tag-options label:hover { border-color:#84718d; background:#302637; }
+#manga-regal-overlay .mr-tag-options label:has(input:checked) { border-color:#e26042; background:#3c282a; color:#ffcfbc; }
+#manga-regal-overlay .mr-tag-options label:focus-within { outline:2px solid #e26042; outline-offset:2px; }
+#manga-regal-overlay .mr-tag-options input { flex:0 0 13px; width:13px; height:13px; min-height:0; padding:0; margin:0; accent-color:#e26042; }
+#manga-regal-overlay.mr-light .mr-tag-options { background:#f3edf1; border-color:#c8b9cb; }
+#manga-regal-overlay.mr-light .mr-tag-options label { background:#fffaf6; border-color:#d4c6cd; }
+#manga-regal-overlay.mr-light .mr-tag-options label:hover { background:#eee4ec; border-color:#9c849f; }
+#manga-regal-overlay.mr-light .mr-tag-options label:has(input:checked) { background:#fbe6dc; border-color:#c64c31; color:#84331e; }
+#manga-regal-overlay.mr-light .mr-tag-actions { border-color:#ded3dc; }
+/* Re-Read is a system tag: retain its collection color in both picker and
+ * selected chips. Checked and hover states must not fall back to orange. */
+#manga-regal-overlay .mr-tag-chip.mr-reread-tag,
+#manga-regal-overlay .mr-tag-options label.mr-reread-tag { border-color:rgba(119,197,150,.48); background:rgba(119,197,150,.12); color:#9ee0b8; }
+#manga-regal-overlay .mr-tag-options label.mr-reread-tag:hover,
+#manga-regal-overlay .mr-tag-options label.mr-reread-tag:has(input:checked) { border-color:#77c596; background:rgba(119,197,150,.22); color:#9ee0b8; }
+#manga-regal-overlay .mr-tag-options label.mr-reread-tag input { accent-color:#77c596; }
+#manga-regal-overlay .mr-tag-options label.mr-reread-tag:focus-within,
+#manga-regal-overlay .mr-tag-chip.mr-reread-tag:focus-visible { outline-color:#77c596; }
+#manga-regal-overlay.mr-light .mr-tag-chip.mr-reread-tag,
+#manga-regal-overlay.mr-light .mr-tag-options label.mr-reread-tag { border-color:#82b596; background:#e5f4e9; color:#28623f; }
+#manga-regal-overlay.mr-light .mr-tag-options label.mr-reread-tag:hover,
+#manga-regal-overlay.mr-light .mr-tag-options label.mr-reread-tag:has(input:checked) { border-color:#348553; background:#cdebd7; color:#28623f; }
+#manga-regal-overlay.mr-light .mr-tag-options label.mr-reread-tag input { accent-color:#348553; }
+#manga-regal-overlay .mr-tag-chip:focus-visible { outline:2px solid #e26042; outline-offset:2px; }
+
+@media (max-width: 520px) {
+  #manga-regal-overlay .mr-panel {
+    top: 8px;
+    right: 8px;
+    width: calc(100vw - 16px);
+    max-height: calc(100vh - 16px);
+  }
+
+  #manga-regal-overlay .mr-row {
+    grid-template-columns: 1fr;
+  }
+}

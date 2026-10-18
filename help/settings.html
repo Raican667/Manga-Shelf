@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Manga-Regal – Einstellungen erklärt</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#start" aria-label="Zum Anfang der Einstellungsanleitung">
+      <img src="../icons/manga-regal.svg" alt="">
+      <span><strong>Manga-Regal</strong><small>Einstellungen erklärt</small></span>
+    </a>
+    <div class="top-actions">
+      <span class="version">Version 0.20.8</span>
+      <a class="button" href="settings.en.html" data-mobile-label="EN">EN</a>
+      <a class="button" href="index.html" data-mobile-label="Allgemeine Hilfe">Allgemeine Hilfe</a>
+      <a class="button" href="../dashboard/index.html?view=admin" data-mobile-label="Einstellungen">← Zu den Einstellungen</a>
+    </div>
+  </header>
+
+  <nav class="help-tabs" aria-label="Hilfebereiche">
+    <a href="index.html"><span>01</span> Allgemeine Anleitung</a>
+    <a class="active" href="settings.html" aria-current="page"><span>02</span> Einstellungen</a>
+  </nav>
+
+  <div class="page-shell">
+    <aside class="contents" aria-label="Inhaltsverzeichnis">
+      <strong>Einstellungsbereiche</strong>
+      <a href="#start">Überblick</a>
+      <a href="#speichern">Autospeichern</a>
+      <a href="#sicherung">Datensicherung</a>
+      <a href="#sync">Firefox Sync</a>
+      <a href="#integration">Firefox-Integration</a>
+      <a href="#import">Lesezeichen-Import</a>
+      <a href="#bookmark-export">Zurück zu Firefox</a>
+      <a href="#oberflaeche">Oberfläche & Sterne</a>
+      <a href="#suche">Suchmaschinen</a>
+      <a href="#kategorien">Kategorien</a>
+      <a href="#tags">Tag-Vorauswahl</a>
+      <a href="#protokolle">Protokoll & Patchlog</a>
+    </aside>
+
+    <main>
+<div class="note"><strong>Chrome ab 148:</strong> Die Chrome-ZIP entpacken und den Ordner über chrome://extensions → Entwicklermodus → Entpackte Erweiterung laden auswählen. Tastenkürzel werden über chrome://extensions/shortcuts eingestellt. Die Sammlung funktioniert in beiden Browsern gleich; Firefox-Lesezeichen und Sync entsprechen im Chrome-Paket den Chrome-Lesezeichen und Chrome Sync. Die Dienste verbinden sich nicht miteinander; zum Wechsel JSON-Datensicherungen verwenden.</div>
+      <section class="hero" id="start">
+        <span class="eyebrow">Eigene Hilfeseite</span>
+        <h1>Alle Einstellungen verständlich erklärt</h1>
+        <p>Diese Seite beschreibt nicht nur, was ein Schalter macht, sondern auch, welche gespeicherten Daten davon betroffen sind. Änderungen mit möglichen Folgen werden vor dem Speichern bestätigt.</p>
+        <div class="quick-grid">
+          <article><b>1</b><span>Bereich in der linken Navigation auswählen</span></article>
+          <article><b>2</b><span>Auswirkung der Einstellung nachlesen</span></article>
+          <article><b>3</b><span>Änderung automatisch oder gesammelt speichern</span></article>
+        </div>
+        <div class="note"><strong>Version 0.20.8:</strong> Die Einstellungsanleitung erklärt auch die lokalen Platzhalter-Cover, die Sprachumschaltung und die aktuellen Schutzmechanismen beim Cover-Download.</div>
+      </section>
+
+      <section id="speichern">
+        <span class="section-number">01</span>
+        <h2>Autospeichern und der große Speicherknopf</h2>
+        <div class="split-card">
+          <div><h3>Autospeichern</h3><p>Schalter und einzelne Auswahlfelder werden sofort lokal gespeichert. Dazu gehören Sprache, Farbschema, Coveranzeige, Kapitel-Erkennung, Suchmaschine, Importart und die Bewertungsskala.</p></div>
+          <div><h3>„Einstellungen speichern“</h3><p>Der große Knopf übernimmt alle momentan sichtbaren Felder noch einmal gemeinsam. Er ist eine zusätzliche bewusste Bestätigung und ersetzt das Autospeichern nicht.</p></div>
+        </div>
+        <div class="note"><strong>Speicherort:</strong> Der Arbeitsdatensatz liegt im lokalen Firefox-Profil. Er bleibt dort unkomprimiert, damit Suche und Bearbeitung schnell reagieren.</div>
+      </section>
+
+      <section id="sicherung">
+        <span class="section-number">02</span>
+        <h2>Datensicherung als JSON-Datei</h2>
+        <ul class="check-list">
+          <li><strong>Export:</strong> Lädt Sammlung, Einstellungen, Protokolle und lokal gespeicherte Cover als transportierbare JSON-Sicherung herunter.</li>
+          <li><strong>Import:</strong> Stellt eine zuvor erzeugte Manga-Regal-Sicherung wieder her.</li>
+          <li><strong>Vor Deinstallation:</strong> Erstelle immer einen Export, weil Firefox beim Entfernen des Add-ons normalerweise auch dessen lokalen Speicher löscht.</li>
+        </ul>
+        <div class="warning"><strong>Unterschied zu Firefox Sync:</strong> Nur die JSON-Sicherung enthält auch Cover und lokale Protokolle.</div>
+      </section>
+
+      <section id="sync">
+        <span class="section-number">03</span>
+        <h2>Firefox Sync</h2>
+        <div class="feature-grid">
+          <article><h3>Automatisch synchronisieren</h3><p>Überträgt Manga-Metadaten und Einstellungen zwischen angemeldeten Desktop-Firefox-Profilen. Beim ersten Einschalten fragt Firefox die optionalen Datenberechtigungen ab. Ohne Zustimmung wird nichts übertragen.</p></article>
+          <article><h3>Komprimierter Cache</h3><p>Eine gzip-komprimierte Sync-Kopie wird dauerhaft lokal vorbereitet. „Jetzt synchronisieren“ lädt diese Kopie hoch, ohne unveränderte Daten erneut zu komprimieren.</p></article>
+          <article><h3>Vom Sync laden</h3><p>Ersetzt nach Bestätigung den lokalen Manga-Stand durch den vollständigen entfernten Snapshot. Bereits vorhandene lokale Cover passender Manga bleiben erhalten.</p></article>
+          <article><h3>Anzeige</h3><p>Manga-Anzahl, Transportstücke, belegter Speicher und Kompressionsfaktor zeigen, wie effizient das Kontingent genutzt wird.</p></article>
+        </div>
+        <div class="note"><strong>Datenschutz:</strong> Die lokale Nutzung verlangt keine Datenübertragung. Nur bei erteilter Firefox-Freigabe nutzt Sync die ausgewiesenen optionalen Datentypen. Cover, Favicons, Cookies, Protokolle, Firefox-Lesezeichen-IDs und Ordnerpfade bleiben auf dem jeweiligen Gerät.</div>
+      </section>
+
+      <section id="integration">
+        <span class="section-number">04</span>
+        <h2>Firefox-Integration, Kürzel und Leselimit</h2>
+        <div class="steps">
+          <article><b>Werkzeugleisten-Symbol</b><p>Öffnet das Speicherformular im aktuellen Webseiten-Tab. Auf geschützten Firefox-Seiten öffnet sich stattdessen die Sammlung.</p></article>
+          <article><b>Tastenkürzel</b><p>Firefox verlangt Strg oder Alt als Haupttaste. Umschalt darf hinzukommen. Bereits belegte Kombinationen müssen ersetzt werden.</p></article>
+          <article><b>Leselimit</b><p>Bestimmt die maximale Anzahl in „Lese ich gerade“. Das Limit kann nicht unter die bereits vorhandene Belegung abgesenkt werden.</p></article>
+        </div>
+      </section>
+
+      <section id="import">
+        <span class="section-number">05</span>
+        <h2>Lesezeichen-Import</h2>
+        <div class="feature-grid">
+          <article><h3>Standardkategorie</h3><p>Legt fest, wo neue Manga aus Tab-Formular, manuellem Formular und Firefox-Import zunächst einsortiert werden.</p></article>
+          <article><h3>Ordner auswählen</h3><p>Zeigt die Firefox-Ordner und importiert nur markierte Ordner. Für einen Ordner kann direkt eine gemeinsame Bewertung vergeben werden.</p></article>
+          <article><h3>Schlüsselwort</h3><p>Importiert alle Lesezeichen, deren Titel oder Adresse den eingetragenen Begriff enthält, beispielsweise „Chapter“.</p></article>
+          <article><h3>Manuelle Auswahl</h3><p>Zeigt alle Webseiten-Lesezeichen zur einzelnen Auswahl. Der Importknopf im Kopfbereich kann vollständig ausgeblendet werden.</p></article>
+        </div>
+      </section>
+
+      <section id="bookmark-export">
+        <span class="section-number">06</span>
+        <h2>Sammlung zurück in Firefox-Lesezeichen schreiben</h2>
+        <p>Der Bereich <strong>„Zurück zu Firefox“</strong> erstellt unter <strong>Weitere Lesezeichen</strong> einen Oberordner <strong>Manga-Regal</strong>. Darin liegt für jede echte Kategorie ein Unterordner, beispielsweise „Lese ich gerade“, „Aktiv“, „On Hold“, „Gedroppt“, „Abgeschlossen“ oder eine selbst angelegte Kategorie.</p>
+        <div class="feature-grid">
+          <article><h3>Auch neue Tool-Einträge</h3><p>Exportiert werden alle Manga der Sammlung – unabhängig davon, ob sie ursprünglich aus Firefox importiert oder direkt mit Manga-Regal gespeichert wurden.</p></article>
+          <article><h3>Nur Lesezeichendaten</h3><p>Jedes Firefox-Lesezeichen enthält nur den Manga-Titel und seine aktuelle Adresse. Bewertung, Tags, Cover, Kapitel-Metadaten und lokale Protokolle werden nicht übernommen.</p></article>
+          <article><h3>Sicher aktualisieren</h3><p>Ein erneuter Export ersetzt nur den Ordner, dessen Geräte-ID Manga-Regal selbst gespeichert hat. Andere gleichnamige Ordner bleiben unangetastet.</p></article>
+          <article><h3>Keine doppelte Gesamtansicht</h3><p>„Alle“ ist nur eine Gesamtansicht. Jeder Manga wird genau einmal in seinem Kategorieordner angelegt und ist bereits über den Oberordner vollständig erreichbar.</p></article>
+        </div>
+        <div class="note"><strong>Ablauf:</strong> Manga-Regal baut zuerst einen vollständigen neuen Ordnerbaum auf. Erst wenn alle Lesezeichen erstellt wurden, wird ein früherer, vom Add-on verwalteter Export ersetzt.</div>
+      </section>
+
+      <section id="oberflaeche">
+        <span class="section-number">07</span>
+        <h2>Oberfläche, Cover und Bewertungsskala</h2>
+        <ul class="check-list">
+          <li><strong>Sprache:</strong> Schaltet Oberfläche und eingeblendetes Tab-Formular zwischen Deutsch und Englisch um. Die Hilfe öffnet automatisch die passende Sprachseite; Add-on-Beschreibung, Toolbar-Tooltip und Tastenkürzeltext folgen der Firefox-Lokalisierung.</li>
+          <li><strong>Farbschema:</strong> Wechselt zwischen dunkler und heller Darstellung.</li>
+          <li><strong>Cover in Tabellen:</strong> Blendet die lokal gespeicherten Bilder zusätzlich in Tabellenzeilen ein. Bilder werden erst bei Sichtbarkeit geladen.</li>
+          <li><strong>Platzhalter-Cover:</strong> Vier mitgelieferte Motive sorgen bei Einträgen ohne Cover für Abwechslung. Unter „Tag-Vorauswahl“ kann für jeden Tag ein Motiv oder die automatische Zuordnung gewählt werden.</li>
+          <li><strong>Bewertungsskala:</strong> Neue Installationen verwenden fünf Sterne. Optional sind zehn Sterne möglich.</li>
+          <li><strong>Startdialog anzeigen:</strong> Schaltet den Begrüßungsdialog beim Öffnen vollständig ein oder aus. Ein bereits abgeschlossener Startdialog wird nicht erneut erzwungen.</li>
+          <li><strong>Kapitel aus Links erkennen:</strong> Schaltet die automatische Auswertung von URL-Zahlen global ein oder aus. Beim Ausschalten werden automatisch erkannte Werte geleert; manuell gepflegte Kapitel bleiben erhalten. Im Speicher-Pop-up kann die Automatik zusätzlich über den kleinen Knopf hinter dem Kapitelfeld für einen einzelnen Manga dauerhaft deaktiviert werden.</li>
+          <li><strong>Re-Read-Option anbieten:</strong> Blendet im Aktualisierungsdialog den Knopf ein, mit dem ein zweiter, intern verbundener Lesestand angelegt wird. Auch bei mehreren Leseständen kann das vorgeschlagene Aktualisierungsziel im Dialog geändert werden.</li>
+          <li><strong>Re-Reads automatisch taggen:</strong> Fügt neu angelegten Re-Reads den sichtbaren grünen Tag „Re-Read“ hinzu. Wird der Schalter ausgeschaltet, bleibt die interne Verbindung für die Kapitelauswahl trotzdem erhalten.</li>
+        </ul>
+        <div class="warning"><strong>Von 10 auf 5 Sterne:</strong> Sind Bewertungen über fünf vorhanden, erscheint zuerst ein Dialog. Nach Bestätigung werden nur diese Werte auf fünf gesetzt. Bewertungen von eins bis fünf bleiben unverändert.</div>
+      </section>
+
+      <section id="suche">
+        <span class="section-number">08</span>
+        <h2>Suchmaschinen für neue Quellen</h2>
+        <p>„Neue Quelle suchen“ verwendet den Manga-Titel und den aktuellen Kapitelstand. Du kannst die Firefox-Standardsuche, eine installierte Suchmaschine, eine der sechs Vorgaben oder eine eigene Suchadresse auswählen.</p>
+        <div class="note"><strong>Eigene Suchadresse:</strong> Sie muss mit <code>https://</code> oder <code>http://</code> beginnen und <code>{query}</code> als Platzhalter enthalten, zum Beispiel <code>https://example.com/search?q={query}</code>.</div>
+      </section>
+
+      <section id="kategorien">
+        <span class="section-number">09</span>
+        <h2>Kategorien verwalten</h2>
+        <div class="feature-grid">
+          <article><h3>Name</h3><p>Standardkategorien können umbenannt werden. Ein leeres Feld beziehungsweise der Zurücksetzen-Knopf verwendet wieder den Standardnamen.</p></article>
+          <article><h3>Ansicht</h3><p>Jede Kategorie besitzt ihre eigene Tabellen- oder Kachelansicht. Die Wahl wird beim nächsten Öffnen beibehalten.</p></article>
+          <article><h3>Reihenfolge</h3><p>Ziehe eine Zeile am Griff oder verwende die Pfeiltasten. Navigation und Kategorienverwaltung übernehmen dieselbe Reihenfolge.</p></article>
+          <article><h3>Eigene Kategorien</h3><p>Neue Kategorien können ergänzt und wieder entfernt werden. Manga aus einer entfernten eigenen Kategorie werden sicher nach „Aktiv“ verschoben.</p></article>
+        </div>
+        <p class="muted">„Alle“ ist eine Gesamtansicht und kein eigener Status, dem ein Manga zugewiesen wird.</p>
+      </section>
+
+      <section id="tags">
+        <span class="section-number">10</span>
+        <h2>Tag-Vorauswahl</h2>
+        <p>Die Checkboxen bestimmen, welche häufigen Tags im Pop-up „Tags anpassen“ angeboten werden. „Re-Read“ ist als Standardvorgabe direkt auswählbar. Eigene Vorgaben lassen sich ergänzen und Tippfehler über Entfernen und erneutes Anlegen korrigieren.</p>
+        <p>Unter „Platzhalter-Cover nach Tag“ kannst du Tags per Drag-and-drop einem der vier Motive zuweisen. „Bild ersetzen“ tauscht einen festen Slot gegen dein eigenes lokales Bild; „Standardbild“ stellt nur diesen Slot wieder her. Der Schiebeschalter blendet alle Platzhalter aus, behält die Motive und Zuordnungen jedoch für ein späteres Einschalten.</p>
+        <div class="note"><strong>Speicherung:</strong> Eigene Platzhalterbilder sind Bestandteil der JSON-Sicherung, werden wegen ihrer Größe aber nicht über Firefox Sync übertragen.</div>
+        <div class="note"><strong>Wichtig:</strong> Das Entfernen oder Abwählen einer Vorgabe löscht den Tag nicht von Manga, denen er bereits zugewiesen wurde.</div>
+      </section>
+
+      <section id="protokolle">
+        <span class="section-number">11</span>
+        <h2>Import-/Fehlerprotokoll und Patchlog</h2>
+        <div class="split-card">
+          <div><h3>Import- & Fehlerprotokoll</h3><p>Zeigt lokale Ereignisse, Warnungen und Fehler. Filtere nach Stufe oder Text und leere das Protokoll bei Bedarf. Diese Daten werden nicht über Firefox Sync übertragen.</p></div>
+          <div><h3>Patchlog</h3><p>Zeigt kompakt die Funktionen und Korrekturen der aktuell installierten Version. Die vollständige Versionshistorie liegt zentral im verlinkten GitHub-Changelog.</p></div>
+        </div>
+      </section>
+
+      <footer>
+        <img src="../icons/manga-regal.svg" alt="">
+        <p><strong>Manga-Regal</strong><br><span>Einstellungen erklärt · Version 0.20.8</span></p>
+        <a href="#start">Nach oben ↑</a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="../shared/store.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
