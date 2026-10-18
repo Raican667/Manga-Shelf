@@ -337,10 +337,10 @@
   // vollständige Historie liegt zentral im CHANGELOG.md des Repositories.
   const patchNotes = {
     de: [
-      { version: '0.20.8', date: '18.10.2026', title: 'Öffentliche Veröffentlichung', notes: ['Neues öffentliches Repository mit geprüftem Ausgangsstand und englischer Standard-README.', 'Support-Button und Einstellung entfernt.', 'GPLv3-only, neue öffentliche Downloads und abgesicherte Veröffentlichungsabläufe.'] },
+      { version: '0.20.9', date: '18.10.2026', title: 'Sichere Darstellung von Eingaben', notes: ['Dynamisches HTML durch DOM-Elemente und reine Text-/Werteigenschaften ersetzt.', 'Titel, Tags, Kategorien und Lesezeichen bleiben auch bei HTML-ähnlichen Inhalten Text.', 'Neue Regressionstests für Tabelle, Kacheln, Einstellungen und Speicher-Pop-up.'] },
     ],
     en: [
-      { version: '0.20.8', date: '2026-10-18', title: 'Public release', notes: ['New public repository with a reviewed baseline and English default README.', 'Removed the support button and its setting.', 'GPLv3-only, new public downloads and hardened release workflows.'] },
+      { version: '0.20.9', date: '2026-10-18', title: 'Safe rendering of input', notes: ['Replaced dynamic HTML with DOM elements and text/value properties.', 'Titles, tags, categories and bookmarks remain text even when they resemble HTML.', 'Added regression tests for table, cards, settings and the save popup.'] },
     ]
   };
 
@@ -370,8 +370,9 @@
   }
 
   function renderCategoryNavigation() {
-    const container = document.getElementById('categoryNavItems');
-    container.innerHTML = allCollectionViews().map((view) => `<button class="nav-item" data-view="${escapeHtml(view)}"><span data-category-view="${escapeHtml(view)}">${escapeHtml(categoryLabel(view))}</span> <span data-count-view="${escapeHtml(view)}">0</span></button>`).join('');
+    document.getElementById('categoryNavItems').replaceChildren(...allCollectionViews().map((view) =>
+      button('nav-item', { 'data-view': view }, node('span', { 'data-category-view': view }, categoryLabel(view)), ' ',
+        node('span', { 'data-count-view': view }, '0'))));
   }
 
   /** Übernimmt Sprache und Farbschema sofort für die komplette Oberfläche. */
@@ -409,10 +410,55 @@
   }
 
   /** Maskiert Text, bevor er in HTML-Templates eingesetzt wird. */
-  function escapeHtml(value = '') {
-    return String(value).replace(/[&<>'"]/g, (character) => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
-    })[character]);
+  /** All application values remain text or DOM properties, never parsed HTML.
+   * Attribute names and element types are constants owned by this module. */
+  function node(tag, attributes = {}, ...children) {
+    const element = document.createElement(tag);
+    for (const [name, value] of Object.entries(attributes)) {
+      if (value === undefined || value === null || value === false) continue;
+      if (/^on/i.test(name)) throw new Error('Inline event attributes are not allowed');
+      if (['value', 'checked', 'selected', 'disabled'].includes(name)) element[name] = value;
+      else element.setAttribute(name, String(value));
+    }
+    element.append(...children.flat(Infinity).filter((child) => child !== null && child !== undefined && child !== false));
+    return element;
+  }
+
+  function button(className, attributes, ...children) {
+    return node('button', { type: 'button', class: className, ...attributes }, ...children);
+  }
+
+  function option(value, label, selected = false, disabled = false) {
+    return node('option', { value, selected, disabled }, label);
+  }
+
+  function link(className, url, label) {
+    return node('a', { class: className, href: url, target: '_blank', rel: 'noopener noreferrer' }, label);
+  }
+
+  function coverNode(item, cards = false) {
+    return node('span', { class: cards ? 'card-cover-frame cover-frame cover-pending' : 'row-cover cover-frame cover-pending' },
+      node('img', { class: cards ? 'card-cover cover-image' : 'cover-image', 'data-cover-id': item.id, alt: '' }),
+      node('span', { class: 'cover-placeholder', 'aria-hidden': 'true' }, '◇'));
+  }
+
+  function tagNodes(item) {
+    return item.tags.length ? item.tags.map((tag) => button('tag tag-button' + (tag.toLowerCase() === 're-read' ? ' reread-tag' : ''),
+      { 'data-remove-row-tag': item.id, 'data-tag-value': tag }, tag, ' ', node('b', {}, '×')))
+      : [node('span', { class: 'tag' }, t('noTag'))];
+  }
+
+  function statusSelect(item) {
+    const count = data.items.filter((candidate) => candidate.status === 'reading').length;
+    const limit = MangaStore.getReadingLimit(data);
+    return node('select', { class: 'status-select', 'data-status': item.id },
+      statusViews().map((status) => option(status, status === 'reading' ? `${statusLabel(status)} (${count}/${limit})` : statusLabel(status),
+        item.status === status, status === 'reading' && item.status !== 'reading' && count >= limit)));
+  }
+
+  function chapterField(item) {
+    return node('input', { class: 'chapter-input', 'data-chapter': item.id, value: item.currentChapter, placeholder: t('open'),
+      'aria-label': `${t('chapter')}: ${item.title}` });
   }
 
   function formatDate(value) {
@@ -459,10 +505,16 @@
   }
 
   function actionIcon(type, id, label) {
-    const svg = type === 'edit'
-      ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l11-11-4-4L4 16v4Zm13-17 4 4-2 2-4-4 2-2Z"/></svg>'
-      : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 21h10a2 2 0 0 0 2-2V7H5v12a2 2 0 0 0 2 2Zm3-11h2v8h-2v-8Zm4 0h2v8h-2v-8ZM8 4l1-2h6l1 2h5v2H3V4h5Z"/></svg>';
-    return `<button class="icon-action-button ${type === 'remove' ? 'danger' : ''}" type="button" data-${type}="${escapeHtml(id)}" title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}">${svg}</button>`;
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('aria-hidden', 'true');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', type === 'edit'
+      ? 'M4 20h4l11-11-4-4L4 16v4Zm13-17 4 4-2 2-4-4 2-2Z'
+      : 'M7 21h10a2 2 0 0 0 2-2V7H5v12a2 2 0 0 0 2 2Zm3-11h2v8h-2v-8Zm4 0h2v8h-2v-8ZM8 4l1-2h6l1 2h5v2H3V4h5Z');
+    svg.append(path);
+    return button('icon-action-button' + (type === 'remove' ? ' danger' : ''),
+      { [`data-${type}`]: id, title: label, 'aria-label': label }, svg);
   }
 
   /**
@@ -640,21 +692,18 @@
 
   /** Baut den Bewertungsfilter passend zur gewählten Skala neu auf. */
   function renderRatingFilter() {
-    const previous = Number(elements.ratingFilter.value);
-    const options = Array.from({ length: ratingMax() }, (_, index) => ratingMax() - index)
-      .map((score) => `<option value="${score}">${score} ★</option>`).join('');
-    elements.ratingFilter.innerHTML = `<option value="0">${t('allRatings')}</option>${options}<option value="-1">${t('unrated')}</option>`;
-    elements.ratingFilter.value = [...elements.ratingFilter.options].some((option) => Number(option.value) === previous)
-      ? String(previous)
-      : '0';
+    const previous = elements.ratingFilter.value;
+    elements.ratingFilter.replaceChildren(option('0', t('allRatings')),
+      ...Array.from({ length: ratingMax() }, (_, i) => option(String(ratingMax() - i), `${ratingMax() - i} ★`)),
+      option('-1', t('unrated')));
+    elements.ratingFilter.value = [...elements.ratingFilter.options].some((entry) => entry.value === previous) ? previous : '0';
   }
 
   /** Erzeugt die anklickbare Bewertung für eine Tabellenzeile. */
   function tableStars(item) {
-    return `<div class="stars" aria-label="${escapeHtml(t('ratingFor', item.title))}">${Array.from(
-      { length: ratingMax() },
-      (_, index) => `<button class="star ${index + 1 <= item.rating ? 'on' : ''}" type="button" data-rate="${escapeHtml(item.id)}" data-score="${index + 1}" title="${index + 1}/${ratingMax()}">★</button>`
-    ).join('')}</div>`;
+    return node('div', { class: 'stars', 'aria-label': t('ratingFor', item.title) },
+      Array.from({ length: ratingMax() }, (_, i) => button('star' + (i + 1 <= item.rating ? ' on' : ''),
+        { 'data-rate': item.id, 'data-score': i + 1, title: `${i + 1}/${ratingMax()}` }, '★')));
   }
 
   /** Wendet Suche, Status, Bewertung und Sortierung auf die Sammlung an. */
@@ -738,101 +787,71 @@
 
   function renderCollection() {
     const items = visibleItems();
-    const titles = {
-      active: t('viewActive'), reading: t('viewReading'), hold: t('viewHold'), dropped: t('viewDropped'), completed: t('viewCompleted'), all: t('viewAll')
-    };
+    const titles = { active: t('viewActive'), reading: t('viewReading'), hold: t('viewHold'), dropped: t('viewDropped'), completed: t('viewCompleted'), all: t('viewAll') };
     elements.viewTitle.textContent = data.settings.categoryNames[currentView] || titles[currentView] || t('collection');
     renderSortHeaders();
-
     const cardsMode = data.settings.collectionViews[currentView] === 'cards';
     elements.cards.hidden = !cardsMode;
     elements.table.hidden = cardsMode;
-
-    if (cardsMode) {
-      renderCards(items);
-      return;
-    }
-
-    elements.rows.innerHTML = items.length ? items.map((item) => {
-      const readingCount = data.items.filter((candidate) => candidate.status === 'reading').length;
-      const readingLimit = MangaStore.getReadingLimit(data);
-      const statusOptions = statusViews().map((status) =>
-        `<option value="${status}" ${item.status === status ? 'selected' : ''} ${status === 'reading' && item.status !== 'reading' && readingCount >= readingLimit ? 'disabled' : ''}>${status === 'reading' ? `${statusLabel('reading')} (${readingCount}/${readingLimit})` : statusLabel(status)}</option>`
-      ).join('');
-      const tags = item.tags.length
-        ? item.tags.map((tag) => `<button class="tag tag-button${tag.toLowerCase() === 're-read' ? ' reread-tag' : ''}" type="button" data-remove-row-tag="${escapeHtml(item.id)}" data-tag-value="${escapeHtml(tag)}">${escapeHtml(tag)} <b>×</b></button>`).join('')
-        : `<span class="tag">${t('noTag')}</span>`;
-      const cover = data.settings.showCoversInTable
-        ? `<span class="row-cover cover-frame cover-pending"><img class="cover-image" data-cover-id="${escapeHtml(item.id)}" alt=""><span class="cover-placeholder" aria-hidden="true">◇</span></span>`
-        : '';
-
-      return `<tr>
-        <td><div class="title-wrap">${cover}<div><a class="row-title-link" href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a>${item.bookmarkId ? `<span class="bookmark-mark">${t('bookmarkLinked')}</span>` : ''}</div></div></td>
-        <td class="read-cell"><a class="continue-link" href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${t('continue')} ↗</a><button class="source-search-link" type="button" data-source-search="${escapeHtml(item.id)}">${t('findSource')}</button><a class="url-link" href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.source || item.url)}</a></td>
-        <td><input class="chapter-input" data-chapter="${escapeHtml(item.id)}" value="${escapeHtml(item.currentChapter)}" placeholder="${t('open')}" aria-label="${t('chapter')}: ${escapeHtml(item.title)}"></td>
-        <td class="tag-cell"><div class="tag-list">${tags}</div><button class="text-button edit-tags-button" type="button" data-edit-tags="${escapeHtml(item.id)}">${t('editTags')}</button></td>
-        <td>${tableStars(item)}</td>
-        <td><select class="status-select" data-status="${escapeHtml(item.id)}">${statusOptions}</select></td>
-        <td class="date-cell">${formatDate(item.modified)}</td>
-        <td class="row-actions"><div class="row-action-buttons">${actionIcon('edit', item.id, t('edit'))}${actionIcon('remove', item.id, t('remove'))}</div></td>
-      </tr>`;
-    }).join('') : `<tr><td class="empty-row" colspan="8">${t('emptyCollection')}</td></tr>`;
+    if (cardsMode) { renderCards(items); return; }
+    elements.rows.replaceChildren(...(items.length ? items.map((item) => {
+      const title = node('div', {}, link('row-title-link', item.url, item.title),
+        item.bookmarkId ? node('span', { class: 'bookmark-mark' }, t('bookmarkLinked')) : null);
+      return node('tr', {},
+        node('td', {}, node('div', { class: 'title-wrap' }, data.settings.showCoversInTable ? coverNode(item) : null, title)),
+        node('td', { class: 'read-cell' }, link('continue-link', item.url, t('continue') + ' ↗'),
+          button('source-search-link', { 'data-source-search': item.id }, t('findSource')),
+          link('url-link', item.url, item.source || item.url)),
+        node('td', {}, chapterField(item)),
+        node('td', { class: 'tag-cell' }, node('div', { class: 'tag-list' }, tagNodes(item)),
+          button('text-button edit-tags-button', { 'data-edit-tags': item.id }, t('editTags'))),
+        node('td', {}, tableStars(item)), node('td', {}, statusSelect(item)),
+        node('td', { class: 'date-cell' }, formatDate(item.modified)),
+        node('td', { class: 'row-actions' }, node('div', { class: 'row-action-buttons' },
+          actionIcon('edit', item.id, t('edit')), actionIcon('remove', item.id, t('remove')))));
+    }) : [node('tr', {}, node('td', { class: 'empty-row', colspan: '8' }, t('emptyCollection')))]));
     observeVisibleCovers(elements.rows);
   }
 
   /** Kachelansicht mit denselben Daten und Aktionen wie die Tabelle. */
   function renderCards(items) {
-    const readingCount = data.items.filter((candidate) => candidate.status === 'reading').length;
-    const readingLimit = MangaStore.getReadingLimit(data);
-    elements.cards.innerHTML = items.length ? items.map((item) => {
-      const statusOptions = statusViews().map((status) =>
-        `<option value="${status}" ${item.status === status ? 'selected' : ''} ${status === 'reading' && item.status !== 'reading' && readingCount >= readingLimit ? 'disabled' : ''}>${status === 'reading' ? `${statusLabel('reading')} (${readingCount}/${readingLimit})` : statusLabel(status)}</option>`
-      ).join('');
-      const tags = item.tags.length
-        ? item.tags.map((tag) => `<button class="tag tag-button${tag.toLowerCase() === 're-read' ? ' reread-tag' : ''}" type="button" data-remove-row-tag="${escapeHtml(item.id)}" data-tag-value="${escapeHtml(tag)}">${escapeHtml(tag)} <b>×</b></button>`).join('')
-        : `<span class="tag">${t('noTag')}</span>`;
-      const cover = `<span class="card-cover-frame cover-frame cover-pending"><img class="card-cover cover-image" data-cover-id="${escapeHtml(item.id)}" alt=""><span class="cover-placeholder" aria-hidden="true">◇</span></span>`;
-      return `<article class="manga-card">
-        <a class="card-cover-link" href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${cover}</a>
-        <div class="card-body">
-          <div class="card-title-row"><div><a class="card-title" href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a><span class="card-source">${escapeHtml(item.source || item.url)}</span></div><span class="card-date">${formatDate(item.modified)}</span></div>
-          <div class="card-progress"><label>${t('chapter')}<input class="chapter-input" data-chapter="${escapeHtml(item.id)}" value="${escapeHtml(item.currentChapter)}" placeholder="${t('open')}"></label><select class="status-select" data-status="${escapeHtml(item.id)}">${statusOptions}</select></div>
-          <div class="tag-list">${tags}</div>
-          <button class="text-button edit-tags-button" type="button" data-edit-tags="${escapeHtml(item.id)}">${t('editTags')}</button>
-          ${tableStars(item)}
-          <div class="card-links"><a class="continue-link" href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${t('continue')} ↗</a><button class="source-search-link" type="button" data-source-search="${escapeHtml(item.id)}">${t('findSource')}</button></div>
-          <div class="card-actions">${actionIcon('edit', item.id, t('edit'))}${actionIcon('remove', item.id, t('remove'))}</div>
-        </div>
-      </article>`;
-    }).join('') : `<div class="card-empty">${t('emptyCollection')}</div>`;
+    elements.cards.replaceChildren(...(items.length ? items.map((item) =>
+      node('article', { class: 'manga-card' }, link('card-cover-link', item.url, coverNode(item, true)),
+        node('div', { class: 'card-body' },
+          node('div', { class: 'card-title-row' }, node('div', {}, link('card-title', item.url, item.title),
+            node('span', { class: 'card-source' }, item.source || item.url)), node('span', { class: 'card-date' }, formatDate(item.modified))),
+          node('div', { class: 'card-progress' }, node('label', {}, t('chapter'), chapterField(item)), statusSelect(item)),
+          node('div', { class: 'tag-list' }, tagNodes(item)),
+          button('text-button edit-tags-button', { 'data-edit-tags': item.id }, t('editTags')), tableStars(item),
+          node('div', { class: 'card-links' }, link('continue-link', item.url, t('continue') + ' ↗'),
+            button('source-search-link', { 'data-source-search': item.id }, t('findSource'))),
+          node('div', { class: 'card-actions' }, actionIcon('edit', item.id, t('edit')), actionIcon('remove', item.id, t('remove'))))))
+      : [node('div', { class: 'card-empty' }, t('emptyCollection'))]));
     observeVisibleCovers(elements.cards);
   }
 
   /** Baut das Admin-Protokoll entsprechend der beiden Filter neu auf. */
   function renderLogs() {
     const query = logQuery.trim().toLowerCase();
-    const logs = data.logs.filter((entry) => {
-      const levelMatches = logLevel === 'all' || entry.level === logLevel;
-      const text = [entry.area, entry.message, entry.details, entry.level].join(' ').toLowerCase();
-      return levelMatches && (!query || text.includes(query));
-    });
+    const logs = data.logs.filter((entry) => (logLevel === 'all' || entry.level === logLevel)
+      && [entry.area, entry.message, entry.details, entry.level].join(' ').toLowerCase().includes(query));
     document.getElementById('logCount').textContent = t('logCount', logs.length, data.logs.length);
-    document.getElementById('logRows').innerHTML = logs.length ? logs.map((entry) => `<tr>
-      <td class="date-cell">${new Date(entry.time).toLocaleString(data.settings.language === 'en' ? 'en-US' : 'de-DE')}</td>
-      <td><span class="log-level ${escapeHtml(entry.level)}">${escapeHtml(entry.level)}</span></td>
-      <td>${escapeHtml(entry.area)}</td><td>${escapeHtml(entry.message)}</td><td class="date-cell">${escapeHtml(entry.details || '–')}</td>
-    </tr>`).join('') : `<tr><td class="empty-row" colspan="5">${t('emptyLogs')}</td></tr>`;
+    document.getElementById('logRows').replaceChildren(...(logs.length ? logs.map((entry) => node('tr', {},
+      node('td', { class: 'date-cell' }, new Date(entry.time).toLocaleString(data.settings.language === 'en' ? 'en-US' : 'de-DE')),
+      node('td', {}, node('span', { class: `log-level ${entry.level}` }, entry.level)),
+      node('td', {}, entry.area), node('td', {}, entry.message), node('td', { class: 'date-cell' }, entry.details || '–')))
+      : [node('tr', {}, node('td', { class: 'empty-row', colspan: '5' }, t('emptyLogs')))]));
   }
 
   /** Rendert den lokalen Patchlog passend zur ausgewählten Oberflächensprache. */
   function renderPatchlog() {
     const language = data.settings.language === 'en' ? 'en' : 'de';
-    document.getElementById('fullChangelogLink').href = `https://github.com/Raican667/Manga-Regal/blob/main/CHANGELOG${language === 'en' ? '.en' : ''}.md`;
-    document.getElementById('patchlogContent').innerHTML = patchNotes[language].map((patch, index) => `
-      <section class="patch-version ${index === 0 ? 'current' : ''}">
-        <div class="patch-version-meta"><strong>v${escapeHtml(patch.version)}</strong><time>${escapeHtml(patch.date)}</time>${index === 0 ? `<span class="patch-current-badge">${escapeHtml(t('currentPatch'))}</span>` : ''}</div>
-        <div><h4>${escapeHtml(patch.title)}</h4><ul>${patch.notes.map((note) => `<li>${escapeHtml(note)}</li>`).join('')}</ul></div>
-      </section>`).join('');
+    document.getElementById('fullChangelogLink').href = `https://github.com/Raican667/Manga-Shelf/blob/main/CHANGELOG${language === 'en' ? '.en' : ''}.md`;
+    document.getElementById('patchlogContent').replaceChildren(...patchNotes[language].map((patch, index) =>
+      node('section', { class: 'patch-version' + (index === 0 ? ' current' : '') },
+        node('div', { class: 'patch-version-meta' }, node('strong', {}, `v${patch.version}`), node('time', {}, patch.date),
+          index === 0 ? node('span', { class: 'patch-current-badge' }, t('currentPatch')) : null),
+        node('div', {}, node('h4', {}, patch.title), node('ul', {}, patch.notes.map((note) => node('li', {}, note)))))));
   }
 
   /** Schaltet zwischen technischem Protokoll und Versionshinweisen. */
@@ -848,26 +867,35 @@
 
   /** Name und Reihenfolge werden bewusst in einer einzigen Liste bearbeitet. */
   function renderCategoryNameSettings() {
-    document.getElementById('categoryOrderList').innerHTML = allCollectionViews().map((view) => {
+    document.getElementById('categoryOrderList').replaceChildren(...allCollectionViews().map((view) => {
       const custom = data.settings.customCategories.find((category) => category.id === view);
-      const label = custom?.name || defaultCategoryLabel(view);
-      const input = custom
-        ? `<input type="text" maxlength="40" data-custom-category-name="${escapeHtml(view)}" value="${escapeHtml(custom.name)}">`
-        : `<input type="text" maxlength="40" data-category-name="${escapeHtml(view)}" value="${escapeHtml(data.settings.categoryNames[view] || '')}" placeholder="${escapeHtml(`${t('defaultName')}: ${defaultCategoryLabel(view)}`)}">`;
-      const layout = `<label class="category-editor-layout" title="${escapeHtml(t('viewMode'))}"><span class="sr-only">${escapeHtml(t('viewMode'))}</span><select aria-label="${escapeHtml(t('viewMode'))}" data-view-mode="${escapeHtml(view)}"><option value="table" ${data.settings.collectionViews[view] === 'table' ? 'selected' : ''}>${t('tableView')}</option><option value="cards" ${data.settings.collectionViews[view] === 'cards' ? 'selected' : ''}>${t('cardView')}</option></select></label>`;
+      const input = node('input', { type: 'text', maxlength: '40', [custom ? 'data-custom-category-name' : 'data-category-name']: view,
+        value: custom ? custom.name : data.settings.categoryNames[view] || '', placeholder: custom ? '' : `${t('defaultName')}: ${defaultCategoryLabel(view)}` });
+      const layout = node('label', { class: 'category-editor-layout', title: t('viewMode') }, node('span', { class: 'sr-only' }, t('viewMode')),
+        node('select', { 'aria-label': t('viewMode'), 'data-view-mode': view },
+          option('table', t('tableView'), data.settings.collectionViews[view] === 'table'),
+          option('cards', t('cardView'), data.settings.collectionViews[view] === 'cards')));
       const removeTitle = custom ? t('remove') : t('resetCategoryName');
-      const remove = `<button class="remove-category-button ${custom ? '' : 'reset-category-button'}" type="button" data-remove-category="${escapeHtml(view)}" data-remove-custom="${custom ? 'true' : 'false'}" aria-label="${escapeHtml(removeTitle)}" title="${escapeHtml(removeTitle)}">×</button>`;
-      return `<div class="category-order-item category-editor-item" data-order-view="${escapeHtml(view)}"><span class="drag-handle" draggable="true" aria-label="${escapeHtml(t('categoryMove'))}" title="${escapeHtml(t('categoryMove'))}">⠿</span><label class="category-editor-copy"><span>${escapeHtml(label)}</span>${input}</label>${layout}<span class="order-arrows"><button type="button" data-order-move="up" aria-label="${escapeHtml(t('moveUp'))}">↑</button><button type="button" data-order-move="down" aria-label="${escapeHtml(t('moveDown'))}">↓</button></span>${remove}</div>`;
-    }).join('');
+      return node('div', { class: 'category-order-item category-editor-item', 'data-order-view': view },
+        node('span', { class: 'drag-handle', draggable: 'true', 'aria-label': t('categoryMove'), title: t('categoryMove') }, '⠿'),
+        node('label', { class: 'category-editor-copy' }, node('span', {}, custom?.name || defaultCategoryLabel(view)), input), layout,
+        node('span', { class: 'order-arrows' },
+          button('', { 'data-order-move': 'up', 'aria-label': t('moveUp') }, '↑'),
+          button('', { 'data-order-move': 'down', 'aria-label': t('moveDown') }, '↓')),
+        button('remove-category-button' + (custom ? '' : ' reset-category-button'),
+          { 'data-remove-category': view, 'data-remove-custom': String(Boolean(custom)), 'aria-label': removeTitle, title: removeTitle }, '×'));
+    }));
   }
 
   /** Rendert die mitgelieferten Tag-Vorschläge als aktivierbare Checkboxen. */
   function renderTagPresets() {
     const enabled = new Set(data.settings.tagPresets);
     const hidden = new Set(data.settings.hiddenTagPresets.map((tag) => tag.toLowerCase()));
-    const catalog = [...MangaStore.TAG_PRESETS, ...data.settings.customTagPresets]
-      .filter((tag) => !hidden.has(tag.toLowerCase()));
-    document.getElementById('tagPresetGrid').innerHTML = catalog.map((tag, index) => `<div class="tag-preset-option"><label for="tag-preset-${index}"><input id="tag-preset-${index}" type="checkbox" data-tag-preset value="${escapeHtml(tag)}" ${enabled.has(tag) ? 'checked' : ''}><span>${escapeHtml(tag)}</span></label><button class="remove-preset-button" type="button" data-remove-tag-preset="${escapeHtml(tag)}" aria-label="${t('remove')}" title="${t('remove')}">×</button></div>`).join('');
+    const catalog = [...MangaStore.TAG_PRESETS, ...data.settings.customTagPresets].filter((tag) => !hidden.has(tag.toLowerCase()));
+    document.getElementById('tagPresetGrid').replaceChildren(...catalog.map((tag, index) =>
+      node('div', { class: 'tag-preset-option' }, node('label', { for: `tag-preset-${index}` },
+        node('input', { id: `tag-preset-${index}`, type: 'checkbox', 'data-tag-preset': '', value: tag, checked: enabled.has(tag) }), node('span', {}, tag)),
+        button('remove-preset-button', { 'data-remove-tag-preset': tag, 'aria-label': t('remove'), title: t('remove') }, '×'))));
   }
 
   /**
@@ -876,21 +904,27 @@
    */
   function renderPlaceholderTagMap() {
     const hidden = new Set(data.settings.hiddenTagPresets.map((tag) => tag.toLowerCase()));
-    const catalog = [...MangaStore.TAG_PRESETS, ...data.settings.customTagPresets]
-      .filter((tag) => !hidden.has(tag.toLowerCase()));
+    const catalog = [...MangaStore.TAG_PRESETS, ...data.settings.customTagPresets].filter((tag) => !hidden.has(tag.toLowerCase()));
     const configured = data.settings.placeholderCoverByTag || {};
-    const container = document.getElementById('placeholderTagMap');
-    const assignedCover = (tag) => Object.entries(configured)
-      .find(([configuredTag]) => configuredTag.toLowerCase() === tag.toLowerCase())?.[1] || '';
-    const chip = (tag, assigned = false) => `<span class="placeholder-tag-chip" draggable="true" data-placeholder-drag="${escapeHtml(tag)}"><i aria-hidden="true">⋮⋮</i><b>${escapeHtml(tag)}</b>${assigned ? `<button type="button" data-placeholder-reset="${escapeHtml(tag)}" title="${escapeHtml(t('placeholderReset'))}" aria-label="${escapeHtml(t('placeholderReset'))}">×</button>` : ''}</span>`;
-    const automaticTags = catalog.filter((tag) => !assignedCover(tag));
-    const automaticZone = `<section class="placeholder-drop-zone automatic-zone" data-placeholder-drop=""><header><span class="placeholder-auto-symbol" aria-hidden="true">✦</span><div><h5>${escapeHtml(t('placeholderAuto'))}</h5><p>${escapeHtml(t('placeholderAutoHint'))}</p></div></header><div class="placeholder-chip-list">${automaticTags.map((tag) => chip(tag)).join('') || `<small>${escapeHtml(t('placeholderDropEmpty'))}</small>`}</div></section>`;
-    const coverZones = allPlaceholderCovers().map((cover) => {
-      const assignedTags = catalog.filter((tag) => assignedCover(tag) === cover.id);
-      const restore = cover.overridden ? `<button class="placeholder-restore-button" type="button" data-placeholder-restore-image="${cover.id}">${escapeHtml(t('placeholderRestore'))}</button>` : '';
-      return `<section class="placeholder-drop-zone cover-zone" data-placeholder-drop="${cover.id}"><img src="${escapeHtml(cover.src)}" alt=""><header><div><h5>${escapeHtml(t(cover.labelKey))}</h5><p>${escapeHtml(t('placeholderDropHere'))}</p></div><div class="placeholder-cover-actions"><label class="placeholder-upload-button"><span>${escapeHtml(t('placeholderReplace'))}</span><input type="file" accept="image/jpeg,image/png,image/webp" data-placeholder-upload="${cover.id}"></label>${restore}</div></header><div class="placeholder-chip-list">${assignedTags.map((tag) => chip(tag, true)).join('') || `<small>${escapeHtml(t('placeholderDropEmpty'))}</small>`}</div></section>`;
-    }).join('');
-    container.innerHTML = `${automaticZone}<div class="placeholder-cover-zones">${coverZones}</div>`;
+    const assignedCover = (tag) => Object.entries(configured).find(([key]) => key.toLowerCase() === tag.toLowerCase())?.[1] || '';
+    const chip = (tag, assigned = false) => node('span', { class: 'placeholder-tag-chip', draggable: 'true', 'data-placeholder-drag': tag },
+      node('i', { 'aria-hidden': 'true' }, '⋮⋮'), node('b', {}, tag),
+      assigned ? button('', { 'data-placeholder-reset': tag, title: t('placeholderReset'), 'aria-label': t('placeholderReset') }, '×') : null);
+    const chipList = (tags, assigned = false) => node('div', { class: 'placeholder-chip-list' },
+      tags.length ? tags.map((tag) => chip(tag, assigned)) : node('small', {}, t('placeholderDropEmpty')));
+    const automatic = node('section', { class: 'placeholder-drop-zone automatic-zone', 'data-placeholder-drop': '' },
+      node('header', {}, node('span', { class: 'placeholder-auto-symbol', 'aria-hidden': 'true' }, '✦'),
+        node('div', {}, node('h5', {}, t('placeholderAuto')), node('p', {}, t('placeholderAutoHint')))),
+      chipList(catalog.filter((tag) => !assignedCover(tag))));
+    const covers = allPlaceholderCovers().map((cover) => node('section', { class: 'placeholder-drop-zone cover-zone', 'data-placeholder-drop': cover.id },
+      node('img', { src: cover.src, alt: '' }),
+      node('header', {}, node('div', {}, node('h5', {}, t(cover.labelKey)), node('p', {}, t('placeholderDropHere'))),
+        node('div', { class: 'placeholder-cover-actions' },
+          node('label', { class: 'placeholder-upload-button' }, node('span', {}, t('placeholderReplace')),
+            node('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp', 'data-placeholder-upload': cover.id })),
+          cover.overridden ? button('placeholder-restore-button', { 'data-placeholder-restore-image': cover.id }, t('placeholderRestore')) : null)),
+      chipList(catalog.filter((tag) => assignedCover(tag) === cover.id), true)));
+    document.getElementById('placeholderTagMap').replaceChildren(automatic, node('div', { class: 'placeholder-cover-zones' }, covers));
   }
 
   function setSwitchState(button, enabled, onLabel = 'Ein', offLabel = 'Aus') {
@@ -955,22 +989,19 @@
   function renderSearchEngineSettings() {
     const select = document.getElementById('searchEngineSetting');
     const defaultEngine = firefoxSearchEngines.find((engine) => engine.isDefault);
-    const firefoxOptions = firefoxSearchEngines.map((engine) => `<option value="firefox:${escapeHtml(engine.name)}">${escapeHtml(engine.name)}${engine.isDefault ? ' · Standard' : ''}</option>`).join('');
-    const builtInOptions = [
-      ['google', 'Google'], ['bing', 'Bing'], ['duckduckgo', 'DuckDuckGo'],
-      ['yahoo', 'Yahoo'], ['yandex', 'Yandex'], ['baidu', 'Baidu']
-    ].map(([value, name]) => `<option value="${value}">${name}</option>`).join('');
-    const customOptions = data.settings.customSearchEngines.map((engine) => `<option value="custom:${escapeHtml(engine.id)}">${escapeHtml(engine.name)}</option>`).join('');
-    select.innerHTML = `<option value="browser-default">${t('browserDefault')}${defaultEngine ? ` · ${escapeHtml(defaultEngine.name)}` : ''}</option>${firefoxOptions}${builtInOptions}${customOptions}`;
-    select.value = [...select.options].some((option) => option.value === data.settings.searchEngine)
-      ? data.settings.searchEngine
-      : 'browser-default';
-    document.getElementById('customSearchEngineList').innerHTML = data.settings.customSearchEngines.map((engine) => `<div class="custom-engine-item"><span><b>${escapeHtml(engine.name)}</b><small>${escapeHtml(engine.urlTemplate)}</small></span><button class="icon-action-button danger" type="button" data-remove-search-engine="${escapeHtml(engine.id)}" title="${t('remove')}" aria-label="${t('remove')}">×</button></div>`).join('');
+    select.replaceChildren(option('browser-default', t('browserDefault') + (defaultEngine ? ` · ${defaultEngine.name}` : '')),
+      ...firefoxSearchEngines.map((engine) => option(`firefox:${engine.name}`, engine.name + (engine.isDefault ? ' · Standard' : ''))),
+      ...[['google', 'Google'], ['bing', 'Bing'], ['duckduckgo', 'DuckDuckGo'], ['yahoo', 'Yahoo'], ['yandex', 'Yandex'], ['baidu', 'Baidu']].map(([value, name]) => option(value, name)),
+      ...data.settings.customSearchEngines.map((engine) => option(`custom:${engine.id}`, engine.name)));
+    select.value = [...select.options].some((entry) => entry.value === data.settings.searchEngine) ? data.settings.searchEngine : 'browser-default';
+    document.getElementById('customSearchEngineList').replaceChildren(...data.settings.customSearchEngines.map((engine) =>
+      node('div', { class: 'custom-engine-item' }, node('span', {}, node('b', {}, engine.name), node('small', {}, engine.urlTemplate)),
+        button('icon-action-button danger', { 'data-remove-search-engine': engine.id, title: t('remove'), 'aria-label': t('remove') }, '×'))));
   }
 
   function renderDefaultStatusSetting() {
     const select = document.getElementById('defaultNewStatusSetting');
-    select.innerHTML = statusViews().map((status) => `<option value="${escapeHtml(status)}">${escapeHtml(statusLabel(status))}</option>`).join('');
+    select.replaceChildren(...statusViews().map((status) => option(status, statusLabel(status))));
     select.value = data.settings.defaultNewStatus;
   }
 
@@ -1058,10 +1089,8 @@
 
   /** Zeigt die Sterne im Bearbeitungsdialog an. */
   function renderDialogStars() {
-    elements.dialogStars.innerHTML = Array.from({ length: ratingMax() }, (_, index) => {
-      const score = index + 1;
-      return `<button class="star ${score <= dialogRating ? 'on' : ''}" type="button" data-dialog-rating="${score}" title="${score}/${ratingMax()}">★</button>`;
-    }).join('');
+    elements.dialogStars.replaceChildren(...Array.from({ length: ratingMax() }, (_, i) =>
+      button('star' + (i + 1 <= dialogRating ? ' on' : ''), { 'data-dialog-rating': i + 1, title: `${i + 1}/${ratingMax()}` }, '★')));
   }
 
   function openDialog(id = '') {
@@ -1078,7 +1107,7 @@
       || (detectChapterForItem ? MangaStore.chapterFromUrl(item?.url || '') : '');
     const readingCount = data.items.filter((candidate) => candidate.status === 'reading').length;
     const readingLimit = MangaStore.getReadingLimit(data);
-    document.getElementById('statusInput').innerHTML = statusViews().map((status) => `<option value="${escapeHtml(status)}">${escapeHtml(statusLabel(status))}</option>`).join('');
+    document.getElementById('statusInput').replaceChildren(...statusViews().map((status) => option(status, statusLabel(status))));
     const readingOption = document.querySelector('#statusInput option[value="reading"]');
     readingOption.disabled = readingCount >= readingLimit && item?.status !== 'reading';
     readingOption.textContent = readingOption.disabled
@@ -1182,24 +1211,26 @@
 
   /** Baut die Firefox-Ordnerliste samt individueller Startbewertung. */
   function renderBookmarkFolders() {
-    const container = document.getElementById('bookmarkFolderList');
-    const ratingOptions = [`<option value="0">${t('noRating')}</option>`]
-      .concat(Array.from({ length: ratingMax() }, (_, index) => `<option value="${index + 1}">${index + 1} ${t('stars')}</option>`))
-      .join('');
-    container.innerHTML = bookmarkFolders.length ? bookmarkFolders.map((folder, index) => `<div class="folder-option">
-      <input id="folder-${index}" type="checkbox" data-folder-check value="${escapeHtml(folder.id)}">
-      <label class="folder-copy" for="folder-${index}"><strong>${escapeHtml(folder.title)}</strong><span>${escapeHtml(folder.path.join(' / '))} · ${folder.bookmarkCount} ${t('bookmarkCount')}</span></label>
-      <select class="folder-rating" data-folder-rating="${escapeHtml(folder.id)}" aria-label="${escapeHtml(t('folderRating', folder.title))}">${ratingOptions}</select>
-    </div>`).join('') : `<div class="folder-empty">${t('noFolders')}</div>`;
+    document.getElementById('bookmarkFolderList').replaceChildren(...(bookmarkFolders.length ? bookmarkFolders.map((folder, index) =>
+      node('div', { class: 'folder-option' },
+        node('input', { id: `folder-${index}`, type: 'checkbox', 'data-folder-check': '', value: folder.id }),
+        node('label', { class: 'folder-copy', for: `folder-${index}` }, node('strong', {}, folder.title),
+          node('span', {}, `${folder.path.join(' / ')} · ${folder.bookmarkCount} ${t('bookmarkCount')}`)),
+        node('select', { class: 'folder-rating', 'data-folder-rating': folder.id, 'aria-label': t('folderRating', folder.title) },
+          option('0', t('noRating')),
+          Array.from({ length: ratingMax() }, (_, i) => option(String(i + 1), `${i + 1} ${t('stars')}`)))))
+      : [node('div', { class: 'folder-empty' }, t('noFolders'))]));
     document.getElementById('selectAllFolders').checked = false;
   }
 
   function renderBookmarkEntries(entries) {
-    const container = document.getElementById('bookmarkFolderList');
-    container.innerHTML = entries.length ? entries.map((bookmark, index) => `<div class="folder-option bookmark-option">
-      <input id="bookmark-${index}" type="checkbox" data-bookmark-check value="${escapeHtml(bookmark.id)}">
-      <label class="folder-copy" for="bookmark-${index}"><strong>${escapeHtml(bookmark.title)}</strong><span>${escapeHtml(bookmark.path.join(' / '))}${bookmark.currentChapter ? ` · Chapter ${escapeHtml(bookmark.currentChapter)}` : ''}</span><small>${escapeHtml(bookmark.url)}</small></label>
-    </div>`).join('') : `<div class="folder-empty">${t('noBookmarks')}</div>`;
+    document.getElementById('bookmarkFolderList').replaceChildren(...(entries.length ? entries.map((bookmark, index) =>
+      node('div', { class: 'folder-option bookmark-option' },
+        node('input', { id: `bookmark-${index}`, type: 'checkbox', 'data-bookmark-check': '', value: bookmark.id }),
+        node('label', { class: 'folder-copy', for: `bookmark-${index}` }, node('strong', {}, bookmark.title),
+          node('span', {}, bookmark.path.join(' / ') + (bookmark.currentChapter ? ` · Chapter ${bookmark.currentChapter}` : '')),
+          node('small', {}, bookmark.url))))
+      : [node('div', { class: 'folder-empty' }, t('noBookmarks'))]));
     document.getElementById('selectAllFolders').checked = false;
   }
 

@@ -235,8 +235,9 @@ Das Overlay wird auf Nutzeraktion injiziert; der breite Hostzugriff existiert
 trotzdem für externe Bildzugriffe. `unlimitedStorage` hebt Sync-Quoten nicht auf.
 
 Benutzernamen und Tags dürfen nicht ungeprüft als HTML eingebaut werden.
-Neue DOM-Texte über `textContent` setzen; vorhandene Templates verwenden
-`escapeHtml()`. Nachrichten und importierte Daten müssen am Speichervertrag
+Neue DOM-Texte über `textContent` setzen; dynamische Listen verwenden DOM-Erzeugung
+und Text-/Werteigenschaften statt HTML-Parsing. Nur das statische Overlay-Grundgerüst
+verwendet ein HTML-Literal ohne Interpolation. Nachrichten und importierte Daten müssen am Speichervertrag
 validiert werden. Keine Geheimnisse oder Zugangsdaten in Repository/Logs ablegen.
 
 Es gibt keinen Support-Button und keine nachgeladenen Widget-Skripte.
@@ -268,6 +269,7 @@ Locale-Texte angepasst. Nicht den generierten Build als separate Codebasis pfleg
 | `chrome.test.js` | Chrome-Worker mit API-Mocks, Import, Nachrichten, Cover, Sync-Alarme |
 | `overlay-tags.test.js` | Optionaler Chromium-UI-Test: Tags, Abbrechen, Neuinjektion, kein Support-Button |
 | `dashboard-tags.test.js` | Optionaler Chromium-UI-Test: Formular-Tags und entfernte Support-Elemente |
+| `dom-rendering.test.js` | Optionaler Chromium-UI-Test: HTML-ähnliche Eingaben, Tabelle/Kacheln, Einstellungen, Logs und Import |
 
 Die vier ersten Tests laufen im Build. Die UI-Tests benötigen zusätzlich
 Playwright und ein Chromium-Executable als erstes Argument. Sie verwenden

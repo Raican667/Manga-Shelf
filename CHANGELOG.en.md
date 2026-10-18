@@ -6,6 +6,15 @@ All notable changes to Manga-Regal are documented in this file. The format is
 based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.20.9] – 2026-10-18
+
+### Security
+
+- Replaced dynamic HTML assignments in the collection and save popup with DOM creation and text/value properties.
+- Custom category names in status selectors are no longer interpreted as HTML.
+- Added regression tests for markup-shaped titles, tags, categories, search engines, logs and bookmarks.
+- Static checks prevent new dynamic HTML assignments; the overlay shell remains an immutable literal.
+
 ## [0.20.8] – 2026-10-18
 
 ### Changed

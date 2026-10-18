@@ -6,6 +6,15 @@ Alle nennenswerten Änderungen an Manga-Regal werden in dieser Datei dokumentier
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/),
 die Versionsnummern folgen der [semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.20.9] – 2026-10-18
+
+### Sicherheit
+
+- Dynamische HTML-Zuweisungen in Sammlung und Speicher-Pop-up durch DOM-Erzeugung und Text-/Werteigenschaften ersetzt.
+- Benutzerdefinierte Kategorienamen werden in Statusauswahlen nicht mehr als HTML verarbeitet.
+- Regressionstests für HTML-ähnliche Eingaben in Titeln, Tags, Kategorien, Suchmaschinen, Logs und Lesezeichen ergänzt.
+- Statische Prüfung verhindert neue dynamische HTML-Zuweisungen; das Overlay-Grundgerüst bleibt ein unveränderliches Literal.
+
 ## [0.20.8] – 2026-10-18
 
 ### Geändert

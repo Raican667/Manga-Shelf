@@ -164,9 +164,6 @@
   document.documentElement.appendChild(root);
 
   const byId = (id) => root.querySelector(`#${id}`);
-  const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, (character) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
-  })[character]);
   const titleInput = byId('mr-entry-title');
   const urlInput = byId('mr-entry-url');
   const tagPicker = byId('mr-tag-picker');
@@ -279,7 +276,13 @@
     const custom = Object.fromEntries((settings.customCategories || []).map((category) => [category.id, category.name]));
     const defaults = { active: ot('active'), reading: ot('reading'), hold: ot('hold'), dropped: ot('dropped'), completed: ot('completed') };
     const statuses = ['active', 'reading', 'hold', 'dropped', 'completed', ...(settings.customCategories || []).map((category) => category.id)];
-    statusInput.innerHTML = statuses.map((status) => `<option ${status === 'reading' ? 'id="mr-reading-option"' : ''} value="${escapeHtml(status)}">${escapeHtml(names[status] || custom[status] || defaults[status] || status)}</option>`).join('');
+    statusInput.replaceChildren(...statuses.map((status) => {
+      const option = document.createElement('option');
+      option.value = status;
+      option.textContent = names[status] || custom[status] || defaults[status] || status;
+      if (status === 'reading') option.id = 'mr-reading-option';
+      return option;
+    }));
     root.dataset.defaultNewStatus = statuses.includes(settings.defaultNewStatus) ? settings.defaultNewStatus : 'active';
     root.dataset.chapterDetectionEnabled = String(globalChapterDetection);
     byId('mr-stars').setAttribute('aria-label', `${ot('rating')}: ${ratingMax} ${overlayLanguage === 'en' ? 'stars' : 'Sterne'}`);
@@ -367,10 +370,16 @@
 
   /** Zeigt die ausgewählte Bewertung optisch an. */
   function renderStars() {
-    byId('mr-stars').innerHTML = Array.from({ length: ratingMax }, (_, index) => {
+    byId('mr-stars').replaceChildren(...Array.from({ length: ratingMax }, (_, index) => {
       const value = index + 1;
-      return `<button class="mr-star ${value <= currentRating ? 'mr-on' : ''}" type="button" data-rating="${value}" aria-label="${ot('stars', value, ratingMax)}">★</button>`;
-    }).join('');
+      const button = document.createElement('button');
+      button.className = 'mr-star' + (value <= currentRating ? ' mr-on' : '');
+      button.type = 'button';
+      button.dataset.rating = String(value);
+      button.setAttribute('aria-label', ot('stars', value, ratingMax));
+      button.textContent = '★';
+      return button;
+    }));
   }
 
   /** Aktualisiert die Cover-Vorschau oder blendet einen neutralen Platzhalter ein. */

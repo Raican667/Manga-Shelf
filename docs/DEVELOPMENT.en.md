@@ -179,8 +179,9 @@ remote changes schedule restore. Quotas/propagation delays remain external limit
 Permissions: activeTab/bookmarks/search/scripting/storage/tabs/unlimitedStorage
 and `<all_urls>` hosts; Chrome adds alarms. User action triggers overlay injection,
 but broad host access remains for images. Unlimited storage does not remove sync
-quotas. Use `textContent` for untrusted DOM text and `escapeHtml()` in existing
-templates. Validate messages/imports; no credentials/secrets in code or logs.
+quotas. Use `textContent` for untrusted DOM text. Dynamic lists use DOM creation
+and text/value properties, not HTML parsing. Only the static overlay shell uses
+an HTML literal without interpolation. Validate messages/imports; no credentials/secrets in code or logs.
 There is no support button or remote widget script. Search opens
 the selected service. No proprietary telemetry or payment server is implemented.
 
@@ -208,6 +209,7 @@ packages as separate source code.
 | chrome.test.js | API-mocked worker, import, messages, covers, sync alarms |
 | overlay-tags.test.js | Optional Chromium tags/cancellation/reinjection/no support button |
 | dashboard-tags.test.js | Optional Chromium form tags/removed support elements |
+| dom-rendering.test.js | Optional Chromium markup-shaped input/table/cards/settings/logs/import |
 
 First four run during build. UI tests require Playwright and a Chromium executable
 as the first argument; isolated mocks/fixtures do not replace installed-extension tests.

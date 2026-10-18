@@ -57,10 +57,20 @@ const { chromium } = require('playwright');
     assert.equal(await trigger.isVisible(), false);
     await page.evaluate(() => {
       const originalLoad = MangaStore.load;
-      MangaStore.load = async () => { const data = await originalLoad(); data.settings.showSupportButton = false; return data; };
+      MangaStore.load = async () => {
+        const data = await originalLoad();
+        data.settings.showSupportButton = false;
+        data.settings.categoryNames.active = '</option><img data-injected-probe>';
+        data.settings.tagPresets.push('<img data-injected-probe>');
+        return data;
+      };
     });
     await page.evaluate(() => new Promise((resolve) => overlayMessageHandler({ type: 'manga-regal:toggle-overlay' }, {}, resolve)));
     assert.equal(await page.locator('#mr-support').count(), 0);
+    assert.equal(await page.locator('#mr-entry-status option[value="active"]').textContent(), '</option><img data-injected-probe>');
+    await trigger.click();
+    assert.ok((await page.locator('#mr-tag-options').textContent()).includes('<img data-injected-probe>'));
+    assert.equal(await page.locator('[data-injected-probe]').count(), 0);
     console.log('Overlay tag selection: six presets, select/remove, Escape and Done verified in Chromium.');
   } finally { await browser.close(); }
 })().catch((error) => { console.error(error); process.exitCode = 1; });
