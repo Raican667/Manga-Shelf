@@ -3,7 +3,7 @@
 ## Reporting a vulnerability
 
 Please report suspected security vulnerabilities privately through
-[GitHub's vulnerability reporting form](https://github.com/Raican667/MangaShelf-Public/security/advisories/new).
+[GitHub's vulnerability reporting form](https://github.com/Raican667/Manga-Shelf/security/advisories/new).
 You can also find it under **Security → Report a vulnerability**.
 
 Include:
@@ -26,4 +26,4 @@ have also tested the current release.
 ## Other issues
 
 For ordinary bugs, feature requests and installation questions, use
-[GitHub Issues](https://github.com/Raican667/MangaShelf-Public/issues).
+[GitHub Issues](https://github.com/Raican667/Manga-Shelf/issues).

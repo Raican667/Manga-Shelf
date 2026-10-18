@@ -7,9 +7,9 @@ tags and re-reads in a local collection.
 
 **English** · [Deutsch](README.de.md)
 
-[Download Firefox](https://github.com/Raican667/MangaShelf-Public/releases/download/v0.20.8/manga-regal-firefox-0.20.8.zip) ·
-[Download Chrome](https://github.com/Raican667/MangaShelf-Public/releases/download/v0.20.8/manga-regal-chrome-0.20.8.zip) ·
-[All releases](https://github.com/Raican667/MangaShelf-Public/releases) · [Changelog](CHANGELOG.en.md)
+[Download Firefox](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.8/manga-regal-firefox-0.20.8.zip) ·
+[Download Chrome](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.8/manga-regal-chrome-0.20.8.zip) ·
+[All releases](https://github.com/Raican667/Manga-Shelf/releases) · [Changelog](CHANGELOG.en.md)
 
 **Version 0.20.8** · Firefox 142+ · Chrome 148+ · German / English · GPLv3
 
@@ -109,7 +109,7 @@ Output in `build/`. The Chrome manifest is derived from the Firefox manifest.
 
 ## Report an issue
 
-[GitHub Issues](https://github.com/Raican667/MangaShelf-Public/issues): include browser/version,
+[GitHub Issues](https://github.com/Raican667/Manga-Shelf/issues): include browser/version,
 extension version and reproduction steps. Never publish cookies, credentials
 or private collections.
 

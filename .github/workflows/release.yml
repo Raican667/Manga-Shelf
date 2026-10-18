@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   release:
-    if: github.repository == 'Raican667/MangaShelf-Public'
+    if: github.repository == 'Raican667/Manga-Shelf'
     permissions:
       contents: write
     runs-on: windows-latest
