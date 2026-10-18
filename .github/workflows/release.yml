@@ -49,7 +49,9 @@ jobs:
           gh release view $tag --json tagName 2>$null
           if ($LASTEXITCODE -eq 0) {
             gh release upload $tag @assets --clobber
+            if ($LASTEXITCODE -ne 0) { throw 'Uploading browser packages failed' }
+            gh release edit $tag --title "Manga Shelf $version" --notes-file build/release-notes.md
           } else {
-            gh release create $tag @assets --verify-tag --title "Manga-Regal / Manga Shelf $version" --notes-file build/release-notes.md --latest
+            gh release create $tag @assets --verify-tag --title "Manga Shelf $version" --notes-file build/release-notes.md --latest
           }
           if ($LASTEXITCODE -ne 0) { throw 'Publishing browser packages failed' }

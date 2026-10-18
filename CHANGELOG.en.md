@@ -6,16 +6,12 @@ All notable changes to Manga-Regal are documented in this file. The format is
 based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 versions follow [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.20.8] – 2026-10-18
 
 ### Changed
 
 - Changed Firefox ID to `manga-shelf@local.example`. Separate installation; transfer an existing collection using JSON backup.
 - ZIP filenames and build/release references use `manga-shelf` instead of `manga-regal`.
-
-## [0.20.8] – 2026-10-18
-
-### Changed
 
 - Changed the project license to GPL-3.0-only. Previous MIT grants remain in effect.
 - Public baseline with fresh Git history; no old private records are migrated.
