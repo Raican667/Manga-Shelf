@@ -7,8 +7,8 @@ tags and re-reads in a local collection.
 
 **English** · [Deutsch](README.de.md)
 
-[Download Firefox](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.8/manga-regal-firefox-0.20.8.zip) ·
-[Download Chrome](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.8/manga-regal-chrome-0.20.8.zip) ·
+[Download Firefox](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.8/manga-shelf-firefox-0.20.8.zip) ·
+[Download Chrome](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.8/manga-shelf-chrome-0.20.8.zip) ·
 [All releases](https://github.com/Raican667/Manga-Shelf/releases) · [Changelog](CHANGELOG.en.md)
 
 **Version 0.20.8** · Firefox 142+ · Chrome 148+ · German / English · GPLv3
@@ -33,6 +33,10 @@ The ZIPs are test packages. **“Code → Download ZIP” and “Source code” 
 source archives, not ready-to-use browser packages.**
 
 ### Firefox
+
+The current build uses the new Firefox ID `manga-shelf@local.example`. It installs
+separately from the previous Manga-Regal ID. Export a JSON backup from the old
+extension and import it into Manga Shelf to transfer your collection.
 
 1. Download the Firefox ZIP.
 2. Open `about:debugging#/runtime/this-firefox`.

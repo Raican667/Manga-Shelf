@@ -8,7 +8,7 @@ $projectRoot = $PSScriptRoot
 $buildDirectory = Join-Path $projectRoot 'build'
 $manifestPath = Join-Path $projectRoot 'manifest.json'
 $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
-$packagePath = Join-Path $buildDirectory "manga-regal-firefox-$($manifest.version).zip"
+$packagePath = Join-Path $buildDirectory "manga-shelf-firefox-$($manifest.version).zip"
 
 # Manifest vor dem Packen auf gültiges JSON prüfen.
 $manifest | Out-Null
@@ -81,7 +81,7 @@ if ($Browser -ne 'firefox') {
   foreach ($file in $packageFiles) { Copy-Item -LiteralPath $file -Destination $chromeStage -Recurse }
   & $node.Source (Join-Path $projectRoot 'scripts\chrome-manifest.js') (Join-Path $chromeStage 'manifest.json')
   if ($LASTEXITCODE -ne 0) { throw 'Chrome-Manifest konnte nicht erstellt werden' }
-  $chromePackage = Join-Path $buildDirectory "manga-regal-chrome-$($manifest.version).zip"
+  $chromePackage = Join-Path $buildDirectory "manga-shelf-chrome-$($manifest.version).zip"
   Compress-Archive -Path (Join-Path $chromeStage '*') -DestinationPath $chromePackage -CompressionLevel Optimal -Force
   Write-Host "Paket erstellt: $chromePackage"
 }
