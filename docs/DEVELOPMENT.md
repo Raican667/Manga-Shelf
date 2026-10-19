@@ -235,7 +235,15 @@ Chrome ergänzt `alarms`, verlangt aber keine dauerhaften Hostrechte bei der Ins
 `activeTab` und `scripting` reichen für das Overlay nach einer Nutzeraktion.
 HTTP(S)-Hosts stehen nur als optionale Rechte im Chrome-Manifest, da Cover-CDNs
 nicht vorab bekannt sind. Angefragt wird ausschließlich Schema und Hostname des
-konkreten gespeicherten Covers, z. B. `https://cdn.example.org/*`, nie alle Seiten.
+konkreten gespeicherten Covers, z. B. `https://cdn.example.org/*`.
+Der optionale Schalter Cover automatisch von allen Webseiten laden fordert dagegen
+auf ausdrücklichen Klick `http://*/*` und `https://*/*` an, vor jedem await im Handler.
+Ausschalten ruft `permissions.remove` für beide Muster auf; einzelne Domains können
+danach eine neue Freigabe benötigen. `permissions.contains` liefert den Zustand;
+es gibt keine synchronisierte Einstellung, die Zugriff ohne Zustimmung aktiviert.
+Externe Änderungen an Browser-Rechten aktualisieren den Schalter. Ablehnung lässt
+ihn aus. Start, Rendern, Lazy Loading und Einstellungen-Speichern fragen keine Rechte
+an. Bereits lokale Cover bleiben erhalten.
 
 Cover-Anfragen im Content-Skript unterliegen weiterhin der Seiten-CORS-Regel.
 Der Chrome-Hintergrund prüft vor Netzwerkanfragen `permissions.contains`.

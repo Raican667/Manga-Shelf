@@ -6,6 +6,16 @@ Alle nennenswerten Änderungen an Manga-Regal werden in dieser Datei dokumentier
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/),
 die Versionsnummern folgen der [semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.20.11] – 2026-10-19
+
+### Hinzugefügt
+
+- Optionaler Chrome-Schalter „Cover automatisch von allen Webseiten laden“ in Einstellungen → Oberfläche.
+- Einmalige freiwillige Freigabe aller HTTP-/HTTPS-Webseiten statt einzelner Cover-Domain-Freigaben. Standardmäßig bleibt der Zugriff eingeschränkt.
+- Ausschalten widerruft die umfassenden Hostrechte. Lokale Cover bleiben erhalten; einzelne Domains können danach wieder eine Freigabe benötigen.
+- Der Schalter folgt den tatsächlichen Browser-Rechten, auch nach externem Widerruf. Die Freigabe wird nicht synchronisiert oder aus Backups aktiviert.
+- Tests für Zustimmung, Ablehnung, Widerruf und unveränderte lokale Cover. Firefox-Berechtigungen bleiben unverändert.
+
 ## [0.20.10] – 2026-10-19
 
 ### Geändert

@@ -6,6 +6,16 @@ All notable changes to Manga-Regal are documented in this file. The format is
 based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.20.11] – 2026-10-19
+
+### Added
+
+- Optional Chrome setting “Automatically load covers from all websites” under Settings → Interface.
+- A one-time voluntary HTTP/HTTPS all-sites grant replaces individual cover-domain prompts. Limited access remains the default.
+- Switching off revokes broad host access. Local covers remain stored; individual domains may need permission again.
+- The switch reflects actual browser grants, including external revocation. Consent is never synchronized or enabled from backups.
+- Tests cover grant, denial, revocation and preserved local covers. Firefox permissions are unchanged.
+
 ## [0.20.10] – 2026-10-19
 
 ### Changed

@@ -337,14 +337,30 @@
   // vollständige Historie liegt zentral im CHANGELOG.md des Repositories.
   const patchNotes = {
     de: [
-      { version: '0.20.10', date: '19.10.2026', title: 'Gezielte Cover-Freigaben in Chrome', notes: ['Chrome nutzt activeTab statt dauerhaftem Zugriff auf alle Webseiten.', 'Zusätzliche Cover-Domains werden nur auf ausdrücklichen Wunsch freigegeben. Mangas bleiben auch ohne Freigabe gespeichert.', 'Lokale Cover bleiben erhalten; Firefox-Berechtigungen sind unverändert.'] },
+      { version: '0.20.11', date: '19.10.2026', title: 'Optionale umfassende Cover-Freigabe', notes: ['Neuer Chrome-Schalter: Cover automatisch von allen Webseiten laden.', 'Einmalige freiwillige Freigabe statt einzelner Domain-Nachfragen; Ausschalten widerruft den umfassenden Zugriff.', 'Browserlokaler Freigabestatus, keine Aktivierung durch Sync oder Import. Lokale Cover und Firefox bleiben unverändert.'] },
     ],
     en: [
-      { version: '0.20.10', date: '2026-10-19', title: 'Targeted Chrome cover permissions', notes: ['Chrome uses activeTab instead of permanent access to all websites.', 'Additional cover domains are allowed only on request. Manga entries remain saved if permission is declined.', 'Local covers are preserved; Firefox permissions are unchanged.'] },
+      { version: '0.20.11', date: '2026-10-19', title: 'Optional broad cover access', notes: ['New Chrome switch: Automatically load covers from all websites.', 'A one-time optional grant replaces individual domain prompts; switching off revokes broad access.', 'Consent is local to this browser, never enabled through sync or import. Local covers and Firefox are unchanged.'] },
     ]
   };
   Object.assign(translations.de, { coverAccess: 'Cover-Domain freigeben', coverPermission: 'Manga gespeichert. Für den Cover-Download kannst du die Bild-Domain freigeben.' });
   Object.assign(translations.en, { coverAccess: 'Allow cover domain', coverPermission: 'Manga saved. You can allow the image domain to download its cover.' });
+  Object.assign(translations.de, {
+    allCoverAccess: 'Cover automatisch von allen Webseiten laden',
+    allCoverAccessHint: 'Optional: Chrome einmalig Zugriff auf alle HTTP-/HTTPS-Webseiten erlauben. Danach entfallen einzelne Domain-Freigaben. Ausschalten widerruft die umfassende Freigabe; lokale Cover bleiben erhalten.',
+    allCoverAccessEnabled: 'Automatischer Cover-Zugriff für alle Webseiten aktiviert',
+    allCoverAccessDisabled: 'Umfassende Cover-Freigabe widerrufen. Einzelne Domains können wieder eine Freigabe benötigen.',
+    allCoverAccessDeclined: 'Nicht freigegeben. Der eingeschränkte Cover-Zugriff bleibt aktiv.',
+    allCoverAccessFailed: 'Die Cover-Freigabe konnte nicht geändert werden.'
+  });
+  Object.assign(translations.en, {
+    allCoverAccess: 'Automatically load covers from all websites',
+    allCoverAccessHint: 'Optional: allow Chrome access to all HTTP/HTTPS websites once. This removes individual domain prompts. Switching off revokes broad access; local covers are kept.',
+    allCoverAccessEnabled: 'Automatic cover access for all websites enabled',
+    allCoverAccessDisabled: 'Broad cover access revoked. Individual domains may need permission again.',
+    allCoverAccessDeclined: 'Permission not granted. Limited cover access remains active.',
+    allCoverAccessFailed: 'Cover access could not be changed.'
+  });
 
   Object.assign(translations.de, { syncBookmarks: 'Browser-Lesezeichen importieren', bookmarksEyebrow: 'Browser-Lesezeichen', bookmarkExportTitle: 'Zurück zu den Browser-Lesezeichen', bookmarkExportDescription: 'Erstellt aus der Sammlung normale Browser-Lesezeichen in Kategorieordnern.', showImportButton: 'Lesezeichen-Importknopf anzeigen', showImportButtonHint: 'Blendet den Browser-Lesezeichen-Import im Kopfbereich ein oder aus.' });
   Object.assign(translations.en, { syncBookmarks: 'Import browser bookmarks', bookmarksEyebrow: 'Browser bookmarks', bookmarkExportTitle: 'Back to browser bookmarks', bookmarkExportDescription: 'Creates regular browser bookmarks from the collection, organized into category folders.', showImportButton: 'Show bookmark import button', showImportButtonHint: 'Show or hide browser bookmark import in the header.' });
@@ -936,6 +952,28 @@
     if (label) label.textContent = enabled ? onLabel : offLabel;
   }
 
+  let coverAccessBusy = false;
+  let coverAccessRevision = 0;
+  async function refreshCoverAccessSetting() {
+    const control = document.getElementById('allCoverAccessControl');
+    control.hidden = !globalThis.MangaPlatform?.isChrome;
+    if (control.hidden) return;
+    const revision = ++coverAccessRevision;
+    const button = document.getElementById('allCoverAccessSetting');
+    try {
+      const enabled = await MangaPlatform.hasAllCoverAccess();
+      if (revision !== coverAccessRevision) return;
+      setSwitchState(button, enabled, data.settings.language === 'en' ? 'On' : 'Ein', data.settings.language === 'en' ? 'Off' : 'Aus');
+      button.disabled = coverAccessBusy;
+    } catch { button.disabled = true; }
+  }
+
+  // External revocation in Chrome must be reflected without saving settings.
+  if (globalThis.MangaPlatform?.isChrome) {
+    browser.permissions.onAdded?.addListener(() => { void refreshCoverAccessSetting(); });
+    browser.permissions.onRemoved?.addListener(() => { void refreshCoverAccessSetting(); });
+  }
+
   /**
    * Liest nur die kleine lokale Sync-Statistik und die entfernte Meta-Information.
    * Die eigentlichen Manga-Bündel werden hier nicht geladen; dadurch bleibt das
@@ -1020,6 +1058,7 @@
       button.classList.toggle('active', button.dataset.view === currentView);
     });
     if (admin) {
+      void refreshCoverAccessSetting();
       renderLogs();
       renderPatchlog();
       document.getElementById('readingLimitInput').value = MangaStore.getReadingLimit(data);
@@ -1601,6 +1640,31 @@
     await reload();
     toast(t('preferencesSaved'));
   });
+  document.getElementById('allCoverAccessSetting').addEventListener('click', async () => {
+    if (!globalThis.MangaPlatform?.isChrome || coverAccessBusy) return;
+    const button = document.getElementById('allCoverAccessSetting');
+    const wasEnabled = button.getAttribute('aria-checked') === 'true';
+    coverAccessBusy = true;
+    button.disabled = true;
+    try {
+      // No awaits before request(): Chrome requires the original click gesture.
+      const accepted = await (wasEnabled ? MangaPlatform.removeAllCoverAccess() : MangaPlatform.requestAllCoverAccess());
+      const enabled = await MangaPlatform.hasAllCoverAccess();
+      if (enabled !== wasEnabled) {
+        await MangaStore.update((current) => {
+          MangaStore.appendLog(current, 'info', 'Chrome', t(enabled ? 'allCoverAccessEnabled' : 'allCoverAccessDisabled'), '');
+        });
+        await reload();
+      }
+      toast(t(wasEnabled ? (enabled ? 'allCoverAccessFailed' : 'allCoverAccessDisabled')
+        : accepted && enabled ? 'allCoverAccessEnabled' : 'allCoverAccessDeclined'));
+    } catch { toast(t('allCoverAccessFailed')); }
+    finally {
+      coverAccessBusy = false;
+      await refreshCoverAccessSetting();
+    }
+  });
+
   document.getElementById('ratingScaleSetting').addEventListener('change', async (event) => {
     const nextScale = Number(event.target.value);
     if (!(await confirmRatingScaleReduction(nextScale))) {

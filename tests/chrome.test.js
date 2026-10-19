@@ -8,7 +8,7 @@ const vm = require('node:vm');
 const chromeManifest = require('../scripts/chrome-manifest.js');
 const root = path.resolve(__dirname, '..');
 const manifest = chromeManifest(JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'))));
-assert.equal(manifest.version, '0.20.10');
+assert.equal(manifest.version, '0.20.11');
 assert.equal(manifest.background.service_worker, 'background/service-worker.js');
 assert.equal(manifest.minimum_chrome_version, '148');
 assert.equal(manifest.browser_specific_settings, undefined);
@@ -25,6 +25,8 @@ let search;
 let coverFetches = 0;
 const grantedOrigins = new Set();
 const checkedOrigins = [];
+const permissionRequests = [], permissionRemovals = [];
+let acceptBroadAccess = false;
 const event = (name) => ({ addListener(fn) { events[name] = fn; } });
 const storage = {
   async get(key) { return key == null ? structuredClone(memory) : { [key]: structuredClone(memory[key]) }; },
@@ -42,7 +44,9 @@ const browser = {
   bookmarks: { onChanged: event('bookmarkChanged'), onRemoved: event('bookmarkRemoved'), getTree: async () => [{ id: '0', children: [{ id: '1', title: 'Bookmarks bar', children: [{ id: '10', title: 'Manga', children: [{ id: '11', title: 'Chrome manga Chapter 42', url: 'https://example.org/chapter-42', dateAdded: 1700000000000 }] }] }, { id: '2', title: 'Other bookmarks', children: [] }] }] },
   search: { query: async (details) => { search = details; } },
   // Deliberately no data_collection or commands.update: they are Firefox-only.
-  permissions: { contains: async ({ origins }) => { checkedOrigins.push(...origins); return origins.every((origin) => grantedOrigins.has(origin)); }, getAll: async () => { throw new Error('Mozilla permission used in Chrome'); } }
+  permissions: { contains: async ({ origins }) => { checkedOrigins.push(...origins); return origins.every((origin) => grantedOrigins.has(origin) || grantedOrigins.has(new URL(origin.replace('*', '')).protocol + '//*/*')); }, request: async ({ origins }) => { permissionRequests.push(...origins); if (acceptBroadAccess) origins.forEach((origin) => grantedOrigins.add(origin)); return acceptBroadAccess; },
+    remove: async ({ origins }) => { permissionRemovals.push(...origins); origins.forEach((origin) => grantedOrigins.delete(origin)); return true; },
+    getAll: async () => { throw new Error('Mozilla permission used in Chrome'); } }
 };
 const png = fs.readFileSync(path.join(root, 'icons/manga-regal-32.png'));
 const context = vm.createContext({ browser, console, URL, Blob, Response, TextEncoder, TextDecoder,
@@ -118,6 +122,20 @@ function message(request) {
   const disabled = disabledData.items.find((entry) => entry.url === 'https://example.org/disabled');
   assert.equal((await message({ type: 'manga-regal:cache-cover', itemId: disabled.id })).status, 'disabled');
   assert.equal(coverFetches, 1);
+  assert.equal(await context.MangaPlatform.hasAllCoverAccess(), false);
+  assert.equal(await context.MangaPlatform.requestAllCoverAccess(), false);
+  assert.equal(await context.MangaPlatform.hasAllCoverAccess(), false);
+  acceptBroadAccess = true;
+  assert.equal(await context.MangaPlatform.requestAllCoverAccess(), true);
+  assert.equal(await context.MangaPlatform.hasAllCoverAccess(), true);
+  assert.deepEqual(permissionRequests.slice(-2), ['http://*/*', 'https://*/*']);
+  assert.equal(await context.MangaPlatform.hasCoverAccess('https://new-cdn.example.net/image.png'), true);
+  assert.equal(await context.MangaPlatform.hasCoverAccess('http://another.example.net/image.png'), true);
+  assert.equal(await context.MangaPlatform.removeAllCoverAccess(), true);
+  assert.deepEqual(permissionRemovals, ['http://*/*', 'https://*/*']);
+  assert.equal(await context.MangaPlatform.hasAllCoverAccess(), false);
+  assert.equal(await context.MangaPlatform.hasCoverAccess('https://new-cdn.example.net/image.png'), false);
+  assert.match(await context.MangaStore.getStoredCover(item.id), /^data:image\/png;base64,/);
   events.storage({ [context.MangaStore.STORAGE_KEY]: {} }, 'local');
   assert.ok(alarms.some((alarm) => alarm.name === 'manga-regal:sync-upload'));
   events.storage({ [context.MangaSync.PREFIX + 'meta']: {} }, 'sync');

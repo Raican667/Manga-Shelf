@@ -180,8 +180,14 @@ Permissions: activeTab/bookmarks/search/scripting/storage/tabs/unlimitedStorage
 Firefox retains `<all_urls>` hosts. Chrome adds alarms but no required host permissions:
 `activeTab` + `scripting` inject the overlay only on user action. Chrome declares
 HTTP(S) optional hosts because cover CDNs are not known in advance. Only the saved
-cover's exact scheme/hostname (`https://cdn.example.org/*`) is requested; no wildcard
-subdomain or all-sites permission is requested at runtime.
+cover's exact scheme/hostname (`https://cdn.example.org/*`) is requested by default.
+The optional Automatically Load Covers From All Websites switch explicitly requests
+both `http://*/*` and `https://*/*` in its synchronous click handler. Turning it off
+calls `permissions.remove` for both patterns; specific domains may need permission
+again. Permission state is read with `permissions.contains`, not stored as a synced
+preference. Imports and backups cannot grant access. The switch reflects external
+permission additions/removals and stays off after denial. No grant is requested on
+startup, rendering, lazy loading or saving settings. Existing local images are kept.
 
 Content-script cover requests still obey page CORS. If they fail, the Chrome
 extension-side fallback checks `permissions.contains` before any network attempt.

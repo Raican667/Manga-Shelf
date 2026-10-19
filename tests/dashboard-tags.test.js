@@ -34,6 +34,7 @@ const { chromium } = require('playwright');
     await page.waitForFunction(async () => (await MangaStore.load()).items.length === 1);
     assert.deepEqual((await page.evaluate(() => MangaStore.load())).items[0].tags, ['Re-Read']);
     await page.locator('[data-view="admin"]').click();
+    assert.equal(await page.locator('#allCoverAccessSetting').isVisible(), false, 'Chrome host control must not appear in Firefox');
     assert.equal(await page.locator('#supportButton, #showSupportButtonSetting').count(), 0);
     assert.deepEqual(errors, []);
     console.log('Dashboard tags: no free text, Cancel rollback, green Re-Read and deferred persistence verified.');
