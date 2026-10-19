@@ -6,6 +6,16 @@ Alle nennenswerten Änderungen an Manga-Regal werden in dieser Datei dokumentier
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/),
 die Versionsnummern folgen der [semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.20.10] – 2026-10-19
+
+### Geändert
+
+- Chrome verlangt keinen dauerhaften Zugriff auf alle Webseiten mehr; das Speicherformular nutzt `activeTab` und `scripting`.
+- Zusätzlicher Zugriff für Cover-Downloads wird optional pro Bild-Domain auf ausdrücklichen Klick angefragt.
+- Ein Manga wird auch ohne Cover-Freigabe gespeichert. Vorhandene lokale Cover bleiben ohne erneuten Download verfügbar.
+- Firefox-Berechtigungen bleiben unverändert. Beide Browser-Pakete verwenden Version 0.20.10.
+- Neue Tests für fehlende, erteilte und widerrufene Cover-Rechte sowie den Freigabe-Dialog.
+
 ## [0.20.9] – 2026-10-18
 
 ### Sicherheit

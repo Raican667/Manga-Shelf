@@ -105,6 +105,17 @@ browser.commands.onCommand.addListener(async (command) => {
 
 // Nachrichten aus Overlay oder Dashboard.
 async function handleMessage(message) {
+  if (message?.type === 'manga-regal:request-cover-access') {
+    if (!globalThis.MangaPlatform?.isChrome) return { ok: false, status: 'unsupported' };
+    // Resolve the URL from our saved record, not an arbitrary URL supplied by
+    // a page. A separate extension page preserves a direct user gesture for
+    // permissions.request; async message forwarding cannot guarantee that.
+    const data = await MangaStore.load();
+    const item = data.items.find((candidate) => candidate.id === String(message.itemId || ''));
+    if (!item || !MangaPlatform.coverOrigin(item.cover)) return { ok: false, status: 'missing-item' };
+    await browser.tabs.create({ url: browser.runtime.getURL('dashboard/cover-permissions.html') + '?item=' + encodeURIComponent(item.id) });
+    return { ok: true };
+  }
   if (message?.type === 'manga-regal:open-dashboard') {
     return openDashboard();
   }
@@ -125,6 +136,7 @@ async function handleMessage(message) {
       });
       return { ok: true, status: 'downloaded' };
     } catch (error) {
+      if (error.code === 'COVER_PERMISSION_REQUIRED') return { ok: false, status: 'permission-required' };
       await MangaStore.update((current) => {
         MangaStore.appendLog(current, 'warning', 'Cover', `Cover für „${item.title}“ konnte nicht geladen werden`, error.message);
       });
@@ -153,7 +165,7 @@ async function handleMessage(message) {
 // not claim a response channel belonging to another extension listener.
 browser.runtime.onMessage.addListener(globalThis.MangaPlatform?.isChrome
   ? (message, sender, sendResponse) => {
-    if (!['manga-regal:open-dashboard', 'manga-regal:cache-cover', 'manga-regal:update-linked-bookmark'].includes(message?.type)) return false;
+    if (!['manga-regal:open-dashboard', 'manga-regal:cache-cover', 'manga-regal:request-cover-access', 'manga-regal:update-linked-bookmark'].includes(message?.type)) return false;
     handleMessage(message).then((result) => sendResponse(result ?? { ok: true }),
       (error) => sendResponse({ ok: false, status: 'failed', message: String(error.message) }));
     return true;

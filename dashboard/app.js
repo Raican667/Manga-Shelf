@@ -337,12 +337,14 @@
   // vollständige Historie liegt zentral im CHANGELOG.md des Repositories.
   const patchNotes = {
     de: [
-      { version: '0.20.9', date: '18.10.2026', title: 'Sichere Darstellung von Eingaben', notes: ['Dynamisches HTML durch DOM-Elemente und reine Text-/Werteigenschaften ersetzt.', 'Titel, Tags, Kategorien und Lesezeichen bleiben auch bei HTML-ähnlichen Inhalten Text.', 'Neue Regressionstests für Tabelle, Kacheln, Einstellungen und Speicher-Pop-up.'] },
+      { version: '0.20.10', date: '19.10.2026', title: 'Gezielte Cover-Freigaben in Chrome', notes: ['Chrome nutzt activeTab statt dauerhaftem Zugriff auf alle Webseiten.', 'Zusätzliche Cover-Domains werden nur auf ausdrücklichen Wunsch freigegeben. Mangas bleiben auch ohne Freigabe gespeichert.', 'Lokale Cover bleiben erhalten; Firefox-Berechtigungen sind unverändert.'] },
     ],
     en: [
-      { version: '0.20.9', date: '2026-10-18', title: 'Safe rendering of input', notes: ['Replaced dynamic HTML with DOM elements and text/value properties.', 'Titles, tags, categories and bookmarks remain text even when they resemble HTML.', 'Added regression tests for table, cards, settings and the save popup.'] },
+      { version: '0.20.10', date: '2026-10-19', title: 'Targeted Chrome cover permissions', notes: ['Chrome uses activeTab instead of permanent access to all websites.', 'Additional cover domains are allowed only on request. Manga entries remain saved if permission is declined.', 'Local covers are preserved; Firefox permissions are unchanged.'] },
     ]
   };
+  Object.assign(translations.de, { coverAccess: 'Cover-Domain freigeben', coverPermission: 'Manga gespeichert. Für den Cover-Download kannst du die Bild-Domain freigeben.' });
+  Object.assign(translations.en, { coverAccess: 'Allow cover domain', coverPermission: 'Manga saved. You can allow the image domain to download its cover.' });
 
   Object.assign(translations.de, { syncBookmarks: 'Browser-Lesezeichen importieren', bookmarksEyebrow: 'Browser-Lesezeichen', bookmarkExportTitle: 'Zurück zu den Browser-Lesezeichen', bookmarkExportDescription: 'Erstellt aus der Sammlung normale Browser-Lesezeichen in Kategorieordnern.', showImportButton: 'Lesezeichen-Importknopf anzeigen', showImportButtonHint: 'Blendet den Browser-Lesezeichen-Import im Kopfbereich ein oder aus.' });
   Object.assign(translations.en, { syncBookmarks: 'Import browser bookmarks', bookmarksEyebrow: 'Browser bookmarks', bookmarkExportTitle: 'Back to browser bookmarks', bookmarkExportDescription: 'Creates regular browser bookmarks from the collection, organized into category folders.', showImportButton: 'Show bookmark import button', showImportButtonHint: 'Show or hide browser bookmark import in the header.' });
@@ -1116,6 +1118,8 @@
     const requestedStatus = item?.status || data.settings.defaultNewStatus;
     document.getElementById('statusInput').value = requestedStatus === 'reading' && readingOption.disabled ? 'active' : requestedStatus;
     document.getElementById('coverInput').value = item?.cover?.startsWith('http') ? item.cover : '';
+    document.getElementById('coverAccessControl').hidden = !(globalThis.MangaPlatform?.isChrome && item && /^https?:/.test(item.cover));
+    document.getElementById('coverPermissionHint').textContent = '';
     dialogRating = item?.rating || 0;
     renderDialogStars();
     elements.dialog.showModal();
@@ -1381,6 +1385,12 @@
     event.target.closest('.cover-frame')?.classList.remove('cover-pending', 'cover-error', 'cover-empty');
   }, true);
 
+  document.getElementById('coverAccessButton').addEventListener('click', async () => {
+    try {
+      await browser.runtime.sendMessage({ type: 'manga-regal:request-cover-access', itemId: document.getElementById('editId').value });
+    } catch (error) { toast(error.message); }
+  });
+
   elements.form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const id = document.getElementById('editId').value;
@@ -1422,10 +1432,19 @@
           coverResult = { ok: false, status: 'failed' };
         }
       }
-      elements.dialog.close();
+      if (coverResult?.status === 'permission-required' && savedItem) {
+        // The entry is already durable. Keep its ID so a second save updates
+        // it, and expose a deliberate consent action without forcing a prompt.
+        document.getElementById('editId').value = savedItem.id;
+        document.getElementById('coverAccessControl').hidden = false;
+        document.getElementById('coverPermissionHint').textContent = t('coverPermission');
+      } else {
+        elements.dialog.close();
+      }
       await reload();
       toast(coverResult?.status === 'downloaded' ? t('mangaAndCoverSaved')
-        : coverResult?.status === 'failed' ? t('coverSaveFailed') : t('mangaSaved'));
+        : coverResult?.status === 'permission-required' ? t('coverPermission')
+          : coverResult?.status === 'failed' ? t('coverSaveFailed') : t('mangaSaved'));
     } catch (error) {
       toast(error.message);
     }

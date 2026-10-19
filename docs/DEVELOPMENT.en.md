@@ -177,8 +177,22 @@ remote changes schedule restore. Quotas/propagation delays remain external limit
 ## Security and permissions
 
 Permissions: activeTab/bookmarks/search/scripting/storage/tabs/unlimitedStorage
-and `<all_urls>` hosts; Chrome adds alarms. User action triggers overlay injection,
-but broad host access remains for images. Unlimited storage does not remove sync
+Firefox retains `<all_urls>` hosts. Chrome adds alarms but no required host permissions:
+`activeTab` + `scripting` inject the overlay only on user action. Chrome declares
+HTTP(S) optional hosts because cover CDNs are not known in advance. Only the saved
+cover's exact scheme/hostname (`https://cdn.example.org/*`) is requested; no wildcard
+subdomain or all-sites permission is requested at runtime.
+
+Content-script cover requests still obey page CORS. If they fail, the Chrome
+extension-side fallback checks `permissions.contains` before any network attempt.
+A missing grant returns `permission-required`, not a failed manga save. The form's
+Allow Cover Domain button opens `dashboard/cover-permissions.html?item=ID`. The page
+resolves the saved item and calls `permissions.request` directly in its click handler,
+before any await. Denial preserves the saved entry. Existing local covers bypass both
+network access and permission checks. A manual retry can explicitly override a cover
+automation switch, but cannot bypass consent. Server restrictions and redirects to
+another unapproved image host can still block a download; local files remain an alternative.
+Host grants can be revoked in Chrome's extension site-access settings. Unlimited storage does not remove sync
 quotas. Use `textContent` for untrusted DOM text. Dynamic lists use DOM creation
 and text/value properties, not HTML parsing. Only the static overlay shell uses
 an HTML literal without interpolation. Validate messages/imports; no credentials/secrets in code or logs.
@@ -207,6 +221,8 @@ packages as separate source code.
 | wiring.test.js | HTML/JS wiring, help, versions |
 | background.test.js | Firefox background, toolbar/fallback |
 | chrome.test.js | API-mocked worker, import, messages, covers, sync alarms |
+| cover-permissions.test.js | Exact host consent, direct gesture, denial/grant, cached and missing covers |
+| cover-permissions-ui.test.js | Optional Chromium permission UI in English/German; durable saves without host access |
 | overlay-tags.test.js | Optional Chromium tags/cancellation/reinjection/no support button |
 | dashboard-tags.test.js | Optional Chromium form tags/removed support elements |
 | dom-rendering.test.js | Optional Chromium markup-shaped input/table/cards/settings/logs/import |

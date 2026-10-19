@@ -7,11 +7,11 @@ Tags und Re-Reads in einer lokalen Sammlung verwalten.
 
 [English](README.md) · **Deutsch**
 
-[Firefox herunterladen](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.9/manga-shelf-firefox-0.20.9.zip) ·
-[Chrome herunterladen](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.9/manga-shelf-chrome-0.20.9.zip) ·
+[Firefox herunterladen](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.10/manga-shelf-firefox-0.20.10.zip) ·
+[Chrome herunterladen](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.10/manga-shelf-chrome-0.20.10.zip) ·
 [Alle Releases](https://github.com/Raican667/Manga-Shelf/releases) · [Änderungsverlauf](CHANGELOG.md)
 
-**Version 0.20.9** · Firefox 142+ · Chrome 148+ · Deutsch / Englisch · GPLv3
+**Version 0.20.10** · Firefox 142+ · Chrome 148+ · Deutsch / Englisch · GPLv3
 
 ![Sammlung – schematische Vorschau](help/images/collection.svg)
 
@@ -72,6 +72,8 @@ getrennt; zum Wechsel JSON-Sicherungen verwenden.
 Cover-Anfragen können die bestehende Webseiten-Sitzung verwenden. Die Erweiterung
 liest oder speichert selbst keine Cookies. Browser-Lesezeichenrechte dienen Import,
 Export und Aktualisierung; Tab-/Scripting-Rechte öffnen das Formular auf Nutzeraktion.
+
+Chrome benötigt beim Installieren keinen Zugriff auf alle Webseiten. Falls ein Cover zusätzliche Rechte benötigt, kannst du über **Cover-Domain freigeben** nur dessen Bild-Domain erlauben. Auch bei Ablehnung bleibt der Manga gespeichert; lokale Bilddateien sind weiterhin möglich.
 
 [Technische Details und Berechtigungen](docs/DEVELOPMENT.md)
 

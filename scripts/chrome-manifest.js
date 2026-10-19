@@ -7,6 +7,10 @@ const path = require('node:path');
 function chromeManifest(source) {
   const manifest = structuredClone(source);
   delete manifest.browser_specific_settings;
+  // activeTab covers user-triggered page inspection. Cross-origin cover access
+  // is optional and requested for one concrete image host, never on install.
+  delete manifest.host_permissions;
+  manifest.optional_host_permissions = ['http://*/*', 'https://*/*'];
   manifest.minimum_chrome_version = '148';
   manifest.background = { service_worker: 'background/service-worker.js' };
   manifest.permissions = [...new Set([...manifest.permissions, 'alarms'])];

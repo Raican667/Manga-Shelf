@@ -8,17 +8,23 @@ const vm = require('node:vm');
 const chromeManifest = require('../scripts/chrome-manifest.js');
 const root = path.resolve(__dirname, '..');
 const manifest = chromeManifest(JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'))));
-assert.equal(manifest.version, '0.20.9');
+assert.equal(manifest.version, '0.20.10');
 assert.equal(manifest.background.service_worker, 'background/service-worker.js');
 assert.equal(manifest.minimum_chrome_version, '148');
 assert.equal(manifest.browser_specific_settings, undefined);
 assert.ok(manifest.permissions.includes('alarms'));
+assert.equal(manifest.host_permissions, undefined);
+assert.deepEqual(manifest.optional_host_permissions, ['http://*/*', 'https://*/*']);
+assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'))).host_permissions, ['<all_urls>']);
 for (const icon of Object.values(manifest.icons)) {
   const bytes = fs.readFileSync(path.join(root, icon));
   assert.equal(bytes.subarray(1, 4).toString(), 'PNG');
 }
 const events = {}, memory = {}, tabs = [], injections = [], alarms = [];
 let search;
+let coverFetches = 0;
+const grantedOrigins = new Set();
+const checkedOrigins = [];
 const event = (name) => ({ addListener(fn) { events[name] = fn; } });
 const storage = {
   async get(key) { return key == null ? structuredClone(memory) : { [key]: structuredClone(memory[key]) }; },
@@ -36,12 +42,12 @@ const browser = {
   bookmarks: { onChanged: event('bookmarkChanged'), onRemoved: event('bookmarkRemoved'), getTree: async () => [{ id: '0', children: [{ id: '1', title: 'Bookmarks bar', children: [{ id: '10', title: 'Manga', children: [{ id: '11', title: 'Chrome manga Chapter 42', url: 'https://example.org/chapter-42', dateAdded: 1700000000000 }] }] }, { id: '2', title: 'Other bookmarks', children: [] }] }] },
   search: { query: async (details) => { search = details; } },
   // Deliberately no data_collection or commands.update: they are Firefox-only.
-  permissions: { getAll: async () => { throw new Error('Mozilla permission used in Chrome'); } }
+  permissions: { contains: async ({ origins }) => { checkedOrigins.push(...origins); return origins.every((origin) => grantedOrigins.has(origin)); }, getAll: async () => { throw new Error('Mozilla permission used in Chrome'); } }
 };
 const png = fs.readFileSync(path.join(root, 'icons/manga-regal-32.png'));
 const context = vm.createContext({ browser, console, URL, Blob, Response, TextEncoder, TextDecoder,
   CompressionStream, DecompressionStream, btoa, atob, crypto: require('node:crypto').webcrypto,
-  setTimeout, clearTimeout, fetch: async () => new Response(png, { headers: { 'content-type': 'image/png' } }) });
+  setTimeout, clearTimeout, fetch: async () => { coverFetches++; return new Response(png, { headers: { 'content-type': 'image/png' } }); } });
 context.importScripts = (...files) => files.forEach((file) => {
   vm.runInContext(fs.readFileSync(path.resolve(root, 'background', file), 'utf8'), context, { filename: file });
 });
@@ -86,11 +92,32 @@ function message(request) {
   assert.equal((await context.MangaStore.load()).items.filter((item) => item.bookmarkId === '11').length, 1);
   const saved = await context.MangaStore.upsertItem({ title: 'Worker cover', url: 'https://example.org/manga', cover: 'https://example.org/cover.png' });
   const item = saved.items[0];
+  assert.equal(context.MangaPlatform.coverOrigin('https://cdn.example.org/covers/1.png?token=secret'), 'https://cdn.example.org/*');
+  assert.equal(context.MangaPlatform.coverOrigin('data:image/png;base64,AAAA'), '');
+  assert.equal(context.MangaPlatform.coverOrigin('javascript:alert(1)'), '');
+  const denied = await message({ type: 'manga-regal:cache-cover', itemId: item.id });
+  assert.equal(denied.status, 'permission-required');
+  assert.equal(coverFetches, 0, 'No extension-side request before consent');
+  assert.ok((await context.MangaStore.load()).items.find((entry) => entry.id === item.id), 'Saving must not depend on host consent');
+  await message({ type: 'manga-regal:request-cover-access', itemId: item.id, url: 'https://untrusted.invalid' });
+  assert.equal(tabs.at(-1).url, 'chrome-extension://test/dashboard/cover-permissions.html?item=' + encodeURIComponent(item.id));
+  const tabCount = tabs.length;
+  assert.equal((await message({ type: 'manga-regal:request-cover-access', itemId: 'unknown' })).status, 'missing-item');
+  assert.equal(tabs.length, tabCount);
+  grantedOrigins.add('https://example.org/*');
   const result = await message({ type: 'manga-regal:cache-cover', itemId: item.id });
+  assert.equal(coverFetches, 1);
+  assert.equal(checkedOrigins.at(-1), 'https://example.org/*');
+  grantedOrigins.clear();
   assert.equal(result.ok, true);
   assert.match(await context.MangaStore.getStoredCover(item.id), /^data:image\/png;base64,/);
   const existing = await message({ type: 'manga-regal:cache-cover', itemId: item.id });
   assert.equal(existing.status, 'existing');
+  assert.equal(coverFetches, 1, 'Cached covers remain available after revoking host access');
+  const disabledData = await context.MangaStore.upsertItem({ title: 'Disabled cover', url: 'https://example.org/disabled', cover: 'https://other.example.org/image.png', coverDetectionDisabled: true });
+  const disabled = disabledData.items.find((entry) => entry.url === 'https://example.org/disabled');
+  assert.equal((await message({ type: 'manga-regal:cache-cover', itemId: disabled.id })).status, 'disabled');
+  assert.equal(coverFetches, 1);
   events.storage({ [context.MangaStore.STORAGE_KEY]: {} }, 'local');
   assert.ok(alarms.some((alarm) => alarm.name === 'manga-regal:sync-upload'));
   events.storage({ [context.MangaSync.PREFIX + 'meta']: {} }, 'sync');

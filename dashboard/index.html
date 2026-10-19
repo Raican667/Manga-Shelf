@@ -134,6 +134,7 @@
         <div class="control"><span data-i18n="rating">Bewertung</span><div class="dialog-stars" id="dialogStars"></div></div>
         <div class="form-row"><label class="control"><span data-i18n="chapter">Aktuelles Kapitel</span><input id="chapterInput" type="text" placeholder="z. B. 127.5"></label><label class="control"><span data-i18n="status">Status</span><select id="statusInput"><option value="active" data-i18n="active">Aktiv</option><option value="reading">Lese ich gerade (max. 5)</option><option value="hold">On Hold</option><option value="dropped" data-i18n="dropped">Gedroppt</option></select></label></div>
         <label class="control"><span data-i18n="coverUrl">Cover-Adresse</span><input id="coverInput" type="url" placeholder="https://…"></label>
+        <div id="coverAccessControl" hidden><button class="button" id="coverAccessButton" type="button" data-i18n="coverAccess">Cover-Domain freigeben</button><p id="coverPermissionHint" role="status"></p></div>
         <footer class="dialog-actions"><button class="button secondary" type="button" id="cancelDialog" data-i18n="cancel">Abbrechen</button><button class="button primary" type="submit" data-i18n="save">Speichern</button></footer>
       </div>
     </form>

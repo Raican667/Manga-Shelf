@@ -98,6 +98,8 @@
   overlayTranslations.en.close = 'Close';
   overlayTranslations.de.coverPreview = 'Cover-Vorschau';
   overlayTranslations.en.coverPreview = 'Cover preview';
+  Object.assign(overlayTranslations.de, { coverAccess: 'Cover-Domain freigeben', coverPermission: 'Manga gespeichert. Für den Cover-Download kannst du die Bild-Domain freigeben.' });
+  Object.assign(overlayTranslations.en, { coverAccess: 'Allow cover domain', coverPermission: 'Manga saved. You can allow the image domain to download its cover.' });
   Object.assign(overlayTranslations.de, { chooseTags: 'Tags anpassen', noTags: 'Keine Tags ausgewählt', noTagPresets: 'Keine Tags aktiviert. Aktiviere Tags in den Einstellungen.', finishTags: 'Tags übernehmen', removeTag: (tag) => `Tag „${tag}“ entfernen` });
   Object.assign(overlayTranslations.en, { chooseTags: 'Adjust tags', noTags: 'No tags selected', noTagPresets: 'No tags enabled. Enable tags in Settings.', finishTags: 'Apply tags', removeTag: (tag) => `Remove tag “${tag}”` });
 
@@ -137,7 +139,7 @@
         <div class="mr-field"><label class="mr-field-label" for="mr-entry-cover-url" data-mr-i18n="coverUrl">Cover-Adresse</label><div class="mr-chapter-control mr-with-auto" id="mr-cover-control"><input id="mr-entry-cover-url" type="url" placeholder="Automatisch, falls verfügbar" data-mr-placeholder="coverPlaceholder"><button class="mr-chapter-auto mr-cover-auto" id="mr-cover-auto" type="button" role="switch" aria-checked="true"><span aria-hidden="true">↻</span></button></div></div>
         <div class="mr-cover-row">
           <img class="mr-cover" id="mr-cover-preview" alt="Cover-Vorschau" data-mr-alt="coverPreview" referrerpolicy="no-referrer">
-          <div class="mr-cover-controls"><label class="mr-file"><span data-mr-i18n="chooseCover">Lokales Cover auswählen</span><input id="mr-cover-file" type="file" accept="image/*"></label><span class="mr-cover-status" id="mr-cover-status"></span></div>
+          <div class="mr-cover-controls"><label class="mr-file"><span data-mr-i18n="chooseCover">Lokales Cover auswählen</span><input id="mr-cover-file" type="file" accept="image/*"></label><span class="mr-cover-status" id="mr-cover-status"></span><button class="mr-button" id="mr-cover-access" type="button" data-mr-i18n="coverAccess" hidden>Cover-Domain freigeben</button></div>
         </div>
         <div class="mr-actions">
           <button class="mr-button" id="mr-open-dashboard" type="button" data-mr-i18n="openCollection">Sammlung öffnen</button>
@@ -251,6 +253,16 @@
   const coverAutoButton = byId('mr-cover-auto');
   const coverPreview = byId('mr-cover-preview');
   const coverStatus = byId('mr-cover-status');
+  byId('mr-cover-access').addEventListener('click', async () => {
+    try {
+      await browser.runtime.sendMessage({ type: 'manga-regal:request-cover-access', itemId: currentItemId });
+    } catch { showMessage(ot('coverDownloadFailed'), 'warning'); }
+  });
+  window.addEventListener('focus', async () => {
+    if (!globalThis.MangaPlatform?.isChrome || !currentItemId || root.hidden) return;
+    const stored = await MangaStore.getStoredCover(currentItemId);
+    if (stored) { currentCover = stored; currentCoverStored = true; renderCover(); }
+  });
   const message = byId('mr-message');
   coverPreview.addEventListener('load', () => { coverPreview.style.visibility = 'visible'; });
   coverPreview.addEventListener('error', () => {
@@ -384,6 +396,7 @@
 
   /** Aktualisiert die Cover-Vorschau oder blendet einen neutralen Platzhalter ein. */
   function renderCover() {
+    byId('mr-cover-access').hidden = !(globalThis.MangaPlatform?.isChrome && currentItemId && !currentCoverStored && /^https?:/.test(currentCover));
     if (currentCover) coverPreview.src = currentCover;
     else coverPreview.removeAttribute('src');
     coverPreview.style.visibility = currentCover ? 'visible' : 'hidden';
@@ -625,6 +638,9 @@
       showMessage(`${successText} ${ot('coverAutoOff')}`, 'success');
     } else if (coverResult?.status === 'missing') {
       showMessage(`${successText} ${ot('coverMissing')}`, 'success');
+    } else if (coverResult?.status === 'permission-required') {
+      renderCover();
+      showMessage(ot('coverPermission'), 'success');
     } else {
       showMessage(ot('coverDownloadFailed'), 'warning');
     }

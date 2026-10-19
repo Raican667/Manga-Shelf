@@ -212,6 +212,15 @@
    * und keine Anmeldung: `withCredentials` bleibt ausdrücklich deaktiviert.
    */
   async function downloadPublicCover(url, options = {}) {
+    // Content-script fetches obey the page's CORS policy and can already work
+    // without extra rights. Extension-side fallback must have explicit consent.
+    // Check outside the fallback try/catch so XHR cannot bypass this boundary.
+    if (!options.referrerUrl && globalThis.MangaPlatform?.isChrome
+        && !await MangaPlatform.hasCoverAccess(url)) {
+      const error = new Error('Cover host access has not been granted.');
+      error.code = 'COVER_PERMISSION_REQUIRED';
+      throw error;
+    }
     let fetchError;
     try {
       const pageReferrer = cleanUrl(options.referrerUrl);

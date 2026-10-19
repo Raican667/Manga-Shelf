@@ -6,6 +6,16 @@ All notable changes to Manga-Regal are documented in this file. The format is
 based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.20.10] – 2026-10-19
+
+### Changed
+
+- Chrome no longer requires permanent access to all websites; the save form uses `activeTab` and `scripting`.
+- Additional cover-download access is optional and requested only for the concrete image domain after an explicit click.
+- Manga entries remain saved when cover access is declined. Existing local covers remain available without another download.
+- Firefox permissions are unchanged. Both browser packages use version 0.20.10.
+- Added regression coverage for missing, granted and revoked cover access and the permission page.
+
 ## [0.20.9] – 2026-10-18
 
 ### Security

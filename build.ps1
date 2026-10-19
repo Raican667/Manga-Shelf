@@ -24,6 +24,7 @@ if ($node) {
     'background\service-worker.js',
     'content\overlay.js',
     'dashboard\app.js',
+    'dashboard\cover-permissions.js',
     'help\app.js'
   )
   foreach ($script in $scripts) {
@@ -40,6 +41,8 @@ if ($node) {
   if ($LASTEXITCODE -ne 0) { throw 'Firefox-Hintergrundtest fehlgeschlagen' }
   & $node.Source (Join-Path $projectRoot 'tests\chrome.test.js')
   if ($LASTEXITCODE -ne 0) { throw 'Chrome-Kompatibilitätstests fehlgeschlagen' }
+  & $node.Source (Join-Path $projectRoot 'tests\cover-permissions.test.js')
+  if ($LASTEXITCODE -ne 0) { throw 'Cover-Freigabetests fehlgeschlagen' }
 }
 
 New-Item -ItemType Directory -Path $buildDirectory -Force | Out-Null

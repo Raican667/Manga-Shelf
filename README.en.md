@@ -7,11 +7,11 @@ tags and re-reads in a local collection.
 
 **English** · [Deutsch](README.de.md)
 
-[Download Firefox](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.9/manga-shelf-firefox-0.20.9.zip) ·
-[Download Chrome](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.9/manga-shelf-chrome-0.20.9.zip) ·
+[Download Firefox](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.10/manga-shelf-firefox-0.20.10.zip) ·
+[Download Chrome](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.10/manga-shelf-chrome-0.20.10.zip) ·
 [All releases](https://github.com/Raican667/Manga-Shelf/releases) · [Changelog](CHANGELOG.en.md)
 
-**Version 0.20.9** · Firefox 142+ · Chrome 148+ · German / English · GPLv3
+**Version 0.20.10** · Firefox 142+ · Chrome 148+ · German / English · GPLv3
 
 ![Collection – schematic preview](help/images/collection.svg)
 
@@ -72,6 +72,8 @@ use JSON backups to transfer between them.
 Cover requests may use the existing website session. The extension does not
 itself read or store cookies. Bookmark permissions support import/export/updates;
 tab and scripting permissions open the form on user action.
+
+Chrome does not require all-sites access on installation. If a cover needs extra permission, **Allow cover domain** requests access only to that image domain. Your manga remains saved if you decline; local image files are still supported.
 
 [Technical details and permissions](docs/DEVELOPMENT.en.md)
 

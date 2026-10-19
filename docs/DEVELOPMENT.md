@@ -230,9 +230,24 @@ Restore. Browserquoten und verzögerte Übertragung bleiben externe Grenzen.
 ## 8. Berechtigungen und externe Zugriffe
 
 Das Manifest verlangt `activeTab`, `bookmarks`, `search`, `scripting`, `storage`,
-`tabs`, `unlimitedStorage` und Hostzugriff auf `<all_urls>`. Chrome ergänzt `alarms`.
-Das Overlay wird auf Nutzeraktion injiziert; der breite Hostzugriff existiert
-trotzdem für externe Bildzugriffe. `unlimitedStorage` hebt Sync-Quoten nicht auf.
+`tabs` und `unlimitedStorage`. Firefox behält den Hostzugriff auf `<all_urls>`.
+Chrome ergänzt `alarms`, verlangt aber keine dauerhaften Hostrechte bei der Installation.
+`activeTab` und `scripting` reichen für das Overlay nach einer Nutzeraktion.
+HTTP(S)-Hosts stehen nur als optionale Rechte im Chrome-Manifest, da Cover-CDNs
+nicht vorab bekannt sind. Angefragt wird ausschließlich Schema und Hostname des
+konkreten gespeicherten Covers, z. B. `https://cdn.example.org/*`, nie alle Seiten.
+
+Cover-Anfragen im Content-Skript unterliegen weiterhin der Seiten-CORS-Regel.
+Der Chrome-Hintergrund prüft vor Netzwerkanfragen `permissions.contains`.
+Ohne Freigabe liefert er `permission-required`; der Manga bleibt gespeichert.
+Der Knopf Cover-Domain freigeben öffnet `dashboard/cover-permissions.html?item=ID`.
+Diese Seite liest die Cover-Adresse aus dem gespeicherten Datensatz und ruft
+`permissions.request` direkt im Klick-Handler vor jedem await auf. Ablehnung
+löscht keine Daten. Lokale Cover benötigen weder neue Rechte noch Downloads.
+Ein manueller Download darf den Automatikschalter, aber nicht die Freigabe umgehen.
+Serverrestriktionen und Weiterleitungen auf andere, nicht freigegebene Bild-Hosts
+können weiterhin scheitern; lokale Bilddateien bleiben eine Alternative.
+Freigaben sind in Chromes Erweiterungseinstellungen unter Websitezugriff widerrufbar. `unlimitedStorage` hebt Sync-Quoten nicht auf.
 
 Benutzernamen und Tags dürfen nicht ungeprüft als HTML eingebaut werden.
 Neue DOM-Texte über `textContent` setzen; dynamische Listen verwenden DOM-Erzeugung
@@ -267,6 +282,8 @@ Locale-Texte angepasst. Nicht den generierten Build als separate Codebasis pfleg
 | `wiring.test.js` | HTML/JS-Verknüpfungen, Hilfe, Versionsreferenzen |
 | `background.test.js` | Firefox-Hintergrund, Toolbar und Fallback |
 | `chrome.test.js` | Chrome-Worker mit API-Mocks, Import, Nachrichten, Cover, Sync-Alarme |
+| `cover-permissions.test.js` | Gezielte Host-Freigabe, direkte Nutzeraktion, Ablehnung/Zustimmung, lokale und fehlende Cover |
+| `cover-permissions-ui.test.js` | Optionaler Chromium-UI-Test: Freigabe auf Deutsch/Englisch; Speichern ohne Hostrecht |
 | `overlay-tags.test.js` | Optionaler Chromium-UI-Test: Tags, Abbrechen, Neuinjektion, kein Support-Button |
 | `dashboard-tags.test.js` | Optionaler Chromium-UI-Test: Formular-Tags und entfernte Support-Elemente |
 | `dom-rendering.test.js` | Optionaler Chromium-UI-Test: HTML-ähnliche Eingaben, Tabelle/Kacheln, Einstellungen, Logs und Import |
