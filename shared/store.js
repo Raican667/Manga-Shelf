@@ -585,7 +585,10 @@
     const chapterDetectionEnabled = input.settings?.chapterDetectionEnabled !== false;
     const collectionViews = Object.fromEntries(allCollectionViews.map((view) => [
       view,
-      input.settings?.collectionViews?.[view] === 'cards' ? 'cards' : legacyCollectionView
+      // Explicit per-category choices take precedence over the legacy global
+      // preference. Only absent/invalid values need the migration fallback.
+      ['cards', 'table'].includes(input.settings?.collectionViews?.[view])
+        ? input.settings.collectionViews[view] : legacyCollectionView
     ]));
     const categoryNames = Object.fromEntries(COLLECTION_VIEWS.map((view) => [
       view,
@@ -684,7 +687,8 @@
         bookmarkImportMode: ['folders', 'keyword', 'manual'].includes(input.settings?.bookmarkImportMode)
           ? input.settings.bookmarkImportMode
           : 'folders',
-        bookmarkImportKeyword: String(input.settings?.bookmarkImportKeyword || 'chapter').trim().slice(0, 100),
+        // An empty keyword is a saved user choice, not a missing preference.
+        bookmarkImportKeyword: String(input.settings?.bookmarkImportKeyword ?? 'chapter').trim().slice(0, 100),
         showSupportButton: input.settings?.showSupportButton !== false,
         showBookmarkImportButton: input.settings?.showBookmarkImportButton !== false
       },

@@ -339,10 +339,10 @@
   // vollständige Historie liegt zentral im CHANGELOG.md des Repositories.
   const patchNotes = {
     de: [
-      { version: '0.20.14', date: '20.10.2026', title: 'Sechs Designs und flüssigere Darstellung', notes: ['Design-Auswahl mit Light, Dark, Coral Dark, Coral Light, Blue Light und Blue Dark für Sammlung, Einstellungen, Speicherformular und Hilfe.', 'Vier Glas-Formulare mit größerer Cover-Vorschau, Schnell-Speichern und einklappbaren Details.', 'Weniger Unschärfe-Flächen, zusammengefasste Aktualisierungen und zwischengespeicherte Platzhalterbilder.', 'Mitlaufende Hintergründe, native lokale Cover-Dekodierung und stabile Scrollleistenbreite. Mit 422 Mangas getestet.'] },
+      { version: '0.20.15', date: '20.10.2026', title: 'Einstellungen bei Updates erhalten', notes: ['Tabellenansichten bleiben auch bei älterer Kachel-Voreinstellung erhalten.', 'Bewusst leere Import-Schlüsselwörter werden nicht mehr überschrieben.', 'Verpflichtende Update- und Neustarttests prüfen Einstellungen, Kategorien, Tags, Mangas und lokale Bilder.'] },
     ],
     en: [
-      { version: '0.20.14', date: '2026-10-20', title: 'Six themes and smoother rendering', notes: ['Light, Dark, Coral Dark, Coral Light, Blue Light and Blue Dark themes for the collection, settings, save form and help.', 'Four glass forms with larger cover previews, quick save and collapsible details.', 'Fewer blur surfaces, coalesced refreshes and cached placeholder artwork.', 'Document backgrounds, native local-cover decoding and stable scrollbar width. Tested with 422 manga.'] },
+      { version: '0.20.15', date: '2026-10-20', title: 'Preserve settings across updates', notes: ['Explicit table views survive older global card preferences.', 'Intentionally empty import keywords are no longer overwritten.', 'Mandatory upgrade and restart tests cover settings, categories, tags, manga and local images.'] },
     ]
   };
   Object.assign(translations.de, { coverAccess: 'Cover-Domain freigeben', coverPermission: 'Manga gespeichert. Für den Cover-Download kannst du die Bild-Domain freigeben.' });

@@ -6,6 +6,18 @@ All notable changes to Manga-Regal are documented in this file. The format is
 based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.20.15] – 2026-10-20
+
+### Fixed
+
+- Explicit per-category table views now survive loading when an older global preference selects cards.
+- An intentionally empty import keyword is no longer replaced with “chapter” on load.
+
+### Quality assurance
+
+- Mandatory upgrade regression test for the 0.20.9 data schema: settings, categories, order, tags, search engines, ratings, chapters, logs and separately stored images are retained.
+- Covers fresh script contexts, repeated reads, schema migration and update events without restarting onboarding.
+
 ## [0.20.14] – 2026-10-20
 
 ### Added

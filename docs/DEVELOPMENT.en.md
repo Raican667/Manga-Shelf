@@ -260,6 +260,16 @@ replace the last valid local dataset.
 Reference separated from user help/procedures, following
 [Diátaxis](https://www.diataxis.fr/reference/).
 
+## Upgrade persistence contract
+
+The extension version in the manifest is independent of DATA_VERSION in shared/store.js. An update must retain the extension identity, the mangaRegalDataV1 storage key and the separate cover/placeholder keys. Keep each repository’s existing Firefox ID; public and legacy/private distributions have different identities.
+
+MangaStore.load normalizes existing data. Defaults fill absent preferences; explicit false values, empty keywords and valid per-category table choices must not be mistaken for missing values. Legacy colorMode supplies the initial theme only when no valid theme is saved. A schema migration writes the normalized data once; subsequent reads are idempotent. A manifest version bump alone does not require a schema bump or storage rewrite.
+
+runtime.onInstalled opens the collection only for reason=install, not update. Onboarding completion is stored, not inferred from the manifest version. Normal updates do not call importData, clear storage or delete image keys. Explicit JSON restoration replaces the collection; enabling/restoring Sync can intentionally apply remote preferences. Browser permission grants are device-managed and cannot be migrated through a settings snapshot.
+
+Run node tests/upgrade.test.js (also required by build.ps1). It uses isolated script contexts and a schema-20 fixture representing 0.20.9, checks all fixture preferences and manga, ensures read-only loads do not write/remove data, preserves separate image keys, and verifies legacy schema migration is idempotent. tests/background.test.js checks the update event does not launch first-install onboarding. These are automated simulations, not a signed-store update test. Test a real store upgrade with the same store listing/extension ID; reinstalling or changing IDs is not an upgrade.
+
 ## Theme contract
 
 `shared/themes.js` defines six stable theme IDs and shared tokens. `MangaThemes.apply(root, settings)` writes only to the supplied extension-owned root. The injected overlay never sets tokens on the visited page’s html/body. `shared/page-themes.css` loads only in extension pages; overlay selectors remain scoped under `#manga-regal-overlay`.

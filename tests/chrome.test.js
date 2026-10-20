@@ -8,7 +8,7 @@ const vm = require('node:vm');
 const chromeManifest = require('../scripts/chrome-manifest.js');
 const root = path.resolve(__dirname, '..');
 const manifest = chromeManifest(JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'))));
-assert.equal(manifest.version, '0.20.14');
+assert.equal(manifest.version, '0.20.15');
 assert.equal(manifest.background.service_worker, 'background/service-worker.js');
 assert.equal(manifest.minimum_chrome_version, '148');
 assert.equal(manifest.browser_specific_settings, undefined);

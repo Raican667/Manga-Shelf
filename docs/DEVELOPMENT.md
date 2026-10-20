@@ -336,6 +336,16 @@ Neue Fehlerpfade dürfen den letzten gültigen lokalen Datensatz nicht still ers
 Dokumentationsstruktur: technische Referenz getrennt von Benutzerhilfe und
 Wartungsabläufen, angelehnt an [Diátaxis](https://www.diataxis.fr/reference/).
 
+## Vertrag für Updates und Datenübernahme
+
+Manifest-Version und DATA_VERSION in shared/store.js sind unabhängig. Bei Updates bleiben die Erweiterungs-ID, mangaRegalDataV1 und die separaten Cover-/Platzhalter-Schlüssel unverändert. Die IDs der öffentlichen und der älteren privaten Distribution dürfen nicht vertauscht werden.
+
+MangaStore.load ergänzt fehlende Einstellungen. Explizite false-Werte, leere Import-Schlüsselwörter und gültige Tabellenansichten bleiben erhalten. colorMode liefert nur bei fehlendem gültigem theme die bisherige Farbwahl. Schema-Migrationen schreiben einmal; wiederholtes Laden ist idempotent. Ein Versionswechsel allein erfordert keine Schema-Migration.
+
+runtime.onInstalled öffnet die Sammlung nur bei install. Updates setzen den gespeicherten Einführungsstatus nicht zurück und rufen weder importData noch Löschpfade auf. Ein ausdrücklich ausgelöster JSON-Import ersetzt dagegen die Sammlung; Sync-Wiederherstellungen können entfernte Einstellungen übernehmen. Browser-Berechtigungen sind geräteabhängig und werden nicht durch Einstellungen übertragen.
+
+node tests/upgrade.test.js ist Pflicht in build.ps1. Isolierte Skriptkontexte prüfen das Datenschema von 0.20.9, alle Einstellungen der Testdaten, Mangas, Protokolle, separate Bildschlüssel, schreibfreie Ladevorgänge und wiederholbare Migrationen. tests/background.test.js prüft das Update-Ereignis. Dies sind Simulationen, kein signierter Store-Update-Test. Ein echtes Store-Update muss dieselbe Erweiterungs-ID und denselben Store-Eintrag verwenden; Neuinstallation oder ID-Wechsel sind kein Update.
+
 ## Design-Vertrag
 
 `shared/themes.js` definiert sechs stabile Design-IDs und gemeinsame Farbvariablen. `MangaThemes.apply(root, settings)` setzt Tokens ausschließlich am übergebenen Erweiterungs-Root. Im Webseiten-Overlay werden keine Variablen auf `html` oder `body` geschrieben. `shared/page-themes.css` wird nur in Erweiterungsseiten geladen; Overlay-Regeln bleiben unter `#manga-regal-overlay` gekapselt.

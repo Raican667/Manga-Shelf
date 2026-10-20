@@ -36,6 +36,8 @@ if ($node) {
   # Datenlogik und Verknüpfungen zwischen HTML und JavaScript testen.
   & $node.Source (Join-Path $projectRoot 'tests\store.test.js')
   if ($LASTEXITCODE -ne 0) { throw 'Speichertests fehlgeschlagen' }
+  & $node.Source (Join-Path $projectRoot 'tests\upgrade.test.js')
+  if ($LASTEXITCODE -ne 0) { throw 'Update-Erhaltungstest fehlgeschlagen' }
   & $node.Source (Join-Path $projectRoot 'tests\wiring.test.js')
   if ($LASTEXITCODE -ne 0) { throw 'Oberflächen-Verknüpfungstest fehlgeschlagen' }
   & $node.Source (Join-Path $projectRoot 'tests\background.test.js')

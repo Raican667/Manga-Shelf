@@ -6,6 +6,18 @@ Alle nennenswerten Änderungen an Manga-Regal werden in dieser Datei dokumentier
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/),
 die Versionsnummern folgen der [semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.20.15] – 2026-10-20
+
+### Behoben
+
+- Explizite Tabellenansichten je Kategorie bleiben erhalten, auch wenn eine ältere globale Einstellung Kacheln vorgibt.
+- Ein bewusst leeres Import-Schlüsselwort wird beim Laden nicht mehr durch „chapter“ ersetzt.
+
+### Qualitätssicherung
+
+- Verpflichtender Update-Test für das Datenschema von 0.20.9: Einstellungen, Kategorien, Reihenfolge, Tags, Suchmaschinen, Bewertungen, Kapitel, Protokolle und separat gespeicherte Bilder bleiben erhalten.
+- Neustart, wiederholtes Laden, Schema-Migration und Update-Ereignis werden ohne Zurücksetzen der Einführung geprüft.
+
 ## [0.20.14] – 2026-10-20
 
 ### Hinzugefügt

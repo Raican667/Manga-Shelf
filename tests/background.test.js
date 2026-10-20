@@ -89,6 +89,10 @@ vm.runInContext(backgroundSource, context, { filename: 'background/background.js
   assert.equal(typeof listeners.command, 'function', 'Tastenkürzel wurde nicht registriert');
   assert.equal(typeof listeners.message, 'function', 'Nachrichtenkanal wurde nicht registriert');
 
+  // Updates replace code, not the collection: no new tab or reset path.
+  await listeners.installed({ reason: 'update', previousVersion: '0.20.9' });
+  assert.equal(createdTabs.length, 0, 'An update must not launch first-install onboarding');
+
   // Ein normaler Webseiten-Tab lädt CSS und JavaScript genau einmal nach.
   await listeners.action({ id: 7, url: 'https://example.org/manga/chapter-1' });
   assert.deepEqual(injected.map((entry) => entry.type), ['css', 'script']);

@@ -7,11 +7,11 @@ tags and re-reads in a local collection.
 
 **English** · [Deutsch](README.de.md)
 
-[Download Firefox](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.14/manga-shelf-firefox-0.20.14.zip) ·
-[Download Chrome](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.14/manga-shelf-chrome-0.20.14.zip) ·
+[Download Firefox](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.15/manga-shelf-firefox-0.20.15.zip) ·
+[Download Chrome](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.15/manga-shelf-chrome-0.20.15.zip) ·
 [All releases](https://github.com/Raican667/Manga-Shelf/releases) · [Changelog](CHANGELOG.en.md)
 
-**Version 0.20.14** · Firefox 142+ · Chrome 148+ · German / English · GPLv3
+**Version 0.20.15** · Firefox 142+ · Chrome 148+ · German / English · GPLv3
 
 ![Collection – schematic preview](help/images/collection.svg)
 
