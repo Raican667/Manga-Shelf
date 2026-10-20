@@ -5,10 +5,16 @@
   // Die Hilfe übernimmt den in Manga-Regal gewählten Hell-/Dunkelmodus.
   try {
     const data = await MangaStore.load();
-    document.documentElement.dataset.theme = data.settings.colorMode === 'light' ? 'light' : 'dark';
+    MangaThemes.apply(document.documentElement, data.settings);
   } catch (_) {
     // Bei einem sehr frühen Aufruf bleibt das sichere dunkle Standarddesign aktiv.
   }
+
+  browser.storage.onChanged?.addListener((changes, area) => {
+    if (area === 'local' && changes[MangaStore.STORAGE_KEY]) {
+      MangaStore.load().then((data) => MangaThemes.apply(document.documentElement, data.settings)).catch(() => {});
+    }
+  });
 
   // Beim Lesen wird der passende Eintrag im Inhaltsverzeichnis markiert.
   const links = [...document.querySelectorAll('.contents a')];

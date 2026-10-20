@@ -92,7 +92,7 @@ vm.runInContext(backgroundSource, context, { filename: 'background/background.js
   // Ein normaler Webseiten-Tab lädt CSS und JavaScript genau einmal nach.
   await listeners.action({ id: 7, url: 'https://example.org/manga/chapter-1' });
   assert.deepEqual(injected.map((entry) => entry.type), ['css', 'script']);
-  assert.equal(JSON.stringify(injected[1].details.files), JSON.stringify(['shared/platform.js', 'shared/store.js', 'content/overlay.js']));
+  assert.equal(JSON.stringify(injected[1].details.files), JSON.stringify(['shared/platform.js', 'shared/store.js', 'shared/themes.js', 'content/overlay.js']));
 
   // Firefox-interne Seiten können keine Content-Scripts aufnehmen. Dort muss
   // der Klick trotzdem sichtbar reagieren und die Sammlung öffnen.

@@ -7,6 +7,7 @@
   <title>Manga-Regal</title>
   <link rel="icon" href="../icons/manga-regal.svg">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="../shared/page-themes.css">
 </head>
 <body>
   <main class="shell">
@@ -89,7 +90,7 @@
           <div class="panel-body">
             <div class="preference-list compact-preferences">
               <div class="preference-row"><span><strong data-i18n="language">Sprache</strong><small data-i18n="languageHint">Oberfläche und Einblendungsformular</small></span><button class="switch-control labeled-switch" id="languageSetting" type="button" role="switch" aria-checked="false"><span class="switch-side">DE</span><span class="switch-track"><i></i></span><span class="switch-side">EN</span></button></div>
-              <div class="preference-row"><span><strong data-i18n="colorMode">Farbschema</strong><small data-i18n="colorModeHint">Dunkle oder helle Darstellung</small></span><button class="switch-control labeled-switch" id="colorModeSetting" type="button" role="switch" aria-checked="false"><span class="switch-side">☾</span><span class="switch-track"><i></i></span><span class="switch-side">☀</span></button></div>
+              <label class="preference-row"><span><strong data-i18n="themeLabel">Design</strong><small data-i18n="themeHint">Ein Design für Sammlung, Einstellungen, Speicherformular und Hilfe.</small></span><select id="colorModeSetting"><option value="light" data-i18n="themeLight">Light Mode</option><option value="dark" data-i18n="themeDark">Dark Mode</option><option value="coral-dark">Coral Dark</option><option value="coral-light">Coral Light</option><option value="blue-light">Blue Light</option><option value="blue-dark">Blue Dark</option></select></label>
               <div class="preference-row"><span><strong data-i18n="tableCovers">Cover in Tabellen</strong><small data-i18n="tableCoversHint">Cover nur in der Tabellenansicht einblenden.</small></span><button class="switch-control" id="showCoversInTableSetting" type="button" role="switch" aria-checked="false"><span class="switch-track"><i></i></span><b data-switch-label>Aus</b></button></div>
               <div class="preference-row"><span><strong data-i18n="startupDialog">Startdialog anzeigen</strong><small data-i18n="startupDialogHint">Begrüßung und Kurzanleitung beim ersten Öffnen ein- oder ausschalten.</small></span><button class="switch-control" id="showOnboardingSetting" type="button" role="switch" aria-checked="true"><span class="switch-track"><i></i></span><b data-switch-label>Ein</b></button></div>
               <div class="preference-row"><span><strong data-i18n="chapterDetection">Kapitel aus Links erkennen</strong><small data-i18n="chapterDetectionHint">Kann für Light Novels und uneindeutige Adressen ausgeschaltet werden. Manuelle Eingaben bleiben möglich.</small></span><button class="switch-control" id="chapterDetectionSetting" type="button" role="switch" aria-checked="true"><span class="switch-track"><i></i></span><b data-switch-label>Ein</b></button></div>
@@ -204,6 +205,7 @@
   <div class="toast" id="toast" role="status"></div>
   <script src="../shared/platform.js"></script>
   <script src="../shared/store.js"></script>
+  <script src="../shared/themes.js"></script>
   <script src="../shared/sync.js"></script>
   <script src="app.js"></script>
 </body>

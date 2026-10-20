@@ -1,0 +1,53 @@
+/* Loaded only by extension-owned pages, never injected into a manga website.
+ * Tokens live in themes.js; these rules replace legacy hard-coded surfaces. */
+html[data-glass-theme="true"] body {
+  background: radial-gradient(ellipse at 7% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 48%),
+    radial-gradient(ellipse at 95% 25%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 48%), var(--ink);
+  /* A fixed gradient behind translucent panels repaints on every scroll.
+   * Keep decoration bounded at the document top, not viewport-attached. */
+  background-attachment: scroll;
+  background-size: 100% 900px, 100% 900px, auto;
+  background-repeat: no-repeat;
+}
+html { scrollbar-gutter: stable; }
+html[data-glass-theme="true"] body::before { display: none; }
+html[data-glass-theme="true"] :is(.hero,.admin-hero,.panel,.admin-panel,.manga-card,.table-shell,.log-scroll,dialog,.contents,.topbar,.help-tabs,main>section.hero) {
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
+  border-color: var(--line);
+  box-shadow: var(--shadow), inset 0 1px 0 color-mix(in srgb, var(--paper) 8%, transparent);
+  /* Large/repeated surfaces simulate glass without one GPU blur per card. */
+  backdrop-filter: none;
+  color: var(--paper);
+}
+html[data-glass-theme="true"] :is(.hero,.admin-hero,dialog) { border-radius: 18px; }
+html[data-glass-theme="true"] :is(th,.category-editor-item,.preference-row,.tag-preset-option,.folder-option,.placeholder-drop-zone,.custom-engine-item,.tag-choice,.tag-editor-dialog,.admin-section,.onboarding-card) { background-color: var(--panel2); color: var(--paper); border-color: var(--line); }
+html[data-glass-theme="true"] :is(input,select,textarea,.button.secondary,.button:not(.primary),.icon-action-button,.category-order-item,.placeholder-upload-button,.placeholder-restore-button) {
+  background: color-mix(in srgb, var(--panel2) 80%, transparent); color: var(--paper); border-color: var(--line);
+}
+html[data-glass-theme="true"] :is(.button.primary,.help-tabs a.active,.onboarding-next) { background: var(--accent); border-color: var(--accent); color: var(--action); box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 18%, transparent); }
+html[data-glass-theme="true"] :is(.button:hover,.icon-action-button:hover,.category-order-item button:hover) { border-color: var(--accent); filter: brightness(1.04); }
+html[data-glass-theme="true"] :is(.control>span,.row-title,.row-title-link,.dialog-header h2,.admin-section h4,.tag-choice,.preference-row strong) { color: var(--paper); }
+html[data-glass-theme="true"] :is(.tag,.tag-choice,.placeholder-tag-chip) { background: var(--panel2); color: var(--paper); border-color: var(--line); border-radius: 999px; }
+html[data-glass-theme="true"] :is(.tag.reread-tag,.tag-choice.reread-tag) { background: color-mix(in srgb, var(--good) 14%, var(--panel)); border-color: color-mix(in srgb, var(--good) 60%, var(--line)); color: var(--good); }
+html[data-glass-theme="true"] :is(.continue-link,.text-button:hover,.sort-button,.admin-help-button,.help-tabs a:not(.active):hover) { color: var(--accent); }
+html[data-glass-theme="true"] .continue-link { border-color: color-mix(in srgb, var(--accent) 50%, var(--line)); background: color-mix(in srgb, var(--accent) 10%, var(--panel)); }
+html[data-glass-theme="true"] .continue-link:hover { color: var(--action); background: var(--accent); }
+html[data-glass-theme="true"] :is(.card-cover,.card-cover-frame,.row-cover,figure img) { background: var(--panel2); }
+html[data-glass-theme="true"] :is(.star.on,.star:hover) { color: var(--gold); }
+html[data-glass-theme="true"] .star:not(.on) { color: color-mix(in srgb, var(--muted) 65%, var(--panel)); }
+html[data-glass-theme="true"] :is(.tag-choice:has(input:checked),.nav-item.active,.contents a.active) { border-color: var(--accent); background-color: color-mix(in srgb, var(--accent) 12%, var(--panel)); }
+html[data-glass-theme="true"] .switch-control.on .switch-track { background: var(--accent); border-color: var(--accent); }
+html[data-glass-theme="true"] :is(input,button,select,a):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+html[data-glass-theme="true"] .tag-choice input { accent-color: var(--accent); }
+html[data-glass-theme="true"] .help-tabs a.active { color: var(--action); }
+html[data-glass-theme="true"] .hero-stats div { background: var(--panel2); }
+html[data-glass-theme="true"] .danger { color: var(--danger); }
+html[data-glass-theme="true"] .nav-item { color: var(--muted); }
+html[data-glass-theme="true"] .nav-item.active { color: var(--paper); }
+html[data-glass-theme="true"] .nav-item span { color: var(--muted); }
+html[data-glass-theme="true"] .collection-table .status-select { width: 100%; min-width: 0; max-width: 100%; }
+html[data-glass-theme="true"] .toast { background: var(--paper); color: var(--ink); }
+html[data-glass-theme="true"] .manga-card { box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+@media (prefers-reduced-transparency: reduce) {
+  html[data-glass-theme="true"] :is(.admin-panel,.hero,.admin-hero,.manga-card,.table-shell,dialog,.topbar) { background: var(--panel); backdrop-filter: none; }
+}

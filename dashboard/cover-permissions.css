@@ -1,9 +1,9 @@
 :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
-body { margin: 0; padding: 32px 20px; background: light-dark(#f4f3f7, #141018); color: light-dark(#25212b, #f2edf5); }
-main { max-width: 580px; margin: 8vh auto; padding: 28px; border: 1px solid light-dark(#d6cedd, #403647); border-radius: 16px; background: light-dark(#fff, #201a27); }
+body { margin: 0; padding: 32px 20px; background: var(--ink, #141018); color: var(--paper, #f2edf5); }
+main { max-width: 580px; margin: 8vh auto; padding: 28px; border: 1px solid var(--line, #403647); border-radius: 16px; background: var(--panel, #201a27); }
 h1 { margin-top: 0; font-size: 1.5rem; }
 p { line-height: 1.6; overflow-wrap: anywhere; }
 button { padding: 11px 16px; border-radius: 9px; border: 1px solid #85778e; font: inherit; cursor: pointer; margin: 4px 8px 4px 0; }
-#allow { background: #4776b9; color: white; border-color: #4776b9; }
+#allow { background: var(--accent, #4776b9); color: var(--action, white); border-color: var(--accent, #4776b9); }
 button:disabled { opacity: .6; cursor: default; }
 button:focus-visible { outline: 3px solid #85b3ff; outline-offset: 3px; }

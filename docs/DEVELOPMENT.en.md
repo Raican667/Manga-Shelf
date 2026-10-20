@@ -259,3 +259,15 @@ replace the last valid local dataset.
 
 Reference separated from user help/procedures, following
 [Diátaxis](https://www.diataxis.fr/reference/).
+
+## Theme contract
+
+`shared/themes.js` defines six stable theme IDs and shared tokens. `MangaThemes.apply(root, settings)` writes only to the supplied extension-owned root. The injected overlay never sets tokens on the visited page’s html/body. `shared/page-themes.css` loads only in extension pages; overlay selectors remain scoped under `#manga-regal-overlay`.
+
+MangaStore validates `settings.theme`. Legacy `colorMode` is migrated without losing the previous light/dark choice and remains a compatibility field. JSON backups and compressed sync snapshots retain the theme ID. Glass themes reuse the same form and persistence path: Quick Save calls `requestSubmit()`. There is no separate save model or new cover-download path. Classic themes keep details permanently open.
+
+`tests/themes.test.js` covers migration, validation, backup and sync. `tests/themes-ui.test.js` covers all themes, tags, real saves with closed details, narrow 10-star forms and all four help pages. Captures are in `build/theme-preview/`. Theme and performance changes were tested locally first and published together in 0.20.14.
+
+Performance: `tests/performance.test.js` uses isolated API fixtures with 422 entries. Run it with a Chromium executable and `--assert-optimized`. It checks that cards have no backdrop blur, a settings write has at most one refresh read, unchanged themes are not reapplied, and cached artwork is invalidated on image changes. Timings are diagnostic, not hardware-independent guarantees. Dashboard refreshes share a pending promise and replay storage notifications that arrive during a read. Custom-artwork revisions avoid rereading image payloads on unrelated writes. Theme tokens are cached per DOM root with a WeakMap.
+
+Scrolling: theme gradients are bounded document backgrounds rather than fixed viewport layers. Cached `data:image` covers are decoded via the browser’s native data-URL fetch/Blob path (no HTTP request). A render epoch is checked after decoding and before allocating an object URL, so stale results cannot leak URLs or replace the current cover set. `tests/scrolling.test.js` uses native wheel input with 422 cached image entries, checks monotonic document scrolling, stable dimensions after lazy image loads, settings autosave scroll position and the theme-switch scrollbar gutter. There is no wheel interception, synthetic scrolling or JavaScript momentum.

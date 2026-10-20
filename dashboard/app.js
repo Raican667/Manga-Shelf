@@ -34,6 +34,8 @@
   let bookmarkEntries = [];
   let firefoxSearchEngines = [];
   let placeholderCoverOverrides = [];
+  let placeholderRevision = 0;
+  let placeholderReadRevision = -1;
   let coverObserver = null;
   let coverRenderEpoch = 0;
   const coverObjectUrls = new Map();
@@ -337,14 +339,16 @@
   // vollständige Historie liegt zentral im CHANGELOG.md des Repositories.
   const patchNotes = {
     de: [
-      { version: '0.20.11', date: '19.10.2026', title: 'Optionale umfassende Cover-Freigabe', notes: ['Neuer Chrome-Schalter: Cover automatisch von allen Webseiten laden.', 'Einmalige freiwillige Freigabe statt einzelner Domain-Nachfragen; Ausschalten widerruft den umfassenden Zugriff.', 'Browserlokaler Freigabestatus, keine Aktivierung durch Sync oder Import. Lokale Cover und Firefox bleiben unverändert.'] },
+      { version: '0.20.14', date: '20.10.2026', title: 'Sechs Designs und flüssigere Darstellung', notes: ['Design-Auswahl mit Light, Dark, Coral Dark, Coral Light, Blue Light und Blue Dark für Sammlung, Einstellungen, Speicherformular und Hilfe.', 'Vier Glas-Formulare mit größerer Cover-Vorschau, Schnell-Speichern und einklappbaren Details.', 'Weniger Unschärfe-Flächen, zusammengefasste Aktualisierungen und zwischengespeicherte Platzhalterbilder.', 'Mitlaufende Hintergründe, native lokale Cover-Dekodierung und stabile Scrollleistenbreite. Mit 422 Mangas getestet.'] },
     ],
     en: [
-      { version: '0.20.11', date: '2026-10-19', title: 'Optional broad cover access', notes: ['New Chrome switch: Automatically load covers from all websites.', 'A one-time optional grant replaces individual domain prompts; switching off revokes broad access.', 'Consent is local to this browser, never enabled through sync or import. Local covers and Firefox are unchanged.'] },
+      { version: '0.20.14', date: '2026-10-20', title: 'Six themes and smoother rendering', notes: ['Light, Dark, Coral Dark, Coral Light, Blue Light and Blue Dark themes for the collection, settings, save form and help.', 'Four glass forms with larger cover previews, quick save and collapsible details.', 'Fewer blur surfaces, coalesced refreshes and cached placeholder artwork.', 'Document backgrounds, native local-cover decoding and stable scrollbar width. Tested with 422 manga.'] },
     ]
   };
   Object.assign(translations.de, { coverAccess: 'Cover-Domain freigeben', coverPermission: 'Manga gespeichert. Für den Cover-Download kannst du die Bild-Domain freigeben.' });
   Object.assign(translations.en, { coverAccess: 'Allow cover domain', coverPermission: 'Manga saved. You can allow the image domain to download its cover.' });
+  Object.assign(translations.de, { themeLabel: 'Design', themeHint: 'Ein Design für Sammlung, Einstellungen, Speicherformular und Hilfe.', themeLight: 'Light Mode (klassisch)', themeDark: 'Dark Mode (klassisch)' });
+  Object.assign(translations.en, { themeLabel: 'Theme', themeHint: 'One theme for your collection, settings, save form and help.', themeLight: 'Light Mode (classic)', themeDark: 'Dark Mode (classic)' });
   Object.assign(translations.de, {
     allCoverAccess: 'Cover automatisch von allen Webseiten laden',
     allCoverAccessHint: 'Optional: Chrome einmalig Zugriff auf alle HTTP-/HTTPS-Webseiten erlauben. Danach entfallen einzelne Domain-Freigaben. Ausschalten widerruft die umfassende Freigabe; lokale Cover bleiben erhalten.',
@@ -400,11 +404,11 @@
     const language = data.settings.language === 'en' ? 'en' : 'de';
     document.documentElement.lang = language;
     document.title = t('brandName');
-    document.documentElement.dataset.theme = data.settings.colorMode;
+    const theme = MangaThemes.apply(document.documentElement, data.settings);
     // CSS nutzt diesen Wert für eine schmalere 5-Sterne- bzw. breitere
     // 10-Sterne-Spalte, ohne die Aktionsspalte aus dem Sichtbereich zu drücken.
     document.documentElement.dataset.ratingScale = String(ratingMax());
-    document.querySelector('meta[name="color-scheme"]').content = data.settings.colorMode;
+    document.querySelector('meta[name="color-scheme"]').content = theme.mode;
     document.querySelectorAll('[data-i18n]').forEach((node) => { node.textContent = t(node.dataset.i18n); });
     document.querySelectorAll('[data-i18n-placeholder]').forEach((node) => { node.placeholder = t(node.dataset.i18nPlaceholder); });
     document.querySelectorAll('[data-i18n-title]').forEach((node) => { node.title = t(node.dataset.i18nTitle); });
@@ -574,22 +578,20 @@
    * Die dauerhafte Speicherung bleibt portabel; das DOM muss aber keine mehrere
    * Megabyte lange data:-Adresse halten.
    */
-  function localCoverObjectUrl(itemId, dataUrl) {
+  async function localCoverObjectUrl(itemId, dataUrl, epoch) {
     const existing = coverObjectUrls.get(itemId);
     if (existing) return existing;
-    const separator = dataUrl.indexOf(',');
-    if (separator < 0) throw new Error('Ungültiges lokales Coverformat.');
-    const header = dataUrl.slice(0, separator);
-    const payload = dataUrl.slice(separator + 1);
-    const type = header.match(/^data:([^;,]+)/i)?.[1] || 'image/jpeg';
-    let bytes;
-    if (/;base64/i.test(header)) {
-      const binary = atob(payload);
-      bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
-    } else {
-      bytes = new TextEncoder().encode(decodeURIComponent(payload));
-    }
-    const objectUrl = URL.createObjectURL(new Blob([bytes], { type }));
+    // This fetch only decodes an already stored data:image URL. It performs
+    // no HTTP request and requires no cover-domain access. Native decoding
+    // avoids a JS per-byte loop in each IntersectionObserver scroll callback.
+    if (!/^data:image\//i.test(dataUrl)) throw new Error('Ungültiges lokales Coverformat.');
+    const blob = await (await fetch(dataUrl)).blob();
+    // A newer render may have revoked its image set while decoding was pending.
+    // Never create a late object URL that would outlive that render's cleanup.
+    if (epoch !== coverRenderEpoch) return '';
+    const cached = coverObjectUrls.get(itemId);
+    if (cached) return cached;
+    const objectUrl = URL.createObjectURL(new Blob([blob], { type: blob.type }));
     coverObjectUrls.set(itemId, objectUrl);
     return objectUrl;
   }
@@ -626,7 +628,9 @@
       try {
         const localCover = await MangaStore.cacheCover(item);
         if (epoch !== coverRenderEpoch || !frame.isConnected) return;
-        showCover(localCover ? localCoverObjectUrl(item.id, localCover) : fallback);
+        const source = localCover ? await localCoverObjectUrl(item.id, localCover, epoch) : fallback;
+        if (epoch !== coverRenderEpoch || !frame.isConnected) return;
+        showCover(source);
       } catch {
         if (epoch !== coverRenderEpoch || !frame.isConnected) return;
         image.dataset.coverFallbackApplied = 'true';
@@ -642,10 +646,12 @@
       coverObserver.unobserve(entry.target);
       loadCover(entry.target);
     }), { rootMargin: '180px' });
-    frames.forEach((frame) => {
+    // Read geometry in one batch before loadCover changes classes/attributes.
+    // Interleaving DOM reads and writes forces a layout flush for every cover.
+    const measuredFrames = frames.map((frame) => ({ frame, bounds: frame.getBoundingClientRect() }));
+    measuredFrames.forEach(({ frame, bounds }) => {
       // Ein direkter Test lädt die bereits sichtbaren Einträge zuverlässig.
       // Weiter entfernte Cover bleiben dem Observer vorbehalten.
-      const bounds = frame.getBoundingClientRect();
       const nearViewport = bounds.bottom >= -180 && bounds.top <= window.innerHeight + 180
         && bounds.right >= -180 && bounds.left <= window.innerWidth + 180;
       if (nearViewport) loadCover(frame);
@@ -1064,7 +1070,7 @@
       document.getElementById('readingLimitInput').value = MangaStore.getReadingLimit(data);
       document.getElementById('currentLimitLabel').textContent = t('currentLimitNamed', categoryLabel('reading'));
       setSwitchState(document.getElementById('languageSetting'), data.settings.language === 'en');
-      setSwitchState(document.getElementById('colorModeSetting'), data.settings.colorMode === 'light');
+      document.getElementById('colorModeSetting').value = MangaThemes.resolve(data.settings);
       setSwitchState(document.getElementById('showCoversInTableSetting'), data.settings.showCoversInTable,
         data.settings.language === 'en' ? 'On' : 'Ein', data.settings.language === 'en' ? 'Off' : 'Aus');
       setSwitchState(document.getElementById('showOnboardingSetting'), data.settings.showOnboardingOnStartup,
@@ -1103,9 +1109,31 @@
     } else renderCollection();
   }
 
-  async function reload() {
+  let reloadPromise = null;
+  let reloadDirty = false;
+  function reload() {
+    if (reloadPromise) return reloadPromise;
+    // A storage notification and its own save handler usually request the
+    // same refresh. Batch them before reading data; callers await one promise.
+    // Timer rather than requestAnimationFrame also runs in background tabs.
+    reloadPromise = new Promise((resolve) => setTimeout(resolve, 0)).then(async () => {
+      do {
+        reloadDirty = false;
+        await reloadSnapshot();
+      } while (reloadDirty);
+    }).finally(() => { reloadPromise = null; });
+    return reloadPromise;
+  }
+
+  async function reloadSnapshot() {
     data = await MangaStore.load();
-    placeholderCoverOverrides = await MangaStore.getCustomPlaceholderCovers({ includeData: true });
+    // Custom artwork can be megabytes. Unrelated rating/tag/theme saves must
+    // not transfer and clone all four images again across the storage boundary.
+    if (placeholderReadRevision !== placeholderRevision) {
+      const revision = placeholderRevision;
+      placeholderCoverOverrides = await MangaStore.getCustomPlaceholderCovers({ includeData: true });
+      placeholderReadRevision = revision;
+    }
     try {
       const commands = await browser.commands.getAll();
       currentShortcut = commands.find((command) => command.name === 'toggle-manga-regal')?.shortcut || '';
@@ -1218,7 +1246,11 @@
     render();
   });
 
-  elements.search.addEventListener('input', renderCollection);
+  let searchTimer;
+  elements.search.addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(renderCollection, 100);
+  });
   elements.ratingFilter.addEventListener('change', renderCollection);
   elements.sort.addEventListener('change', (event) => {
     const presets = {
@@ -1605,8 +1637,8 @@
     await reload();
     toast(t('preferencesSaved'));
   });
-  document.getElementById('colorModeSetting').addEventListener('click', async () => {
-    await MangaStore.setPreferences({ colorMode: data.settings.colorMode === 'dark' ? 'light' : 'dark' });
+  document.getElementById('colorModeSetting').addEventListener('change', async (event) => {
+    await MangaStore.setPreferences({ theme: event.target.value });
     await reload();
     toast(t('preferencesSaved'));
   });
@@ -1847,6 +1879,7 @@
       tagPresets,
       placeholderCoverByTag: data.settings.placeholderCoverByTag,
       ratingScale: nextRatingScale,
+      theme: document.getElementById('colorModeSetting').value,
       showCoversInTable: document.getElementById('showCoversInTableSetting').getAttribute('aria-checked') === 'true',
       showOnboardingOnStartup: document.getElementById('showOnboardingSetting').getAttribute('aria-checked') === 'true',
       chapterDetectionEnabled: document.getElementById('chapterDetectionSetting').getAttribute('aria-checked') === 'true',
@@ -2267,7 +2300,13 @@
 
   // Speichern aus dem Tab-Overlay wird sofort auch im geöffneten Dashboard sichtbar.
   browser.storage.onChanged.addListener((changes, area) => {
-    if (area === 'local' && changes[MangaStore.STORAGE_KEY]) reload();
+    if (area !== 'local') return;
+    const artworkChanged = Object.keys(changes).some((key) => key.startsWith('mangaRegalCustomPlaceholderV1:'));
+    if (artworkChanged) placeholderRevision++;
+    if (!artworkChanged && !changes[MangaStore.STORAGE_KEY]) return;
+    // A write during an active read is replayed; never lose a newer snapshot.
+    if (reloadPromise) reloadDirty = true;
+    reload().catch((error) => { console.error('Manga-Regal refresh failed:', error); });
   });
 
   reload().catch((error) => {

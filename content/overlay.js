@@ -16,6 +16,7 @@
 
   let currentRating = 0;
   let currentCover = '';
+  let failedQuickCover = '';
   let currentItemId = '';
   let pendingDraft = null;
   let pendingMatch = null;
@@ -100,6 +101,8 @@
   overlayTranslations.en.coverPreview = 'Cover preview';
   Object.assign(overlayTranslations.de, { coverAccess: 'Cover-Domain freigeben', coverPermission: 'Manga gespeichert. Für den Cover-Download kannst du die Bild-Domain freigeben.' });
   Object.assign(overlayTranslations.en, { coverAccess: 'Allow cover domain', coverPermission: 'Manga saved. You can allow the image domain to download its cover.' });
+  Object.assign(overlayTranslations.de, { details: 'Details', quickEmpty: 'Neuer Manga', chapterShort: 'Kap.', noCover: 'Kein Cover', localOnly: 'Lokal in deinem Browser' });
+  Object.assign(overlayTranslations.en, { details: 'Details', quickEmpty: 'New manga', chapterShort: 'Ch.', noCover: 'No cover', localOnly: 'Local to your browser' });
   Object.assign(overlayTranslations.de, { chooseTags: 'Tags anpassen', noTags: 'Keine Tags ausgewählt', noTagPresets: 'Keine Tags aktiviert. Aktiviere Tags in den Einstellungen.', finishTags: 'Tags übernehmen', removeTag: (tag) => `Tag „${tag}“ entfernen` });
   Object.assign(overlayTranslations.en, { chooseTags: 'Adjust tags', noTags: 'No tags selected', noTagPresets: 'No tags enabled. Enable tags in Settings.', finishTags: 'Apply tags', removeTag: (tag) => `Remove tag “${tag}”` });
 
@@ -127,6 +130,9 @@
       </header>
       <form class="mr-body" id="mr-form">
         <p class="mr-note" id="mr-note">Titel, Adresse und verfügbare Seitendaten wurden automatisch übernommen.</p>
+        <section class="mr-quick-summary" id="mr-quick-summary" hidden aria-live="polite"><div class="mr-quick-art"><img id="mr-quick-cover" alt="" referrerpolicy="no-referrer"><span id="mr-quick-no-cover" aria-hidden="true">▧</span></div><div class="mr-quick-copy"><h3 id="mr-quick-title"></h3><a id="mr-quick-url" target="_blank" rel="noopener noreferrer"></a><div class="mr-quick-pills"><span id="mr-quick-chapter"></span><span class="mr-quick-status" id="mr-quick-status"></span></div><div class="mr-quick-tags" id="mr-quick-tags"></div></div></section>
+        <button class="mr-button mr-primary mr-quick-save" id="mr-quick-save" type="button" data-mr-i18n="save" hidden>Im Regal speichern</button>
+        <details class="mr-entry-details" id="mr-entry-details" open><summary data-mr-i18n="details">Details</summary><div class="mr-detail-fields">
         <label class="mr-field"><span data-mr-i18n="fieldTitle">Titel</span><input id="mr-entry-title" type="text" required></label>
         <label class="mr-field"><span data-mr-i18n="website">Webseite</span><input id="mr-entry-url" type="url" required></label>
         <div class="mr-field" id="mr-tags-field"><span id="mr-tags-label" data-mr-i18n="tags">Tags</span><div class="mr-selected-tags" id="mr-selected-tags" aria-live="polite"></div><button class="mr-button mr-tag-trigger" id="mr-choose-tags" type="button" aria-expanded="false" aria-controls="mr-tag-picker" data-mr-i18n="chooseTags">Tags anpassen</button><dialog class="mr-tag-picker" id="mr-tag-picker" hidden aria-labelledby="mr-tag-picker-title"><h3 id="mr-tag-picker-title" data-mr-i18n="chooseTags">Tags anpassen</h3><div class="mr-tag-options" id="mr-tag-options"></div><div class="mr-tag-actions"><button class="mr-button" id="mr-cancel-tags" type="button" data-mr-i18n="cancel">Abbrechen</button><button class="mr-button mr-primary" id="mr-finish-tags" type="button" data-mr-i18n="finishTags">Tags übernehmen</button></div></dialog></div>
@@ -141,6 +147,8 @@
           <img class="mr-cover" id="mr-cover-preview" alt="Cover-Vorschau" data-mr-alt="coverPreview" referrerpolicy="no-referrer">
           <div class="mr-cover-controls"><label class="mr-file"><span data-mr-i18n="chooseCover">Lokales Cover auswählen</span><input id="mr-cover-file" type="file" accept="image/*"></label><span class="mr-cover-status" id="mr-cover-status"></span><button class="mr-button" id="mr-cover-access" type="button" data-mr-i18n="coverAccess" hidden>Cover-Domain freigeben</button></div>
         </div>
+        </div></details>
+        <p class="mr-quick-storage" id="mr-quick-storage" hidden></p>
         <div class="mr-actions">
           <button class="mr-button" id="mr-open-dashboard" type="button" data-mr-i18n="openCollection">Sammlung öffnen</button>
           <button class="mr-button mr-primary" type="submit" data-mr-i18n="save">Im Regal speichern</button>
@@ -169,11 +177,22 @@
   const titleInput = byId('mr-entry-title');
   const urlInput = byId('mr-entry-url');
   const tagPicker = byId('mr-tag-picker');
+  byId('mr-quick-cover').addEventListener('error', () => {
+    failedQuickCover = currentCover;
+    byId('mr-quick-cover').hidden = true;
+    byId('mr-quick-no-cover').hidden = false;
+  });
+  byId('mr-quick-cover').addEventListener('load', () => { failedQuickCover = ''; });
+  byId('mr-quick-save').addEventListener('click', () => byId('mr-form').requestSubmit());
+  byId('mr-form').addEventListener('invalid', () => { byId('mr-entry-details').open = true; }, true);
+  byId('mr-form').addEventListener('input', () => renderQuickSummary());
+  byId('mr-form').addEventListener('change', () => renderQuickSummary());
 
   /** Only enabled presets are offered as new choices. Existing assignments
    * remain removable even after a preset is disabled or deleted in Settings.
    * Use DOM text nodes: custom tag names are user data, never HTML. */
   function renderTags() {
+    renderQuickSummary();
     const chips = byId('mr-selected-tags');
     chips.replaceChildren();
     chips.hidden = selectedTags.length === 0;
@@ -275,11 +294,12 @@
   function applyOverlayPreferences(settings) {
     overlayLanguage = settings.language === 'en' ? 'en' : 'de';
     ratingMax = settings.ratingScale === 5 ? 5 : 10;
+    root.dataset.ratingScale = String(ratingMax);
     globalChapterDetection = settings.chapterDetectionEnabled !== false;
     offerRereadOnUpdate = settings.offerRereadOnUpdate !== false;
     autoTagRereads = settings.autoTagRereads !== false;
     root.lang = overlayLanguage;
-    root.classList.toggle('mr-light', settings.colorMode === 'light');
+    applyTheme(settings);
     root.querySelectorAll('[data-mr-i18n]').forEach((node) => { node.textContent = ot(node.dataset.mrI18n); });
     root.querySelectorAll('[data-mr-placeholder]').forEach((node) => { node.placeholder = ot(node.dataset.mrPlaceholder); });
     root.querySelectorAll('[data-mr-aria-label]').forEach((node) => { node.setAttribute('aria-label', ot(node.dataset.mrAriaLabel)); });
@@ -299,6 +319,50 @@
     root.dataset.chapterDetectionEnabled = String(globalChapterDetection);
     byId('mr-stars').setAttribute('aria-label', `${ot('rating')}: ${ratingMax} ${overlayLanguage === 'en' ? 'stars' : 'Sterne'}`);
   }
+
+  function applyTheme(settings) {
+    const previous = root.dataset.mangaTheme;
+    const theme = globalThis.MangaThemes?.apply(root, settings)
+      || { id: settings.colorMode || 'dark', mode: settings.colorMode || 'dark', glass: false };
+    root.classList.toggle('mr-light', theme.mode === 'light');
+    byId('mr-quick-summary').hidden = !theme.glass;
+    byId('mr-quick-save').hidden = !theme.glass;
+    byId('mr-quick-storage').hidden = !theme.glass;
+    if (previous !== theme.id) byId('mr-entry-details').open = !theme.glass;
+  }
+
+  // Summary uses the same form state and saved image, not a second data model.
+  // User-controlled titles/tags are always text nodes, never interpolated HTML.
+  function renderQuickSummary() {
+    byId('mr-quick-title').textContent = titleInput.value || ot('quickEmpty');
+    const link = byId('mr-quick-url');
+    try {
+      const url = new URL(urlInput.value);
+      link.textContent = url.host + ' ↗';
+      if (/^https?:$/.test(url.protocol)) link.href = url.href;
+      else link.removeAttribute('href');
+    } catch { link.textContent = ''; link.removeAttribute('href'); }
+    byId('mr-quick-chapter').textContent = `${ot('chapterShort')} ${byId('mr-entry-chapter').value || '—'}`;
+    byId('mr-quick-status').textContent = byId('mr-entry-status').selectedOptions[0]?.textContent || '';
+    byId('mr-quick-tags').replaceChildren(...selectedTags.slice(0, 3).map((tag) => {
+      const chip = document.createElement('span');
+      chip.textContent = tag;
+      if (tag.toLowerCase() === 're-read') chip.className = 'mr-reread-tag';
+      return chip;
+    }));
+    const image = byId('mr-quick-cover');
+    if (currentCover && image.getAttribute('src') !== currentCover) image.src = currentCover;
+    if (!currentCover) image.removeAttribute('src');
+    const visibleCover = Boolean(currentCover) && failedQuickCover !== currentCover;
+    image.hidden = !visibleCover;
+    byId('mr-quick-no-cover').hidden = visibleCover;
+    byId('mr-quick-storage').textContent = currentCoverStored ? `✓ ${ot('coverStored')}` : ot('localOnly');
+  }
+
+  browser.storage?.onChanged?.addListener((changes, area) => {
+    if (area !== 'local' || !changes[MangaStore.STORAGE_KEY]) return;
+    MangaStore.load().then((data) => applyTheme(data.settings)).catch(() => {});
+  });
 
   /** Die globale Vorgabe und die dauerhafte Manga-Ausnahme gelten gemeinsam. */
   function detectedChapter(url) {
@@ -396,6 +460,7 @@
 
   /** Aktualisiert die Cover-Vorschau oder blendet einen neutralen Platzhalter ein. */
   function renderCover() {
+    renderQuickSummary();
     byId('mr-cover-access').hidden = !(globalThis.MangaPlatform?.isChrome && currentItemId && !currentCoverStored && /^https?:/.test(currentCover));
     if (currentCover) coverPreview.src = currentCover;
     else coverPreview.removeAttribute('src');
@@ -481,7 +546,7 @@
     await prepareForm();
     root.classList.add('mr-open');
     root.setAttribute('aria-hidden', 'false');
-    setTimeout(() => titleInput.focus(), 0);
+    setTimeout(() => (root.dataset.glassTheme === 'true' ? byId('mr-quick-save') : titleInput).focus(), 0);
   }
 
   function closeOverlay() {

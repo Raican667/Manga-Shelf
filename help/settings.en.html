@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Manga Shelf – Settings guide</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="../shared/page-themes.css">
 </head>
 <body>
   <header class="topbar">
@@ -13,7 +14,7 @@
       <span><strong>Manga Shelf</strong><small>Settings guide</small></span>
     </a>
     <div class="top-actions">
-      <span class="version">Version 0.20.11</span>
+      <span class="version">Version 0.20.14</span>
       <a class="button" href="settings.html" data-mobile-label="DE">DE</a>
       <a class="button" href="index.en.html" data-mobile-label="General help">General help</a>
       <a class="button" href="../dashboard/index.html?view=admin" data-mobile-label="Settings">← Back to settings</a>
@@ -53,7 +54,8 @@
           <article><b>2</b><span>Review the effect of the setting</span></article>
           <article><b>3</b><span>Save automatically or as a group</span></article>
         </div>
-        <div class="note"><strong>Version 0.20.11:</strong> This settings guide also covers local placeholder covers, language switching, and the current protections used for cover downloads.</div>
+        <div class="note"><strong>Version 0.20.14:</strong> This settings guide also covers local placeholder covers, language switching, and the current protections used for cover downloads.</div>
+        <p><strong>Themes:</strong> In Settings → Appearance → Theme, choose Light Mode, Dark Mode, Coral Dark, Coral Light, Blue Light or Blue Dark. The choice also applies to help and the save form. The four new themes show the cover and quick-save action at the top; open Details to edit. Classic themes retain the existing form layout.</p>
         <p><strong>Chrome:</strong> If a cover needs extra permission, choose <em>Allow cover domain</em> after saving. The new page requests access only to that image domain. Declining leaves your manga saved. Local covers need no permission. Alternatively, in Settings → Interface, enable <em>Automatically load covers from all websites</em> to allow all HTTP/HTTPS websites once. The switch is off by default. Switching off revokes broad access without deleting local covers. Consent is local to this browser and is not synchronized. Firefox is unchanged.</p>
       </section>
 
@@ -129,7 +131,7 @@
         <h2>Appearance, covers, and rating scale</h2>
         <ul class="check-list">
           <li><strong>Language:</strong> Switches the interface and injected tab form between German and English. The help opens the matching language page; the add-on description, toolbar tooltip, and shortcut text follow Firefox's locale.</li>
-          <li><strong>Theme:</strong> Switches between dark and light appearance.</li>
+          <li><strong>Theme:</strong> Choose one of six themes instead of toggling light/dark. Changes are saved immediately and applied to the collection, settings, popup and help.</li>
           <li><strong>Table covers:</strong> Shows locally stored images in table rows. Images still load only when visible.</li>
           <li><strong>Placeholder covers:</strong> Four bundled artworks add variety to entries without a cover. Assign tags to a specific artwork or keep automatic selection. Every artwork can be replaced, and the complete placeholder feature can be disabled without deleting assignments.</li>
           <li><strong>Rating scale:</strong> New installations use five stars. Ten stars remain optional.</li>
@@ -180,13 +182,14 @@
 
       <footer>
         <img src="../icons/manga-regal.svg" alt="">
-        <p><strong>Manga Shelf</strong><br><span>Settings guide · Version 0.20.11</span></p>
+        <p><strong>Manga Shelf</strong><br><span>Settings guide · Version 0.20.14</span></p>
         <a href="#start">Back to top ↑</a>
       </footer>
     </main>
   </div>
 
   <script src="../shared/store.js"></script>
+  <script src="../shared/themes.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

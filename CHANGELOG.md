@@ -6,6 +6,45 @@ Alle nennenswerten Änderungen an Manga-Regal werden in dieser Datei dokumentier
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/),
 die Versionsnummern folgen der [semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.20.14] – 2026-10-20
+
+### Hinzugefügt
+
+- Design-Dropdown mit Light Mode, Dark Mode, Coral Dark, Coral Light, Blue Light und Blue Dark ersetzt den Hell-/Dunkel-Schalter.
+- Gemeinsame Farben für Sammlung, Einstellungen, Speicherformular und alle deutsch-/englischsprachigen Hilfeseiten.
+- Vier Glas-Formulare mit größerer Cover-Vorschau, Schnell-Speichern und aufklappbaren Details. Die klassische Ansicht bleibt verfügbar.
+- Bisherige Farbwahl wird kompatibel übernommen; Design-IDs bleiben in Sicherung und Sync erhalten.
+
+### Verbessert
+
+- Unschärfe-Flächen pro Kachel entfernt, doppelte Aktualisierungen zusammengefasst und eigene Platzhalterbilder zwischengespeichert.
+- Cover-Geometrie wird gebündelt gelesen; schnelle Such-Eingaben werden kurz zusammengefasst. Neue Daten während einer Aktualisierung gehen nicht verloren.
+- Große, fixierte Theme-Hintergründe durch begrenzte Dekoration am Dokumentanfang ersetzt, auch in den Einstellungen.
+- Native Dekodierung bereits gespeicherter Cover statt JavaScript-Schleifen pro Bildbyte. Keine zusätzlichen HTTP-Anfragen oder Änderungen der gespeicherten Cover.
+- Veraltete Bilddekodierungen werden vor dem Anlegen von Blob-URLs verworfen; die Scrollleistenbreite bleibt beim Ansichtswechsel stabil.
+- Regressionstests für alle Designs, fünf/zehn Sterne, Speichern bei geschlossenen Details, 422 Mangas, natives Scrollen und Einstellungen-Autospeichern.
+
+## [0.20.13] – 2026-10-20 – lokale Vorschau
+
+### Behoben
+
+- Unschärfeeffekte auf jeder Kachel und großen Flächen entfernt, um wiederholte GPU-Komposition zu reduzieren. Alle sechs Designs bleiben verfügbar.
+- Speicherereignis und explizites Neuladen werden zusammengefasst. Änderungen während eines laufenden Ladevorgangs werden erneut gelesen, nicht verworfen.
+- Unveränderte Theme-Tokens werden nicht bei jeder Datenänderung neu gesetzt.
+- Eigene Platzhalterbilder werden nur beim Start und nach Änderungen aus dem Speicher gelesen.
+- Cover-Geometrie wird vor DOM-Änderungen gebündelt gelesen; schnelle Such-Eingaben werden kurz zusammengefasst.
+- Regressionstest mit 422 Mangas in Tabellen- und Kachelansicht. Ausschließlich lokale ZIPs, kein GitHub-Release.
+
+## [0.20.12] – 2026-10-20 – lokale Vorschau
+
+### Hinzugefügt
+
+- Design-Dropdown mit Light Mode, Dark Mode, Coral Dark, Coral Light, Blue Light und Blue Dark ersetzt den Hell-/Dunkel-Schalter.
+- Gemeinsame Farb- und Oberflächensprache für Sammlung, Einstellungen, Speicherformular und deutsch-/englischsprachige Hilfeseiten.
+- Vier neue Glas-Formulare mit größerer Cover-Vorschau, Schnell-Speichern und aufklappbaren Details. Die klassische Formularansicht bleibt erhalten.
+- Kompatible Migration bestehender Farbauswahl, Design-ID in Sicherung und Sync sowie Tests für alle sechs Designs.
+- Zunächst ausschließlich lokale Test-ZIPs, kein GitHub-Release.
+
 ## [0.20.11] – 2026-10-19
 
 ### Hinzugefügt

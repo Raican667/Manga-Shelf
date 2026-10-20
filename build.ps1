@@ -19,6 +19,7 @@ if ($node) {
   $scripts = @(
     'shared\store.js',
     'shared\platform.js',
+    'shared\themes.js',
     'shared\sync.js',
     'background\background.js',
     'background\service-worker.js',
@@ -43,6 +44,8 @@ if ($node) {
   if ($LASTEXITCODE -ne 0) { throw 'Chrome-Kompatibilitätstests fehlgeschlagen' }
   & $node.Source (Join-Path $projectRoot 'tests\cover-permissions.test.js')
   if ($LASTEXITCODE -ne 0) { throw 'Cover-Freigabetests fehlgeschlagen' }
+  & $node.Source (Join-Path $projectRoot 'tests\themes.test.js')
+  if ($LASTEXITCODE -ne 0) { throw 'Theme-Tests fehlgeschlagen' }
 }
 
 New-Item -ItemType Directory -Path $buildDirectory -Force | Out-Null

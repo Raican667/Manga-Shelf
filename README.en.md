@@ -7,15 +7,17 @@ tags and re-reads in a local collection.
 
 **English** · [Deutsch](README.de.md)
 
-[Download Firefox](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.11/manga-shelf-firefox-0.20.11.zip) ·
-[Download Chrome](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.11/manga-shelf-chrome-0.20.11.zip) ·
+[Download Firefox](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.14/manga-shelf-firefox-0.20.14.zip) ·
+[Download Chrome](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.14/manga-shelf-chrome-0.20.14.zip) ·
 [All releases](https://github.com/Raican667/Manga-Shelf/releases) · [Changelog](CHANGELOG.en.md)
 
-**Version 0.20.11** · Firefox 142+ · Chrome 148+ · German / English · GPLv3
+**Version 0.20.14** · Firefox 142+ · Chrome 148+ · German / English · GPLv3
 
 ![Collection – schematic preview](help/images/collection.svg)
 
 ## Features
+
+- Six themes shared by the collection, settings, save form and help.
 
 - Capture title, link and available metadata from the current tab.
 - Detect chapters from links or maintain them manually; update existing progress.

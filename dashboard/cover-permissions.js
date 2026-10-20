@@ -40,6 +40,7 @@
   });
   (async () => {
     const data = await MangaStore.load();
+    globalThis.MangaThemes?.apply(document.documentElement, data.settings);
     text = copy[data.settings.language === 'de' ? 'de' : 'en'];
     document.documentElement.lang = data.settings.language === 'de' ? 'de' : 'en';
     for (const id of ['heading', 'description', 'explanation', 'allow', 'close']) byId(id).textContent = text[id];

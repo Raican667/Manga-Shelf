@@ -6,6 +6,45 @@ All notable changes to Manga-Regal are documented in this file. The format is
 based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.20.14] – 2026-10-20
+
+### Added
+
+- Theme dropdown with Light Mode, Dark Mode, Coral Dark, Coral Light, Blue Light and Blue Dark replaces the light/dark switch.
+- Shared colors across the collection, settings, save form and all German/English help pages.
+- Four glass forms with larger cover previews, quick save and collapsible details. Classic forms remain available.
+- Existing color choices migrate compatibly; theme IDs remain included in backups and sync.
+
+### Improved
+
+- Removed per-card blur surfaces, coalesced duplicate refreshes and cached custom placeholder artwork.
+- Batched cover geometry reads and briefly debounced rapid search input. Writes arriving during refresh are replayed rather than dropped.
+- Replaced large fixed theme backgrounds with bounded decoration at the document top, including settings.
+- Native decoding of stored covers replaces per-byte JavaScript loops. No additional HTTP requests or changes to stored covers.
+- Stale decoding results are discarded before allocating blob URLs; scrollbar width stays stable across views.
+- Regression coverage for all themes, five/ten stars, saves with closed details, 422 manga, native scrolling and settings autosave.
+
+## [0.20.13] – 2026-10-20 – local preview
+
+### Fixed
+
+- Removed per-card and large-surface backdrop blurs to reduce repeated GPU composition; all six themes remain available.
+- Coalesced storage notifications and explicit refreshes. Writes arriving during an active read trigger another read instead of being dropped.
+- Unchanged theme tokens are not rewritten after unrelated data changes.
+- Custom placeholder artwork is read only initially and when changed.
+- Cover geometry reads are batched before DOM writes; rapid search input is briefly debounced.
+- Added a 422-manga table/card performance regression test. Local ZIPs only; no GitHub release.
+
+## [0.20.12] – 2026-10-20 – local preview
+
+### Added
+
+- Theme dropdown with Light Mode, Dark Mode, Coral Dark, Coral Light, Blue Light and Blue Dark replaces the light/dark switch.
+- Shared colors and surfaces across the collection, settings, save form and German/English help pages.
+- Four glass form designs with a larger cover preview, quick save and collapsible details. Classic forms remain available.
+- Compatible migration of previous color choices, theme ID in backups and sync, and regression coverage for all six themes.
+- Local test ZIPs only; not published on GitHub yet.
+
 ## [0.20.11] – 2026-10-19
 
 ### Added

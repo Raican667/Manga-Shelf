@@ -55,7 +55,7 @@ async function toggleOverlay(tab) {
       });
       await browser.scripting.executeScript({
         target: { tabId: tab.id },
-        files: ['shared/platform.js', 'shared/store.js', 'content/overlay.js']
+        files: ['shared/platform.js', 'shared/store.js', 'shared/themes.js', 'content/overlay.js']
       });
       await browser.tabs.sendMessage(tab.id, { type: 'manga-regal:toggle-overlay' });
     } catch (error) {

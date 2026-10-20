@@ -20,6 +20,11 @@
   // Deshalb gehört dieser kleine Verwaltungswert bewusst nicht in Firefox Sync.
   const BOOKMARK_EXPORT_STATE_KEY = 'mangaRegalBookmarkExportStateV1';
   const DATA_VERSION = 20;
+  const THEME_IDS = ['dark', 'light', 'coral-dark', 'coral-light', 'blue-light', 'blue-dark'];
+  // Read legacy backups without replacing the user's existing light/dark choice.
+  function themeId(settings = {}) {
+    return THEME_IDS.includes(settings.theme) ? settings.theme : settings.colorMode === 'light' ? 'light' : 'dark';
+  }
   const REREAD_TAG = 'Re-Read';
   const DEFAULT_READING_LIMIT = 5;
   const COLLECTION_VIEWS = ['reading', 'active', 'hold', 'dropped', 'completed', 'all'];
@@ -82,6 +87,7 @@
       placeholderCoverByTag: {},
       language: 'en',
       colorMode: 'dark',
+      theme: 'dark',
       searchEngine: 'browser-default',
       customSearchEngines: [],
       bookmarkImportMode: 'folders',
@@ -671,7 +677,8 @@
           .filter((tag) => tag && !hiddenTagPresets.some((hidden) => hidden.toLowerCase() === tag.toLowerCase())),
         // Preserve explicit choices; new or legacy datasets without a language start in English.
         language: input.settings?.language === 'de' ? 'de' : 'en',
-        colorMode: input.settings?.colorMode === 'light' ? 'light' : 'dark',
+        theme: themeId(input.settings),
+        colorMode: themeId(input.settings).endsWith('light') ? 'light' : 'dark',
         searchEngine,
         customSearchEngines,
         bookmarkImportMode: ['folders', 'keyword', 'manual'].includes(input.settings?.bookmarkImportMode)
@@ -829,6 +836,11 @@
       }
       if (changes.colorMode !== undefined) {
         data.settings.colorMode = changes.colorMode === 'light' ? 'light' : 'dark';
+        data.settings.theme = data.settings.colorMode;
+      }
+      if (changes.theme !== undefined) {
+        data.settings.theme = THEME_IDS.includes(changes.theme) ? changes.theme : 'dark';
+        data.settings.colorMode = data.settings.theme.endsWith('light') ? 'light' : 'dark';
       }
       if (changes.searchEngine !== undefined) {
         data.settings.searchEngine = String(changes.searchEngine || 'browser-default');
@@ -855,7 +867,7 @@
       const english = data.settings.language === 'en';
       const labels = {
         showSupportButton: ['Ko-fi-Button', 'Ko-fi button'], language: ['Sprache', 'Language'],
-        colorMode: ['Farbschema', 'Color scheme'], ratingScale: ['Bewertungsskala', 'Rating scale'],
+        colorMode: ['Farbschema', 'Color scheme'], theme: ['Design', 'Theme'], ratingScale: ['Bewertungsskala', 'Rating scale'],
         showCoversInTable: ['Cover in Tabellen', 'Table covers'], chapterDetectionEnabled: ['Automatische Kapitelerkennung', 'Automatic chapter detection'],
         offerRereadOnUpdate: ['Re-Read anbieten', 'Offer re-read'], autoTagRereads: ['Re-Read automatisch taggen', 'Automatically tag re-reads'],
         showOnboardingOnStartup: ['Startdialog', 'Welcome dialog'], onboardingComplete: ['Einführung abgeschlossen', 'Onboarding completed'],

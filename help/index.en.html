@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Manga Shelf – Help</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="../shared/page-themes.css">
 </head>
 <body>
   <header class="topbar">
@@ -13,7 +14,7 @@
       <span><strong>Manga Shelf</strong><small>Help & guide</small></span>
     </a>
     <div class="top-actions">
-      <span class="version">Version 0.20.11</span>
+      <span class="version">Version 0.20.14</span>
       <a class="button" href="index.html" data-mobile-label="DE">DE</a>
       <a class="button" href="../dashboard/index.html?view=admin" data-mobile-label="Settings">← Back to settings</a>
     </div>
@@ -51,7 +52,8 @@
           <article><b>2</b><span>Click the Manga Shelf icon</span></article>
           <article><b>3</b><span>Review the data and save</span></article>
         </div>
-        <div class="note"><strong>Version 0.20.11:</strong> This guide describes the current interface, including localized help, automatic chapter and cover switches, and custom placeholder covers.</div>
+        <div class="note"><strong>Version 0.20.14:</strong> This guide describes the current interface, including localized help, automatic chapter and cover switches, and custom placeholder covers.</div>
+        <p><strong>Themes:</strong> In Settings → Appearance → Theme, choose Light Mode, Dark Mode, Coral Dark, Coral Light, Blue Light or Blue Dark. The choice also applies to help and the save form. The four new themes show the cover and quick-save action at the top; open Details to edit. Classic themes retain the existing form layout.</p>
         <p><strong>Chrome:</strong> If a cover needs extra permission, choose <em>Allow cover domain</em> after saving. The new page requests access only to that image domain. Declining leaves your manga saved. Local covers need no permission. Alternatively, in Settings → Interface, enable <em>Automatically load covers from all websites</em> to allow all HTTP/HTTPS websites once. The switch is off by default. Switching off revokes broad access without deleting local covers. Consent is local to this browser and is not synchronized. Firefox is unchanged.</p>
       </section>
 
@@ -193,13 +195,14 @@
 
       <footer>
         <img src="../icons/manga-regal.svg" alt="">
-        <p><strong>Manga Shelf</strong><br><span>Local Firefox collection · Version 0.20.11</span></p>
+        <p><strong>Manga Shelf</strong><br><span>Local Firefox collection · Version 0.20.14</span></p>
         <a href="#start">Back to top ↑</a>
       </footer>
     </main>
   </div>
 
   <script src="../shared/store.js"></script>
+  <script src="../shared/themes.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

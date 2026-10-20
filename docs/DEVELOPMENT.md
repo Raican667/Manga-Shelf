@@ -335,3 +335,15 @@ Neue Fehlerpfade dürfen den letzten gültigen lokalen Datensatz nicht still ers
 
 Dokumentationsstruktur: technische Referenz getrennt von Benutzerhilfe und
 Wartungsabläufen, angelehnt an [Diátaxis](https://www.diataxis.fr/reference/).
+
+## Design-Vertrag
+
+`shared/themes.js` definiert sechs stabile Design-IDs und gemeinsame Farbvariablen. `MangaThemes.apply(root, settings)` setzt Tokens ausschließlich am übergebenen Erweiterungs-Root. Im Webseiten-Overlay werden keine Variablen auf `html` oder `body` geschrieben. `shared/page-themes.css` wird nur in Erweiterungsseiten geladen; Overlay-Regeln bleiben unter `#manga-regal-overlay` gekapselt.
+
+`settings.theme` wird in MangaStore validiert. Ohne Design-ID wird die bisherige `colorMode`-Wahl übernommen; `colorMode` bleibt als kompatibler Hell-/Dunkelwert erhalten. JSON-Sicherung und Sync-Snapshot enthalten die Design-ID. Die vier neuen Designs nutzen dieselben Formularfelder und denselben Speicherweg wie die klassische Ansicht; Quick Save ruft `requestSubmit()` auf. Keine zweite Datenspeicherung, keine neuen Cover-Downloads. Die klassische Ansicht lässt Details dauerhaft geöffnet.
+
+`tests/themes.test.js` prüft Migration, Validierung, Sicherung und Sync. `tests/themes-ui.test.js` prüft alle Designs, Tag-Auswahl, echtes Speichern mit geschlossenen Details, schmale 10-Sterne-Formulare und alle vier Hilfeseiten. Screenshots liegen unter `build/theme-preview/`. Die Design- und Performance-Änderungen wurden zunächst lokal getestet und gemeinsam in 0.20.14 veröffentlicht.
+
+Performance: `tests/performance.test.js` arbeitet mit isolierten API-Fixtures und 422 Einträgen. Aufruf mit Chromium-Pfad und `--assert-optimized`. Geprüft werden Kacheln ohne Unschärfeflächen, höchstens ein Aktualisierungs-Lesevorgang nach einer Einstellungsänderung, keine erneute Theme-Anwendung und die Invalidierung geänderter Platzhalterbilder. Zeitmessungen sind diagnostisch, keine geräteunabhängige Zusage. Dashboard-Aktualisierungen teilen ein laufendes Promise; Speicherereignisse während des Lesens werden nachgeholt. Bildrevisionen verhindern unnötiges erneutes Lesen großer Platzhalterdateien. Theme-Tokens werden mit einer WeakMap pro DOM-Root zwischengespeichert.
+
+Scrolling: Theme-Verläufe sind begrenzte Dokument-Hintergründe statt fixierter Fensterflächen. Gespeicherte `data:image`-Cover werden über den nativen data-URL-/Blob-Weg des Browsers dekodiert; es findet kein HTTP-Zugriff statt. Vor dem Anlegen einer Blob-URL wird nach der Dekodierung die Render-Epoche geprüft. Veraltete Ergebnisse können dadurch keine URLs verlieren oder neue Cover ersetzen. `tests/scrolling.test.js` verwendet echtes Mausrad-Scrolling mit 422 gespeicherten Cover-Einträgen und prüft monotone Bewegung, unveränderte Dokumentabmessungen nach dem Nachladen sowie Scrollposition beim Autospeichern und Scrollleistenbreite beim Designwechsel. Es gibt keinen Wheel-Interceptor, keine künstliche Scrollbewegung und keine JavaScript-Trägheit.

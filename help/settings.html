@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Manga-Regal – Einstellungen erklärt</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="../shared/page-themes.css">
 </head>
 <body>
   <header class="topbar">
@@ -13,7 +14,7 @@
       <span><strong>Manga-Regal</strong><small>Einstellungen erklärt</small></span>
     </a>
     <div class="top-actions">
-      <span class="version">Version 0.20.11</span>
+      <span class="version">Version 0.20.14</span>
       <a class="button" href="settings.en.html" data-mobile-label="EN">EN</a>
       <a class="button" href="index.html" data-mobile-label="Allgemeine Hilfe">Allgemeine Hilfe</a>
       <a class="button" href="../dashboard/index.html?view=admin" data-mobile-label="Einstellungen">← Zu den Einstellungen</a>
@@ -53,7 +54,8 @@
           <article><b>2</b><span>Auswirkung der Einstellung nachlesen</span></article>
           <article><b>3</b><span>Änderung automatisch oder gesammelt speichern</span></article>
         </div>
-        <div class="note"><strong>Version 0.20.11:</strong> Die Einstellungsanleitung erklärt auch die lokalen Platzhalter-Cover, die Sprachumschaltung und die aktuellen Schutzmechanismen beim Cover-Download.</div>
+        <div class="note"><strong>Version 0.20.14:</strong> Die Einstellungsanleitung erklärt auch die lokalen Platzhalter-Cover, die Sprachumschaltung und die aktuellen Schutzmechanismen beim Cover-Download.</div>
+        <p><strong>Designs:</strong> Unter Einstellungen → Oberfläche → Design stehen Light Mode, Dark Mode, Coral Dark, Coral Light, Blue Light und Blue Dark zur Auswahl. Die Wahl gilt auch für die Hilfe und das Speicherformular. Die vier neuen Designs zeigen Cover und Schnell-Speichern oben; mit Details öffnest du die Bearbeitung. Klassische Designs behalten die bisherige Formularansicht.</p>
         <p><strong>Chrome:</strong> Falls ein Cover zusätzliche Rechte braucht, wähle nach dem Speichern <em>Cover-Domain freigeben</em>. Auf der neuen Seite gibst du nur diese Bild-Domain frei. Bei Ablehnung bleibt der Manga gespeichert. Lokale Cover benötigen keine Freigabe. Alternativ kannst du unter Einstellungen → Oberfläche den Schalter <em>Cover automatisch von allen Webseiten laden</em> einschalten und Chrome einmalig Zugriff auf alle HTTP-/HTTPS-Webseiten erlauben. Standardmäßig ist er aus. Ausschalten widerruft die umfassende Freigabe, ohne lokale Cover zu löschen. Die Freigabe gilt nur in diesem Browser und wird nicht synchronisiert. Firefox bleibt unverändert.</p>
       </section>
 
@@ -129,7 +131,7 @@
         <h2>Oberfläche, Cover und Bewertungsskala</h2>
         <ul class="check-list">
           <li><strong>Sprache:</strong> Schaltet Oberfläche und eingeblendetes Tab-Formular zwischen Deutsch und Englisch um. Die Hilfe öffnet automatisch die passende Sprachseite; Add-on-Beschreibung, Toolbar-Tooltip und Tastenkürzeltext folgen der Firefox-Lokalisierung.</li>
-          <li><strong>Farbschema:</strong> Wechselt zwischen dunkler und heller Darstellung.</li>
+          <li><strong>Design:</strong> Sechs Designs statt eines Hell-/Dunkel-Schalters. Die Auswahl wird sofort gespeichert und für Sammlung, Einstellungen, Pop-up und Hilfe übernommen.</li>
           <li><strong>Cover in Tabellen:</strong> Blendet die lokal gespeicherten Bilder zusätzlich in Tabellenzeilen ein. Bilder werden erst bei Sichtbarkeit geladen.</li>
           <li><strong>Platzhalter-Cover:</strong> Vier mitgelieferte Motive sorgen bei Einträgen ohne Cover für Abwechslung. Unter „Tag-Vorauswahl“ kann für jeden Tag ein Motiv oder die automatische Zuordnung gewählt werden.</li>
           <li><strong>Bewertungsskala:</strong> Neue Installationen verwenden fünf Sterne. Optional sind zehn Sterne möglich.</li>
@@ -180,13 +182,14 @@
 
       <footer>
         <img src="../icons/manga-regal.svg" alt="">
-        <p><strong>Manga-Regal</strong><br><span>Einstellungen erklärt · Version 0.20.11</span></p>
+        <p><strong>Manga-Regal</strong><br><span>Einstellungen erklärt · Version 0.20.14</span></p>
         <a href="#start">Nach oben ↑</a>
       </footer>
     </main>
   </div>
 
   <script src="../shared/store.js"></script>
+  <script src="../shared/themes.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

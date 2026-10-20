@@ -18,6 +18,9 @@
     // ausgelieferte Markup und CSS statt einer separat gepflegten Nachbildung.
     const scale = new URLSearchParams(location.search).get('scale') === '10' ? 10 : 5;
     const globalDetection = new URLSearchParams(location.search).get('global') === '1';
+    const theme = new URLSearchParams(location.search).get('theme') || 'dark';
+    const demo = new URLSearchParams(location.search).has('demo');
+    const demoItem = { id: 'demo', title: 'Moonlit Journey', url: 'https://manga.example/chapter-42', currentChapter: '42', status: 'reading', tags: ['Fantasy', 'Adventure'], rating: 4 };
     let overlayMessageHandler;
     window.browser = {
       runtime: {
@@ -29,7 +32,7 @@
       load: async () => ({
         items: [],
         settings: {
-          language: 'de', ratingScale: scale, colorMode: 'dark',
+          language: demo ? 'en' : 'de', ratingScale: scale, colorMode: 'dark', theme,
           chapterDetectionEnabled: globalDetection, categoryNames: {},
           customCategories: [], defaultNewStatus: 'active', readingLimit: 5,
           tagPresets: ['Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Re-Read']
@@ -37,12 +40,13 @@
       }),
       cleanTags: (tags) => [...new Set(tags)],
       chapterFromUrl: () => '42',
-      findLikelyMatch: () => null,
+      findLikelyMatch: () => demo ? demoItem : null,
       findLikelyMatches: () => [],
-      getStoredCover: async () => '',
+      getStoredCover: async () => demo ? new URL('../assets/placeholders/forest-shrine.jpg', location.href).href : '',
       getReadingLimit: () => 5
     };
   </script>
+  <script src="../shared/themes.js"></script>
   <script src="../content/overlay.js"></script>
   <script>overlayMessageHandler({ type: 'manga-regal:toggle-overlay' });</script>
 </body>

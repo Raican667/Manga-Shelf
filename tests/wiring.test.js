@@ -61,7 +61,7 @@ const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'u
 const germanLocale = JSON.parse(fs.readFileSync(path.join(root, '_locales/de/messages.json'), 'utf8'));
 const englishLocale = JSON.parse(fs.readFileSync(path.join(root, '_locales/en/messages.json'), 'utf8'));
 assert.equal(manifest.manifest_version, 3, 'Firefox-Paket muss Manifest V3 verwenden');
-assert.equal(manifest.version, '0.20.11', 'Manifest-Version entspricht nicht dem aktuellen Hilfestand');
+assert.equal(manifest.version, '0.20.14', 'Manifest-Version entspricht nicht dem aktuellen Hilfestand');
 assert.equal(manifest.default_locale, 'de', 'Deutsche Standard-Lokalisierung fehlt im Manifest');
 assert.equal(manifest.name, '__MSG_extensionName__', 'Add-on-Name verwendet die Firefox-Lokalisierung nicht');
 assert.equal(manifest.description, '__MSG_extensionDescription__', 'Add-on-Beschreibung verwendet die Firefox-Lokalisierung nicht');
@@ -155,7 +155,8 @@ assert.match(overlayJs, /coverDetectionDisabled/, 'Cover-Automatik wird nicht da
 assert.match(overlayJs, /force: draft\.coverManualChange === true/, 'Eine bewusste manuelle Cover-Aenderung kann die Automatik nicht kontrolliert ueberstimmen');
 assert.match(storeJs, /item\?\.coverDetectionDisabled === true && options\.force !== true/, 'Zentrale Cover-Ladelogik respektiert die Manga-Ausnahme nicht');
 assert.match(overlayCss, /grid-template-columns: minmax\(0, 1fr\) 34px/, 'Kapitelknopf besitzt keine kompakte feste Breite');
-assert.doesNotMatch(overlayCss, /data-rating-scale/, 'Kapitelknopf darf nicht mehr von der Sterneskala abhängen');
+// Ten-star typography may shrink in glass themes; chapter geometry must not.
+assert.doesNotMatch(overlayCss, /data-rating-scale[^{}]*\.mr-(?:chapter|row|field)/, 'Kapitelknopf darf nicht mehr von der Sterneskala abhängen');
 assert.doesNotMatch(overlayCss, /grid-template-areas/, 'Das stabile Formular darf nicht erneut in ein gemeinsames Bereichsraster gezwungen werden');
 assert.match(dashboardHtml, /id="exportFirefoxBookmarks"/, 'Rückexport zu Firefox-Lesezeichen fehlt');
 assert.match(dashboardHtml, /id="placeholderTagMap"/, 'Tag-Zuordnung für Platzhalter-Cover fehlt');
@@ -178,14 +179,14 @@ assert.match(settingsHelpHtml, /class="help-tabs"/, 'Hilfe-Tabs fehlen in der Ei
 assert.match(englishHelpHtml, /class="help-tabs"/, 'Help tabs are missing from the English guide');
 assert.match(englishSettingsHelpHtml, /class="help-tabs"/, 'Help tabs are missing from the English settings guide');
 for (const [filename, source] of [['help/index.html', helpHtml], ['help/index.en.html', englishHelpHtml], ['help/settings.html', settingsHelpHtml], ['help/settings.en.html', englishSettingsHelpHtml]]) {
-  assert.match(source, /Version 0\.20\.11/, `${filename} ist nicht auf dem aktuellen Versionsstand`);
+  assert.match(source, /Version 0\.20\.14/, `${filename} ist nicht auf dem aktuellen Versionsstand`);
 }
 assert.match(dashboardJs, /language === 'en' \? '\.en' : ''/, 'Dashboard routes English users to German help pages');
 assert.match(germanReadme, /\[Änderungsverlauf\]\(CHANGELOG\.md\)/, 'Deutsche README verlinkt die Versionshistorie nicht');
 assert.match(germanReadme, /\[English\]\(README\.md\)/, 'Deutsche README verlinkt die englische Fassung nicht');
 assert.match(englishReadme, /\[Deutsch\]\(README\.de\.md\)/, 'Englische README verlinkt die deutsche Fassung nicht');
-assert.match(changelog, /## \[0\.20\.11\]/, 'Aktuelle Version fehlt im zentralen Changelog');
-assert.match(englishChangelog, /## \[0\.20\.11\]/, 'Current version is missing from the English changelog');
+assert.match(changelog, /## \[0\.20\.14\]/, 'Aktuelle Version fehlt im zentralen Changelog');
+assert.match(englishChangelog, /## \[0\.20\.14\]/, 'Current version is missing from the English changelog');
 assert.doesNotMatch(dashboardJs, /version: '0\.19\.16'/, 'Alte Versionshistorie wurde nicht aus app.js entfernt');
 
 for (const filename of ['arcane-library.jpg', 'moon-city.jpg', 'forest-shrine.jpg', 'cosmic-gate.jpg']) {
