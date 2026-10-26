@@ -29,6 +29,9 @@
   // „Lese ich gerade“ ist die Startansicht. Ein direkter Hilfelink darf jedoch
   // über ?view=admin unmittelbar zurück zu den Einstellungen springen.
   let currentView = new URLSearchParams(location.search).get('view') === 'admin' ? 'admin' : 'reading';
+  const settingsSections = ['appearance', 'tags', 'technical'];
+  const requestedSettingsSection = new URLSearchParams(location.search).get('settings');
+  let currentSettingsSection = settingsSections.includes(requestedSettingsSection) ? requestedSettingsSection : 'appearance';
   let dialogRating = 0;
   let bookmarkFolders = [];
   let bookmarkEntries = [];
@@ -339,10 +342,10 @@
   // vollständige Historie liegt zentral im CHANGELOG.md des Repositories.
   const patchNotes = {
     de: [
-      { version: '0.20.15', date: '20.10.2026', title: 'Einstellungen bei Updates erhalten', notes: ['Tabellenansichten bleiben auch bei älterer Kachel-Voreinstellung erhalten.', 'Bewusst leere Import-Schlüsselwörter werden nicht mehr überschrieben.', 'Verpflichtende Update- und Neustarttests prüfen Einstellungen, Kategorien, Tags, Mangas und lokale Bilder.'] },
+      { version: '0.20.20', date: '26.10.2026', title: 'Zielordner für Dateisicherungen', notes: ['Zielordner auswählen mit sichtbarer Ordneranzeige in der Datensicherung.', 'Chrome nutzt seinen Ordnerdialog; Firefox unter Windows den optionalen lokalen Helfer.', 'JSON-data:-Downloadfehler behoben. Fehlende Rechte führen nicht zu einer Sicherung an einem anderen Ort.', 'Eigene Indexdateien schützen fremde Dateien bei der Aufbewahrung.', 'Enthält die Verbesserungen seit 0.20.15: Kategorien, Bewertungsregeln, Sync-Verlustschutz, isoliertes Pop-up und Einstellungsreiter.'] },
     ],
     en: [
-      { version: '0.20.15', date: '2026-10-20', title: 'Preserve settings across updates', notes: ['Explicit table views survive older global card preferences.', 'Intentionally empty import keywords are no longer overwritten.', 'Mandatory upgrade and restart tests cover settings, categories, tags, manga and local images.'] },
+      { version: '0.20.20', date: '2026-10-26', title: 'Choose a backup folder', notes: ['Select a backup folder and see the destination in Data backup.', 'Chrome uses its directory picker; Firefox on Windows uses the optional local helper.', 'JSON data-URL download errors fixed. Missing access never silently changes the destination.', 'Ownership indexes protect unrelated files during retention cleanup.', 'Includes changes since 0.20.15: categories, rating rules, Sync loss protection, isolated popup and settings tabs.'] },
     ]
   };
   Object.assign(translations.de, { coverAccess: 'Cover-Domain freigeben', coverPermission: 'Manga gespeichert. Für den Cover-Download kannst du die Bild-Domain freigeben.' });
@@ -391,9 +394,167 @@
     return data?.settings?.categoryNames?.[view]?.trim() || custom?.name || defaultCategoryLabel(view);
   }
 
+  Object.assign(translations.de, {
+    showCategory: 'Kategorie einblenden', hideCategory: 'Kategorie ausblenden', visibleCategory: 'Sichtbar', hiddenCategory: 'Ausgeblendet',
+    ratingCategoryLabel: 'Bewertungen zuordnen', ratingCategoryHint: 'Sterne auswählen, deren Manga automatisch in diese Kategorie verschoben werden. Pro Sternezahl gilt eine Zielkategorie. Die Übernahme wird bestätigt.',
+    ratingAggregate: 'Gesamtansicht', ratingAggregateHint: 'Alle zeigt bereits sämtliche Manga. Eine automatische Zuordnung ist hier nicht nötig.',
+    categoryNamesHint: 'Namen, Sichtbarkeit und Ansicht verwalten. Ausblenden entfernt nur den Reiter, keine Manga. Reiter oben oder Zeilen hier verschieben.',
+    ratingRulesTitle: 'Kategorien nach Bewertung', ratingRulesHint: 'Eine Regel je exakter Sternezahl. Beim Speichern werden passende vorhandene Manga verschoben, künftig bei neuen oder geänderten Bewertungen. Manuelle Kategorieänderungen bleiben bis zur nächsten Bewertungsänderung erhalten. Ohne Regel wird nichts zurückverschoben.',
+    noRatingRule: 'Keine automatische Zuordnung', saveRatingRules: 'Regeln anwenden', ratingRulesSaved: 'Bewertungsregeln gespeichert',
+    ratingRulesConfirm: (count) => `${count} vorhandene Manga werden in die zugeordneten Kategorien verschoben. Die Regeln gelten auch für neue oder geänderte Bewertungen und haben beim Import Vorrang vor der Zielkategorie. Fortfahren?`,
+    importCategory: 'Zielkategorie', importRating: 'Startbewertung', importInherit: 'Wie oben gewählt', importKeepCategory: 'Standard / bestehende Kategorie behalten',
+    importOptionsHint: 'Gilt für die gesamte Auswahl. Ordner können eigene Werte erhalten. Bewertungsregeln haben Vorrang vor der Zielkategorie.'
+  });
+  Object.assign(translations.en, {
+    showCategory: 'Show category', hideCategory: 'Hide category', visibleCategory: 'Visible', hiddenCategory: 'Hidden',
+    ratingCategoryLabel: 'Assign ratings', ratingCategoryHint: 'Select star scores whose manga should move into this category. Each score has one target category. Changes require confirmation.',
+    ratingAggregate: 'Aggregate view', ratingAggregateHint: 'All already includes every manga. No automatic assignment is needed here.',
+    categoryNamesHint: 'Manage names, visibility and layout. Hiding only removes the tab, not its manga. Drag tabs above or rows here to reorder.',
+    ratingRulesTitle: 'Categories by rating', ratingRulesHint: 'One rule per exact star score. Saving moves matching existing manga; future rules run on new or changed ratings. Manual category changes survive until the next rating change. Removing a rule does not undo earlier moves.',
+    noRatingRule: 'No automatic assignment', saveRatingRules: 'Apply rules', ratingRulesSaved: 'Rating rules saved',
+    ratingRulesConfirm: (count) => `${count} existing manga will move to the assigned categories. Rules also apply to new or changed ratings and take priority over the import category. Continue?`,
+    importCategory: 'Target category', importRating: 'Initial rating', importInherit: 'Use selection above', importKeepCategory: 'Default / keep existing category',
+    importOptionsHint: 'Applies to the whole selection. Folders can override these values. Rating rules take priority over the target category.'
+  });
+
+  function ratingRulesFromDom() {
+    return Object.fromEntries([...document.querySelectorAll('[data-rating-score]:checked')]
+      .map((checkbox) => [checkbox.dataset.ratingScore, checkbox.dataset.ratingTarget]));
+  }
+
+  Object.assign(translations.de, {
+    dailyBackupTitle: 'Tägliche Dateisicherung', dailyBackupHint: 'Vollständige JSON-Datei mit Einstellungen und lokalen Covern im gewählten Zielordner. Einmal täglich bei geöffnetem Browser, sonst beim nächsten Start. Alte eigene Sicherungen über dem gewählten Limit werden erst nach einer erfolgreichen neuen Sicherung dauerhaft gelöscht.',
+    backupFolderTitle: 'Zielordner', chooseBackupFolder: 'Zielordner auswählen', backupFolderUnset: 'Noch kein Zielordner ausgewählt.',
+    backupHelperHint: 'Firefox: Windows-Helfer herunterladen, entpacken und Install.cmd ausführen. Danach hier den Zielordner auswählen. Keine Administratorrechte erforderlich.',
+    backupHelperDownload: 'Firefox-Helfer für Windows herunterladen',
+    backupChromeFolderHint: 'Chrome zeigt aus Datenschutzgründen nur den Ordnernamen, nicht den vollständigen Pfad. Die Auswahl wird nur in diesem Profil gespeichert.',
+    backupFolderPermission: 'Bitte zuerst einen Zielordner auswählen oder den Ordnerzugriff erneut freigeben.',
+    backupHelperMissing: 'Der Firefox-Helfer fehlt oder ist nicht erreichbar. Bitte über den Link herunterladen und Install.cmd ausführen.',
+    backupHelperPermission: 'Bitte die optionale Verbindung zum lokalen Helfer beim Auswählen des Zielordners erlauben.',
+    backupEmpty: 'Leere Sammlung: keine automatische Sicherungsdatei erstellt.', backupPickerUnavailable: 'Dieser Browser unterstützt die Ordnerauswahl nicht.',
+    backupLegacyError: 'Der bisherige Download-Sicherungsweg wurde ersetzt. Bitte einen Zielordner auswählen und die Sicherung erneut starten.',
+    backupFailed: 'Sicherung fehlgeschlagen. Zielordner und Schreibzugriff prüfen.',
+    settingsSections: 'Einstellungsbereiche', settingsAppearance: 'Darstellung', settingsTags: 'Tag-Vorauswahl', settingsTechnical: 'Technik & Daten',
+    dailyBackupLimit: 'Aufbewahrte Sicherungen', invalidBackupLimit: 'Bitte eine gültige Anzahl eingeben.',
+    dailyBackupNow: 'Dateisicherung jetzt erstellen', dailyBackupNever: 'Noch keine erfolgreiche Dateisicherung.',
+    dailyBackupPending: 'Dateisicherung wird heruntergeladen …', dailyBackupLast: (time, file) => `Letzte erfolgreiche Sicherung: ${time} · ${file}`,
+    downloadPermissionDenied: 'Die Download-Berechtigung wurde nicht erteilt.',
+    syncChoiceTitle: 'Sync-Stand auswählen', syncChoiceHint: 'Diese Stände werden nicht zusammengeführt. Wähle bewusst, welcher übernommen werden soll. Bei einer leeren lokalen Sammlung zuerst den vorhandenen Sync-Stand wiederherstellen.',
+    syncChoiceCounts: (local, remote) => `Lokale Sammlung: ${local} Manga · Vorhandener Sync-Stand: ${remote} Manga`,
+    syncChooseRestore: 'Vorhandenen Sync-Stand übernehmen', syncChooseUpload: 'Lokalen Stand in den Sync hochladen',
+    syncReplaceConfirm: 'Achtung: Der vorhandene Sync-Stand einschließlich Einstellungen wird durch die lokale Sammlung ersetzt. Wirklich überschreiben?'
+  });
+  Object.assign(translations.en, {
+    dailyBackupTitle: 'Daily file backup', dailyBackupHint: 'Full JSON including settings and local covers in the selected folder. Once per day while the browser is open, or on next startup. Oldest own files above your retention count are permanently deleted only after a successful new backup.',
+    backupFolderTitle: 'Backup folder', chooseBackupFolder: 'Select backup folder', backupFolderUnset: 'No backup folder selected.',
+    backupHelperHint: 'Firefox: download and extract the Windows helper, then run Install.cmd. Afterwards select your folder here. Administrator access is not required.',
+    backupHelperDownload: 'Download Firefox backup helper for Windows',
+    backupChromeFolderHint: 'Chrome exposes only the folder name, not the full path. The selection stays in this browser profile.',
+    backupFolderPermission: 'Select a backup folder first or grant folder access again.',
+    backupHelperMissing: 'The Firefox helper is missing or unavailable. Download it using the link and run Install.cmd.',
+    backupHelperPermission: 'Allow the optional local-helper connection when selecting the folder.',
+    backupEmpty: 'Empty collection: no automatic backup file created.', backupPickerUnavailable: 'This browser does not support directory selection.',
+    backupLegacyError: 'The previous download-based backup path has been replaced. Select a backup folder and try again.',
+    backupFailed: 'Backup failed. Check the selected folder and write access.',
+    settingsSections: 'Settings sections', settingsAppearance: 'Appearance', settingsTags: 'Tag Presets', settingsTechnical: 'Technical & Data',
+    dailyBackupLimit: 'Backups to retain', invalidBackupLimit: 'Please enter a valid backup count.',
+    dailyBackupNow: 'Create file backup now', dailyBackupNever: 'No successful file backup yet.',
+    dailyBackupPending: 'Backup download in progress …', dailyBackupLast: (time, file) => `Last successful backup: ${time} · ${file}`,
+    downloadPermissionDenied: 'Download permission was not granted.',
+    syncChoiceTitle: 'Choose a Sync snapshot', syncChoiceHint: 'These snapshots will not be merged. Choose which one to keep. If local storage is empty, restore the existing Sync snapshot first.',
+    syncChoiceCounts: (local, remote) => `Local collection: ${local} manga · Existing Sync snapshot: ${remote} manga`,
+    syncChooseRestore: 'Use existing Sync snapshot', syncChooseUpload: 'Upload local collection to Sync',
+    syncReplaceConfirm: 'Warning: the existing Sync snapshot, including settings, will be replaced with the local collection. Really overwrite it?'
+  });
+
+  async function backupRequest(action, extra = {}) {
+    const result = await browser.runtime.sendMessage({ type: 'manga-shelf:backup', action, ...extra });
+    if (!result?.ok) throw new Error(result?.message || 'Backup unavailable / Sicherung nicht verfügbar');
+    return result.status || { enabled: false };
+  }
+
+  async function refreshBackupStatus() {
+    try {
+      const state = await backupRequest('status');
+      const target = state.target || {};
+      document.getElementById('backupDestination').textContent = target.label || t('backupFolderUnset');
+      document.getElementById('backupHelperHint').textContent = t(globalThis.MangaPlatform?.isChrome ? 'backupChromeFolderHint' : 'backupHelperHint');
+      document.getElementById('backupHelperDownload').hidden = Boolean(globalThis.MangaPlatform?.isChrome);
+      const limitInput = document.getElementById('dailyBackupLimit');
+      if (document.activeElement !== limitInput && limitInput.getAttribute('aria-invalid') !== 'true') limitInput.value = String(state.limit || 7);
+      setSwitchState(document.getElementById('dailyBackupSetting'), state.enabled === true,
+        data.settings.language === 'en' ? 'On' : 'Ein', data.settings.language === 'en' ? 'Off' : 'Aus');
+      document.getElementById('dailyBackupStatus').textContent = state.error ? backupError(state.error)
+        : (state.pending ? t('dailyBackupPending') : state.lastSuccessAt
+          ? t('dailyBackupLast', new Intl.DateTimeFormat(data.settings.language, { dateStyle: 'short', timeStyle: 'short' }).format(state.lastSuccessAt), state.lastFilename)
+          : t('dailyBackupNever'));
+    } catch (error) { document.getElementById('dailyBackupStatus').textContent = backupError(error.message); }
+  }
+  function backupError(message) {
+    if (typeof message !== 'string') return t('backupFailed');
+    if (/data:application\/json/i.test(message)) return t('backupLegacyError');
+    if (message.length > 500) return t('backupFailed');
+    const keys = { HELPER_PERMISSION_REQUIRED: 'backupHelperPermission', HELPER_NOT_INSTALLED: 'backupHelperMissing',
+      FOLDER_PERMISSION_REQUIRED: 'backupFolderPermission', EMPTY_BACKUP: 'backupEmpty', DIRECTORY_PICKER_UNAVAILABLE: 'backupPickerUnavailable' };
+    return keys[message] ? t(keys[message]) : message;
+  }
+
+  function chooseSyncSnapshot(plan) {
+    const dialog = document.getElementById('syncChoiceDialog');
+    document.getElementById('syncChoiceCounts').textContent = t('syncChoiceCounts', plan.localCount, plan.remoteCount);
+    return new Promise((resolve) => {
+      const finish = (value) => { dialog.close(); resolve(value); };
+      document.getElementById('syncChooseRestore').onclick = () => finish('restore');
+      document.getElementById('syncChooseUpload').onclick = () => {
+        if (confirm(t('syncReplaceConfirm'))) finish('upload');
+      };
+      document.getElementById('syncChooseCancel').onclick = () => finish('cancel');
+      dialog.oncancel = (event) => { event.preventDefault(); finish('cancel'); };
+      dialog.showModal();
+      document.getElementById('syncChooseRestore').focus();
+    });
+  }
+
+  async function connectSync(enable = false) {
+    const plan = await MangaSync.plan();
+    const choice = plan.remoteRevision ? await chooseSyncSnapshot(plan) : 'upload';
+    if (choice === 'cancel') return;
+    if (choice === 'restore') await MangaSync.restore({ force: true, expectedRevision: plan.remoteRevision });
+    else await MangaSync.upload({ force: true, allowReplaceRevision: plan.remoteRevision });
+    if (enable) await MangaStore.setPreferences({ syncEnabled: true });
+    await reload();
+  }
+
+  function confirmRatingRules(rules) {
+    if (JSON.stringify(rules) === JSON.stringify(data.settings.ratingCategoryRules)) return true;
+    const count = data.items.filter((item) => rules[item.rating] && rules[item.rating] !== item.status).length;
+    return confirm(t('ratingRulesConfirm', count));
+  }
+
+  /** Invert the persisted score -> status mapping only for presentation.
+   * Several scores may target one category, but each score has one owner. */
+  function categoryRatingPicker(view) {
+    if (view === 'all') return node('span', { class: 'category-rating-aggregate', title: t('ratingAggregateHint') }, t('ratingAggregate'));
+    const assigned = Object.entries(data.settings.ratingCategoryRules).filter(([, target]) => target === view).map(([score]) => score);
+    return node('details', { class: 'category-rating-picker', 'data-rating-picker': view },
+      node('summary', { title: t('ratingCategoryHint'), 'aria-label': `${t('ratingCategoryLabel')}: ${categoryLabel(view)}` },
+        assigned.length ? `${assigned.join(', ')} ★` : t('ratingCategoryLabel')),
+      node('div', { class: 'category-rating-options' },
+        node('p', {}, t('ratingCategoryHint')),
+        Array.from({ length: ratingMax() }, (_, i) => {
+          const score = String(i + 1);
+          const owner = data.settings.ratingCategoryRules[score];
+          return node('label', {}, node('input', { type: 'checkbox', 'data-rating-score': score, 'data-rating-target': view,
+            checked: owner === view }), node('span', {}, `${score} ★`),
+            owner && owner !== view ? node('small', {}, categoryLabel(owner)) : null);
+        })));
+  }
+
   function renderCategoryNavigation() {
-    document.getElementById('categoryNavItems').replaceChildren(...allCollectionViews().map((view) =>
-      button('nav-item', { 'data-view': view }, node('span', { 'data-category-view': view }, categoryLabel(view)), ' ',
+    const visible = allCollectionViews().filter((view) => !data.settings.hiddenCategories.includes(view));
+    if (currentView !== 'admin' && !visible.includes(currentView)) currentView = visible[0] || 'all';
+    document.getElementById('categoryNavItems').replaceChildren(...visible.map((view) =>
+      button('nav-item', { 'data-view': view, draggable: 'true', title: t('categoryMove') }, node('span', { 'data-category-view': view }, categoryLabel(view)), ' ',
         node('span', { 'data-count-view': view }, '0'))));
   }
 
@@ -902,7 +1063,12 @@
       const removeTitle = custom ? t('remove') : t('resetCategoryName');
       return node('div', { class: 'category-order-item category-editor-item', 'data-order-view': view },
         node('span', { class: 'drag-handle', draggable: 'true', 'aria-label': t('categoryMove'), title: t('categoryMove') }, '⠿'),
-        node('label', { class: 'category-editor-copy' }, node('span', {}, custom?.name || defaultCategoryLabel(view)), input), layout,
+        node('label', { class: 'category-editor-copy' }, node('span', {}, custom?.name || defaultCategoryLabel(view)), input),
+        button('category-visibility-button', { 'data-toggle-category': view,
+          'aria-pressed': String(!data.settings.hiddenCategories.includes(view)),
+          title: t(data.settings.hiddenCategories.includes(view) ? 'showCategory' : 'hideCategory'),
+          'aria-label': `${t(data.settings.hiddenCategories.includes(view) ? 'showCategory' : 'hideCategory')}: ${categoryLabel(view)}` },
+          t(data.settings.hiddenCategories.includes(view) ? 'hiddenCategory' : 'visibleCategory')), categoryRatingPicker(view), layout,
         node('span', { class: 'order-arrows' },
           button('', { 'data-order-move': 'up', 'aria-label': t('moveUp') }, '↑'),
           button('', { 'data-order-move': 'down', 'aria-label': t('moveDown') }, '↓')),
@@ -1052,10 +1218,10 @@
   }
 
   function render() {
+    renderCategoryNavigation();
     const admin = currentView === 'admin';
     elements.collectionView.hidden = admin;
     elements.adminView.hidden = !admin;
-    renderCategoryNavigation();
     // Die Kategorienavigation bleibt auch in den Einstellungen sichtbar.
     // Deshalb müssen ihre Zähler unabhängig von renderCollection() gesetzt
     // werden; andernfalls blieben die beim Aufbau eingesetzten Platzhalter 0.
@@ -1064,6 +1230,8 @@
       button.classList.toggle('active', button.dataset.view === currentView);
     });
     if (admin) {
+      renderSettingsSection();
+      if (currentSettingsSection === 'technical') void refreshBackupStatus();
       void refreshCoverAccessSetting();
       renderLogs();
       renderPatchlog();
@@ -1246,6 +1414,43 @@
     render();
   });
 
+  // Reorder only the small navigation list; persist once on drop. Hidden
+  // categories retain their relative order in the full settings order.
+  const categoryNavItems = document.getElementById('categoryNavItems');
+  let draggedNavView = '';
+  categoryNavItems.addEventListener('dragstart', (event) => {
+    const tab = event.target.closest('[data-view]');
+    if (!tab) return;
+    draggedNavView = tab.dataset.view;
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', draggedNavView);
+    tab.classList.add('dragging');
+  });
+  categoryNavItems.addEventListener('dragover', (event) => {
+    if (draggedNavView) event.preventDefault();
+  });
+  categoryNavItems.addEventListener('drop', async (event) => {
+    const target = event.target.closest('[data-view]');
+    if (!draggedNavView || !target) return;
+    event.preventDefault();
+    const moved = draggedNavView;
+    draggedNavView = '';
+    if (target.dataset.view === moved) return;
+    const order = allCollectionViews().filter((view) => view !== moved);
+    const rect = target.getBoundingClientRect();
+    const after = event.clientX > rect.left + rect.width / 2;
+    order.splice(order.indexOf(target.dataset.view) + (after ? 1 : 0), 0, moved);
+    try {
+      await MangaStore.setPreferences({ categoryOrder: order });
+      await reload();
+      toast(t('categoryOrderSaved'));
+    } catch (error) { toast(error.message); }
+  });
+  categoryNavItems.addEventListener('dragend', () => {
+    draggedNavView = '';
+    categoryNavItems.querySelector('.dragging')?.classList.remove('dragging');
+  });
+
   let searchTimer;
   elements.search.addEventListener('input', () => {
     clearTimeout(searchTimer);
@@ -1291,9 +1496,13 @@
         node('input', { id: `folder-${index}`, type: 'checkbox', 'data-folder-check': '', value: folder.id }),
         node('label', { class: 'folder-copy', for: `folder-${index}` }, node('strong', {}, folder.title),
           node('span', {}, `${folder.path.join(' / ')} · ${folder.bookmarkCount} ${t('bookmarkCount')}`)),
+        node('div', { class: 'folder-import-options' },
         node('select', { class: 'folder-rating', 'data-folder-rating': folder.id, 'aria-label': t('folderRating', folder.title) },
+          option('', t('importInherit')),
           option('0', t('noRating')),
-          Array.from({ length: ratingMax() }, (_, i) => option(String(i + 1), `${i + 1} ${t('stars')}`)))))
+          Array.from({ length: ratingMax() }, (_, i) => option(String(i + 1), `${i + 1} ${t('stars')}`))),
+        node('select', { class: 'folder-status', 'data-folder-status': folder.id, 'aria-label': `${t('status')}: ${folder.title}` },
+          option('', t('importInherit')), ...statusViews().map((status) => option(status, statusLabel(status)))))))
       : [node('div', { class: 'folder-empty' }, t('noFolders'))]));
     document.getElementById('selectAllFolders').checked = false;
   }
@@ -1315,6 +1524,10 @@
     button.textContent = t('loadingFolders');
     try {
       const mode = data.settings.bookmarkImportMode;
+      document.getElementById('importCategory').replaceChildren(option('', t('importKeepCategory')),
+        ...statusViews().map((status) => option(status, statusLabel(status))));
+      document.getElementById('importRating').replaceChildren(option('0', t('noRating')),
+        ...Array.from({ length: ratingMax() }, (_, i) => option(String(i + 1), `${i + 1} ${t('stars')}`)));
       document.getElementById('bookmarkDialogTitle').textContent = t(mode === 'folders' ? 'folderDialogTitle' : mode === 'keyword' ? 'keywordDialogTitle' : 'manualDialogTitle');
       document.getElementById('bookmarkDialogHelp').textContent = mode === 'folders'
         ? t('folderHelp')
@@ -1379,8 +1592,10 @@
     }
     const ratingButton = event.target.closest('[data-rate]');
     if (ratingButton) {
-      await MangaStore.patchItem(ratingButton.dataset.rate, { rating: Number(ratingButton.dataset.score) });
-      await reload();
+      try {
+        await MangaStore.patchItem(ratingButton.dataset.rate, { rating: Number(ratingButton.dataset.score) });
+        await reload();
+      } catch (error) { toast(error.message); }
       return;
     }
     const editButton = event.target.closest('[data-edit]');
@@ -1561,9 +1776,12 @@
     const folderIds = mode === 'folders' ? selected.map((checkbox) => checkbox.value) : [];
     const bookmarkIds = mode === 'folders' ? [] : selected.map((checkbox) => checkbox.value);
     const folderRatings = Object.fromEntries(folderIds.map((id) => [id,
-      Number(document.querySelector(`[data-folder-rating="${CSS.escape(id)}"]`)?.value) || 0]));
+      document.querySelector(`[data-folder-rating="${CSS.escape(id)}"]`)?.value || document.getElementById('importRating').value]));
+    const folderStatuses = Object.fromEntries(folderIds.map((id) => [id,
+      document.querySelector(`[data-folder-status="${CSS.escape(id)}"]`)?.value || '']));
     try {
-      const result = await MangaStore.importFirefoxBookmarks({ folderIds, bookmarkIds, folderRatings });
+      const result = await MangaStore.importFirefoxBookmarks({ folderIds, bookmarkIds, folderRatings, folderStatuses,
+        rating: Number(document.getElementById('importRating').value), status: document.getElementById('importCategory').value });
       document.getElementById('bookmarkDialog').close();
       await reload();
       toast(t('imported', result.imported, result.rated));
@@ -1608,6 +1826,37 @@
     renderLogs();
   });
   document.getElementById('showLogsTab').addEventListener('click', () => setSettingsBottomTab('logs'));
+  function renderSettingsSection() {
+    document.querySelectorAll('[data-settings-section]').forEach((tab) => {
+      const selected = tab.dataset.settingsSection === currentSettingsSection;
+      tab.setAttribute('aria-selected', String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+      document.getElementById(tab.getAttribute('aria-controls')).hidden = !selected;
+    });
+  }
+  function selectSettingsSection(section, focus = false) {
+    if (!settingsSections.includes(section)) return;
+    currentSettingsSection = section;
+    renderSettingsSection();
+    if (focus) document.querySelector(`[data-settings-section="${section}"]`).focus();
+    if (section === 'technical') {
+      void refreshBackupStatus();
+      refreshSyncStatus().catch((error) => { document.getElementById('syncStatusText').textContent = error.message; });
+    }
+  }
+  document.querySelector('.settings-section-tabs').addEventListener('click', (event) => {
+    const tab = event.target.closest('[data-settings-section]');
+    if (tab) selectSettingsSection(tab.dataset.settingsSection);
+  });
+  document.querySelector('.settings-section-tabs').addEventListener('keydown', (event) => {
+    const tab = event.target.closest('[data-settings-section]');
+    if (!tab || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const index = settingsSections.indexOf(tab.dataset.settingsSection);
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? settingsSections.length - 1
+      : (index + (event.key === 'ArrowRight' ? 1 : -1) + settingsSections.length) % settingsSections.length;
+    selectSettingsSection(settingsSections[next], true);
+  });
   document.getElementById('showPatchlogTab').addEventListener('click', () => setSettingsBottomTab('patchlog'));
   document.getElementById('clearLogs').addEventListener('click', async () => {
     if (!confirm(t('clearLogsConfirm'))) return;
@@ -1767,13 +2016,10 @@
         toast(t('syncConsentDenied'));
         return;
       }
-      await MangaStore.setPreferences({ syncEnabled: enabled });
-      // Beim Einschalten wird sofort ein vollständiger Snapshot geschrieben.
-      // So hängt der erste Sync nicht von einer späteren Datenänderung ab.
       if (enabled) {
-        const result = await MangaSync.upload({ force: true });
-        toast(t('syncCompleted', result.itemCount, result.chunkCount));
+        await connectSync(true);
       } else {
+        await MangaStore.setPreferences({ syncEnabled: false });
         await MangaSync.revokeConsent();
       }
       await reload();
@@ -1782,14 +2028,54 @@
     }
   });
 
+  document.getElementById('chooseBackupFolder').addEventListener('click', async () => {
+    try {
+      if (!globalThis.MangaPlatform?.isChrome && !(await browser.permissions.request({ permissions: ['nativeMessaging'] }))) throw new Error('HELPER_PERMISSION_REQUIRED');
+      const result = await MangaBackupTarget.choose();
+      if (!result.cancelled) await backupRequest('target-changed');
+    } catch (error) { if (error.name !== 'AbortError') toast(backupError(error.message)); }
+    await refreshBackupStatus();
+  });
+  document.getElementById('dailyBackupSetting').addEventListener('click', async () => {
+    const enabled = document.getElementById('dailyBackupSetting').getAttribute('aria-checked') !== 'true';
+    try {
+      await backupRequest('configure', { enabled });
+    } catch (error) { toast(backupError(error.message)); }
+    await refreshBackupStatus();
+  });
+  document.getElementById('dailyBackupNow').addEventListener('click', async () => {
+    try {
+      await backupRequest('now');
+    } catch (error) { toast(backupError(error.message)); }
+    await refreshBackupStatus();
+  });
+  document.getElementById('dailyBackupLimit').addEventListener('change', async (event) => {
+    if (!validateBackupLimit()) return;
+    try {
+      const enabled = document.getElementById('dailyBackupSetting').getAttribute('aria-checked') === 'true';
+      await backupRequest('configure', { enabled, limit: Number(event.target.value) });
+    } catch (error) { toast(error.message); }
+    await refreshBackupStatus();
+  });
+  function validateBackupLimit() {
+    const input = document.getElementById('dailyBackupLimit');
+    const valid = /^\d+$/.test(input.value) && Number(input.value) >= 1 && Number(input.value) <= 365;
+    input.setAttribute('aria-invalid', String(!valid));
+    input.setCustomValidity(valid ? '' : t('invalidBackupLimit'));
+    return valid;
+  }
+  document.getElementById('dailyBackupLimit').addEventListener('input', validateBackupLimit);
+  browser.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && changes.mangaShelfDailyBackupV1 && currentView === 'admin') void refreshBackupStatus();
+  });
+
   document.getElementById('syncNow').addEventListener('click', async () => {
     try {
       if (!(await requestSyncConsent())) {
         toast(t('syncConsentDenied'));
         return;
       }
-      const result = await MangaSync.upload({ force: true });
-      toast(t('syncCompleted', result.itemCount, result.chunkCount));
+      await connectSync();
       await refreshSyncStatus();
     } catch (error) {
       toast(error.message);
@@ -1857,6 +2143,14 @@
   });
 
   async function saveAllAdminSettings() {
+    if (!validateBackupLimit()) {
+      selectSettingsSection('technical');
+      document.getElementById('dailyBackupLimit').focus();
+      return false;
+    }
+    const ratingCategoryRules = ratingRulesFromDom();
+    if (!confirmRatingRules(ratingCategoryRules)) return;
+    const rulesChanged = JSON.stringify(ratingCategoryRules) !== JSON.stringify(data.settings.ratingCategoryRules);
     const nextRatingScale = Number(document.getElementById('ratingScaleSetting').value);
     if (!(await confirmRatingScaleReduction(nextRatingScale))) {
       document.getElementById('ratingScaleSetting').value = String(ratingMax());
@@ -1876,6 +2170,7 @@
       customCategories,
       categoryOrder: [...document.querySelectorAll('#categoryOrderList [data-order-view]')].map((item) => item.dataset.orderView),
       collectionViews: collectionViewSettings,
+      ...(rulesChanged ? { ratingCategoryRules } : {}),
       tagPresets,
       placeholderCoverByTag: data.settings.placeholderCoverByTag,
       ratingScale: nextRatingScale,
@@ -1906,7 +2201,10 @@
   const categoryOrderList = document.getElementById('categoryOrderList');
   let draggedCategory = null;
 
-  async function saveCategoryEditorFromDom(messageKey = 'categoryNamesSaved') {
+  async function saveCategoryEditorFromDom(messageKey = 'categoryNamesSaved', extra = {}) {
+    const ratingCategoryRules = ratingRulesFromDom();
+    if (!confirmRatingRules(ratingCategoryRules)) { renderCategoryNameSettings(); return; }
+    const rulesChanged = JSON.stringify(ratingCategoryRules) !== JSON.stringify(data.settings.ratingCategoryRules);
     const categoryOrder = [...categoryOrderList.querySelectorAll('[data-order-view]')]
       .map((item) => item.dataset.orderView);
     const categoryNames = Object.fromEntries([...categoryOrderList.querySelectorAll('[data-category-name]')]
@@ -1917,7 +2215,8 @@
     }));
     const collectionViews = Object.fromEntries([...categoryOrderList.querySelectorAll('[data-view-mode]')]
       .map((select) => [select.dataset.viewMode, select.value]));
-    await MangaStore.setPreferences({ categoryOrder, categoryNames, customCategories, collectionViews });
+    await MangaStore.setPreferences({ categoryOrder, categoryNames, customCategories, collectionViews,
+      ...(rulesChanged ? { ratingCategoryRules } : {}), ...extra });
     await reload();
     toast(t(messageKey));
   }
@@ -1949,6 +2248,15 @@
     draggedCategory = null;
   });
   categoryOrderList.addEventListener('click', async (event) => {
+    const visibility = event.target.closest('[data-toggle-category]');
+    if (visibility) {
+      const view = visibility.dataset.toggleCategory;
+      const hidden = new Set(data.settings.hiddenCategories);
+      if (hidden.has(view)) hidden.delete(view); else hidden.add(view);
+      try { await saveCategoryEditorFromDom('preferencesSaved', { hiddenCategories: [...hidden] }); }
+      catch (error) { toast(error.message); }
+      return;
+    }
     const button = event.target.closest('[data-order-move]');
     const item = button?.closest('[data-order-view]');
     if (!button || !item) return;
@@ -1960,6 +2268,15 @@
   });
 
   categoryOrderList.addEventListener('change', async (event) => {
+    const rating = event.target.closest('[data-rating-score]');
+    if (rating) {
+      // Move ownership of this exact score; never keep competing rules in UI.
+      if (rating.checked) categoryOrderList.querySelectorAll(`[data-rating-score="${rating.dataset.ratingScore}"]`)
+        .forEach((checkbox) => { if (checkbox !== rating) checkbox.checked = false; });
+      try { await saveCategoryEditorFromDom('ratingRulesSaved'); }
+      catch (error) { renderCategoryNameSettings(); toast(error.message); }
+      return;
+    }
     if (!event.target.closest('[data-view-mode]')) return;
     await saveCategoryEditorFromDom('preferencesSaved');
   });

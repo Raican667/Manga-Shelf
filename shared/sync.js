@@ -32,6 +32,7 @@
   // Device-only consent: never part of settings, snapshots, or JSON backups.
   const CHROME_CONSENT_KEY = 'mangaRegalChromeSyncConsentV1';
   const LOCAL_CACHE_KEY = 'mangaRegalCompressedSyncCacheV1';
+  const RECOVERY_KEY = 'mangaRegalPreSyncRecoveryV1';
   const ENCODING = 'gzip-base64-v1';
   const MAX_ITEM_BYTES = 8192;
   const TARGET_PAYLOAD_CHARS = 7400;
@@ -287,10 +288,10 @@
   /**
    * Schreibt einen vollständigen, komprimierten Snapshot ohne Cover.
    *
-   * Alte Manga-Regal-Schlüssel werden vor dem neuen Snapshot entfernt, weil
-   * ein bereits fast voller Altstand sonst auch einen viel kleineren Stand
-   * blockieren würde. Schlägt das Schreiben fehl, wird der alte Snapshot
-   * bestmöglich zurückgeschrieben; die lokale Sammlung bleibt unangetastet.
+   * Gemeinsame Schlüssel werden direkt ersetzt; nur überzählige Altstücke
+   * werden entfernt. Falls das Kontingent es erfordert, werden ausschließlich
+   * diese überzähligen Stücke vorher entfernt. Ein lokaler Rückfallstand bleibt
+   * erhalten; bei Schreibfehlern wird die entfernte Kopie bestmöglich repariert.
    */
   async function upload(options = {}) {
     await requireConsent();
@@ -317,6 +318,16 @@
     }
 
     const existing = await browser.storage.sync.get(null);
+    const existingMeta = existing[META_KEY];
+    // force means bypass the content cache, NEVER bypass loss protection.
+    // An explicit UI decision is bound to the exact revision inspected. A
+    // different device changing it in the meantime invalidates that decision.
+    const confirmed = existingMeta && options.allowReplaceRevision === existingMeta.r;
+    if (existingMeta && !confirmed && (state.revision !== existingMeta.r || data.items.length < Number(existingMeta.n || 0))) {
+      const error = new Error('Sync stopped: an existing or larger snapshot needs an explicit choice in Settings. / Sync angehalten: vorhandenen oder größeren Stand zuerst in den Einstellungen auswählen.');
+      error.code = 'SYNC_CHOICE_REQUIRED';
+      throw error;
+    }
     const mangaRegalKeys = Object.keys(existing).filter((key) => key.startsWith(PREFIX));
     const otherEntries = Object.entries(existing).filter(([key]) => !key.startsWith(PREFIX));
     const totalBytes = [...otherEntries, ...Object.entries(values)]
@@ -330,7 +341,14 @@
     }
 
     const backup = Object.fromEntries(mangaRegalKeys.map((key) => [key, existing[key]]));
-    if (mangaRegalKeys.length) await browser.storage.sync.remove(mangaRegalKeys);
+    const obsoleteKeys = mangaRegalKeys.filter((key) => !(key in values));
+    const merged = { ...existing, ...values };
+    const needsSpace = Object.keys(merged).length > MAX_SYNC_KEYS
+      || Object.entries(merged).reduce((sum, [key, value]) => sum + storedBytes(key, value), 0) > MAX_TOTAL_BYTES;
+    // Retain one complete previous transport snapshot locally. Do not erase
+    // the active remote metadata/chunks before replacing their values.
+    if (mangaRegalKeys.length) await browser.storage.local.set({ mangaRegalRemoteRecoveryV1: { savedAt: Date.now(), values: backup } });
+    if (needsSpace && obsoleteKeys.length) await browser.storage.sync.remove(obsoleteKeys);
     try {
       await browser.storage.sync.set(values);
     } catch (error) {
@@ -338,6 +356,10 @@
         try { await browser.storage.sync.set(backup); } catch { /* storage.local bleibt führend. */ }
       }
       throw error;
+    }
+    if (!needsSpace && obsoleteKeys.length) {
+      try { await browser.storage.sync.remove(obsoleteKeys); }
+      catch (error) { console.warn('Sync snapshot saved; unused chunks retained', error); }
     }
 
     const usedBytes = typeof browser.storage.sync.getBytesInUse === 'function'
@@ -365,6 +387,9 @@
         throw new Error('Firefox Sync ist noch nicht vollständig übertragen. Bitte später erneut versuchen.');
       }
       chunks.push(chunk);
+    }
+    if (chunks.reduce((count, chunk) => count + chunk.i.length, 0) !== Number(meta.n)) {
+      throw new Error('Invalid legacy Sync snapshot / Unvollständiger alter Sync-Stand');
     }
     return {
       meta,
@@ -398,6 +423,9 @@
       throw new Error('Firefox Sync enthält einen unvollständigen komprimierten Snapshot.');
     }
     const snapshot = await decompressSnapshot(joined);
+    if (!Array.isArray(snapshot.i) || snapshot.i.length !== Number(meta.n)) {
+      throw new Error('Invalid Sync snapshot: item count mismatch. / Ungültiger Sync-Stand: Einträge unvollständig.');
+    }
     return {
       meta,
       data: {
@@ -418,6 +446,19 @@
     if (!options.force && state.revision === remote.meta.r) return { ...state, skipped: true };
 
     const local = await MangaStore.load();
+    const localPrepared = await prepare(local);
+    if (!options.force && (remote.data.items.length < local.items.length
+      || (state.signature && state.signature !== localPrepared.signature))) {
+      const error = new Error('Sync restore paused to protect local changes. Choose a snapshot in Settings. / Zum Schutz lokaler Änderungen wurde die Wiederherstellung angehalten. Stand in den Einstellungen auswählen.');
+      error.code = 'SYNC_CHOICE_REQUIRED';
+      throw error;
+    }
+    if (options.expectedRevision && options.expectedRevision !== remote.meta.r) {
+      throw new Error('Sync changed. Please choose again. / Sync hat sich geändert. Bitte erneut auswählen.');
+    }
+    // Device-only fallback before replacing metadata; separate cover keys are
+    // untouched. External JSON files provide the independent uninstall backup.
+    if (local.items.length) await browser.storage.local.set({ [RECOVERY_KEY]: { savedAt: Date.now(), data: local } });
     const localById = new Map(local.items.map((item) => [item.id, item]));
     const items = remote.data.items.map((item) => {
       const existing = localById.get(item.id);
@@ -487,9 +528,16 @@
     };
   }
 
+  async function plan() {
+    const remote = await readRemote();
+    const local = await MangaStore.load();
+    return { localCount: local.items.length, remoteCount: remote?.data.items.length || 0,
+      remoteRevision: remote?.meta.r || null };
+  }
+
   global.MangaSync = {
     PREFIX, META_KEY, LOCAL_CACHE_KEY, DATA_COLLECTION_PERMISSIONS,
-    prepare, upload, restore, status, readRemote,
+    prepare, upload, restore, status, readRemote, plan,
     hasConsent, requestConsent, revokeConsent,
     compactItem, expandItem, buildChunks, buildCompressedChunks,
     compressSnapshot, decompressSnapshot

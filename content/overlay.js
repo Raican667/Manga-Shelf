@@ -11,7 +11,8 @@
   // DOM survives extension reloads; the old content-script listener does not.
   // Only a sentinel in THIS script context proves the message handler is alive.
   // Remove orphaned markup from earlier versions or incomplete initialization.
-  if (globalThis.__mangaRegalOverlayReady && document.getElementById('manga-regal-overlay')) return;
+  if (globalThis.__mangaRegalOverlayReady && document.getElementById('manga-regal-host')?.shadowRoot?.getElementById('manga-regal-overlay')) return;
+  document.getElementById('manga-regal-host')?.remove();
   document.getElementById('manga-regal-overlay')?.remove();
 
   let currentRating = 0;
@@ -113,6 +114,26 @@
       ? value.replaceAll('Firefox', 'Chrome') : value;
   }
 
+  // A selector prefix protects the page from us, but does not protect our
+  // unstyled properties from page rules. Shadow DOM is the cascade boundary;
+  // the sole exposed host is hardened against author styles with inline resets.
+  const host = document.createElement('div');
+  host.id = 'manga-regal-host';
+  host.style.setProperty('all', 'initial', 'important');
+  for (const [property, value] of Object.entries({ position: 'fixed', inset: '0', display: 'block',
+    'z-index': '2147483647', 'pointer-events': 'none', visibility: 'hidden', direction: 'ltr', 'unicode-bidi': 'isolate' })) {
+    host.style.setProperty(property, value, 'important');
+  }
+  const shadow = host.attachShadow({ mode: 'open' });
+  const stylesheet = document.createElement('link');
+  stylesheet.rel = 'stylesheet';
+  stylesheet.href = browser.runtime.getURL('content/overlay.css');
+  const reveal = () => host.style.setProperty('visibility', 'visible', 'important');
+  stylesheet.addEventListener('load', reveal);
+  stylesheet.addEventListener('error', () => {
+    console.error('Manga Shelf: overlay stylesheet could not be loaded');
+    browser.runtime.sendMessage({ type: 'manga-regal:open-dashboard' }).catch(console.warn);
+  });
   const root = document.createElement('div');
   root.id = 'manga-regal-overlay';
   root.setAttribute('aria-hidden', 'true');
@@ -171,7 +192,18 @@
         </div>
       </section>
     </div>`;
-  document.documentElement.appendChild(root);
+  shadow.append(root);
+  document.documentElement.appendChild(host);
+  // Privileged CSS delivery + CSSOM avoids the visited page's style-src CSP.
+  // The resource link is only a fallback for previews/older background contexts.
+  browser.runtime.sendMessage({ type: 'manga-regal:overlay-css' }).then((response) => {
+    if (response?.cssText && typeof CSSStyleSheet === 'function') {
+      const sheet = new CSSStyleSheet();
+      sheet.replaceSync(response.cssText);
+      shadow.adoptedStyleSheets = [sheet];
+      reveal();
+    } else shadow.prepend(stylesheet);
+  }).catch(() => shadow.prepend(stylesheet));
 
   const byId = (id) => root.querySelector(`#${id}`);
   const titleInput = byId('mr-entry-title');

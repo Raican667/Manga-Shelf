@@ -21,6 +21,8 @@ if ($node) {
     'shared\platform.js',
     'shared\themes.js',
     'shared\sync.js',
+    'shared\backups.js',
+    'shared\backup-target.js',
     'background\background.js',
     'background\service-worker.js',
     'content\overlay.js',
@@ -38,6 +40,12 @@ if ($node) {
   if ($LASTEXITCODE -ne 0) { throw 'Speichertests fehlgeschlagen' }
   & $node.Source (Join-Path $projectRoot 'tests\upgrade.test.js')
   if ($LASTEXITCODE -ne 0) { throw 'Update-Erhaltungstest fehlgeschlagen' }
+  & $node.Source (Join-Path $projectRoot 'tests\categories.test.js')
+  if ($LASTEXITCODE -ne 0) { throw 'Kategorie-Tests fehlgeschlagen' }
+  & $node.Source (Join-Path $projectRoot 'tests\sync-safety.test.js')
+  if ($LASTEXITCODE -ne 0) { throw 'Sync-Verlustschutz fehlgeschlagen' }
+  & $node.Source (Join-Path $projectRoot 'tests\backups.test.js')
+  if ($LASTEXITCODE -ne 0) { throw 'Tägliche Sicherungstests fehlgeschlagen' }
   & $node.Source (Join-Path $projectRoot 'tests\wiring.test.js')
   if ($LASTEXITCODE -ne 0) { throw 'Oberflächen-Verknüpfungstest fehlgeschlagen' }
   & $node.Source (Join-Path $projectRoot 'tests\background.test.js')
@@ -51,6 +59,13 @@ if ($node) {
 }
 
 New-Item -ItemType Directory -Path $buildDirectory -Force | Out-Null
+if ($IsWindows) {
+  & (Join-Path $projectRoot 'scripts\build-helper.ps1')
+  if ($node) {
+    & $node.Source (Join-Path $projectRoot 'tests\helper-native.test.js')
+    if ($LASTEXITCODE -ne 0) { throw 'Windows helper protocol tests failed' }
+  }
+}
 if ($Browser -ne 'chrome' -and (Test-Path -LiteralPath $packagePath)) {
   Remove-Item -LiteralPath $packagePath -Force
 }

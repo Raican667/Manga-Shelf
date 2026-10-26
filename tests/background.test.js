@@ -78,7 +78,8 @@ const MangaSync = {
 
 const context = vm.createContext({
   browser, MangaStore, MangaSync, console,
-  setTimeout, clearTimeout, URL
+  setTimeout, clearTimeout, URL,
+  fetch: async () => ({ ok: true, text: async () => fs.readFileSync(path.join(root, 'content/overlay.css'), 'utf8') })
 });
 
 const backgroundSource = fs.readFileSync(path.join(root, 'background', 'background.js'), 'utf8');
@@ -88,6 +89,8 @@ vm.runInContext(backgroundSource, context, { filename: 'background/background.js
   assert.equal(typeof listeners.action, 'function', 'Toolbar-Klick wurde nicht registriert');
   assert.equal(typeof listeners.command, 'function', 'Tastenkürzel wurde nicht registriert');
   assert.equal(typeof listeners.message, 'function', 'Nachrichtenkanal wurde nicht registriert');
+  const styles = await listeners.message({ type: 'manga-regal:overlay-css' }, {});
+  assert.match(styles.cssText, /#manga-regal-overlay/);
 
   // Updates replace code, not the collection: no new tab or reset path.
   await listeners.installed({ reason: 'update', previousVersion: '0.20.9' });

@@ -37,7 +37,15 @@ injiziert er CSS sowie `platform.js`, `store.js` und `overlay.js` und sendet ern
 Interne/geschützte Seiten und fehlgeschlagene Injektion öffnen die Sammlung.
 
 Das Overlay verwendet ein natives `dialog` für die Tag-Auswahl. Sein Wurzelelement
-ist `#manga-regal-overlay`; CSS ist darüber eingegrenzt, nicht über Shadow DOM.
+ist #manga-regal-overlay innerhalb eines offenen Shadow Roots am Host
+#manga-regal-host. Inline-important-Resets schützen den einzigen sichtbaren Host;
+Webseitenregeln erreichen seine Formular-Nachfahren nicht. manga-regal:overlay-css
+liefert die mitgelieferte CSS-Datei aus dem Hintergrund. CSSStyleSheet.replaceSync
+und adoptedStyleSheets funktionieren ohne Inline-Stylesheet-Freigabe der Webseite.
+Ein statischer webzugänglicher CSS-Link bleibt als Vorschau-/Alt-Kontext-Fallback.
+Der Host wird erst nach geladenen Styles sichtbar. Theme-Tokens bleiben am inneren
+Root; keine Änderungen an html/body der Webseite. CSS-Isolation ist keine
+Sicherheitsgrenze gegen Seiten-JavaScript.
 Ein Kontext-Sentinel verhindert doppelte Initialisierung. Verwaistes DOM nach
 einem Erweiterungsneuladen wird entfernt. Öffnen/Schließen bestätigt die Nachricht
 asynchron. Das ist kein `action.default_popup` im Manifest.
@@ -212,8 +220,9 @@ und Metadaten unter `mangaRegalSyncV1:meta`.
 Implementierte Budgetprüfung: 8.192 Byte je Schlüssel/Wert, 512 Schlüssel,
 102.400 Byte insgesamt; Sicherheitsgrenze 98.000 Byte, Nutzlastziel 7.400 Zeichen
 je Teil. Andere Schlüssel werden bei der Budgetberechnung mitgezählt.
-Alte eigene Schlüssel werden vor dem Schreiben entfernt; bei Fehler wird eine
-Wiederherstellung des alten Snapshots versucht. Das ist keine atomare Transaktion.
+Gemeinsame Schlüssel werden direkt ersetzt. Nur überzählige Teile werden entfernt,
+normalerweise danach und bei notwendiger Platzfreigabe davor. Die vorige
+Transportkopie bleibt lokal; Schreibfehler versuchen ein Rollback. Nicht atomar.
 
 `readRemote()` prüft Revision je Teil und Nutzlastlänge und liest auch ältere,
 unkomprimierte Formate. `restore()` ersetzt die Sammlung vollständig und erhält
@@ -335,6 +344,28 @@ Neue Fehlerpfade dürfen den letzten gültigen lokalen Datensatz nicht still ers
 
 Dokumentationsstruktur: technische Referenz getrennt von Benutzerhilfe und
 Wartungsabläufen, angelehnt an [Diátaxis](https://www.diataxis.fr/reference/).
+
+## Einstellungsnavigation
+
+Drei statische Tabpanels (appearance, tags, technical) behalten Controls und Ereignisbindungen. currentSettingsSection ist flüchtiger UI-Zustand; ?view=admin&settings=technical kann den Startbereich setzen. Wechsel ändern nur hidden/aria-selected/tabIndex, nicht Formularknoten oder Datensatz. Pfeiltasten sowie Pos1/Ende steuern den Fokus. Protokolle/Patchlog bleiben verschachtelte Reiter im technischen Bereich. Der globale Speicherknopf liest weiterhin alle Einstellungsfelder. Das Backup-Zahlenfeld setzt sofort aria-invalid und customValidity; nur positive ganze Werte bis 365 werden gespeichert, Vorgabe 7. Die Backend-Konfiguration prüft unabhängig erneut. Die Zielordner-Anbindung ist im folgenden Abschnitt beschrieben.
+
+## Tägliche Dateien und Sync-Verlustschutz
+
+shared/backups.js plant tägliche Sicherungen gerätebezogen (Vorgabe 7, gültig 1..365). shared/backup-target.js verwaltet Ziele. Chrome speichert einen FileSystemDirectoryHandle in IndexedDB und ruft showDirectoryPicker unmittelbar beim Klick auf. Hintergrundaufgaben prüfen nur Rechte und halten bei fehlendem Zugriff an. Firefox nutzt optionales nativeMessaging über io.mangashelf.backup_helper; der Windows-.NET-Framework-Helfer speichert Zielordner je Erweiterung und zeigt seinen Ordnerdialog. Kein Rückfall auf data:-Downloads.
+
+Die Aufbewahrung nutzt einen versteckten Eigentumsindex im gewählten Ordner. Nur verzeichnete sichere Dateinamen werden nach neuer vollständiger Datei/Index-Speicherung gelöscht. Native Dateien werden temporär geschrieben, geflusht und umbenannt; Chrome schließt den Schreibstream vor dem Index. Native Befehle sind auf status/choose/save und zwei explizite Firefox-IDs begrenzt; keine allgemeine Pfad- oder Shell-API. Installer nur für HKCU, keine Testinstallation im Benutzerprofil. Helfer-ZIP enthält Quelltext und Deinstallation. Tests: helper-native.test.js, backup-target-ui.test.js (echte isolierte Verzeichniszugriffe, Ordnerauswahl simuliert).
+
+MangaSync.plan validiert den vollständigen entfernten Stand und liefert Revision sowie Anzahl lokaler/entfernter Manga. Unbekannte Revision oder kleinere lokale Sammlung verlangen eine explizite allowReplaceRevision-Entscheidung; force umgeht diesen Schutz nicht. Der Schalter wird erst nach Wahl des Stands aktiviert, Hochladen erfordert eine zusätzliche Bestätigung. Automatischer Restore wird bei lokaler Änderung oder kleinerer entfernter Sammlung angehalten. Vor Restore und Upload bleiben Metadaten-/Transport-Rückfallkopien gerätebezogen unter mangaRegalPreSyncRecoveryV1 bzw. mangaRegalRemoteRecoveryV1 erhalten; sie ersetzen keine externe Datei.
+
+Entfernen temporärer Firefox-Erweiterungen kann den Erweiterungsspeicher löschen. Das ist kein reguläres Store-Update. Vor Tests JSON exportieren und ein getrenntes Testprofil nutzen. Externe Dateien bleiben nach Entfernen erhalten; bereits vorher gelöschte Daten sind ohne vorhandenes Backup nicht rekonstruierbar. Sync ist kein transaktionaler Mehrgeräte-Merge. Tests: backups.test.js, sync-safety.test.js, backup-sync-ui.test.js.
+
+## Kategoriezustand und Bewertungsregeln
+
+settings.hiddenCategories enthält gültige Standard- und eigene Kategorie-IDs. Nur die Navigation wird gefiltert, nicht Einträge, Statusauswahl oder Lesezeichenexport. Der letzte sichtbare Reiter kann nicht ausgeblendet werden; fehlerhafte Sicherungen mit vollständig ausgeblendeter Navigation zeigen wieder Alle. Navigation und Editor verwenden categoryOrder; beim Ziehen wird erst beim Ablegen gespeichert.
+
+settings.ratingCategoryRules bildet exakte ganze Sternebewertungen auf echte Statuswerte ab; Alle ist kein Ziel. applyRatingCategory gilt für neue Einträge, Bewertungsänderungen und Import. Lesen, Sync-Wiederherstellung und reine Kapitelaktualisierungen ändern keine manuelle Kategorieausnahme. Anwenden im Editor verschiebt bestätigte vorhandene Treffer; Entfernen einer Regel macht das nicht rückgängig. Eine kleinere Skala entfernt ungültige Regeln und ordnet gekappte Bewertungen neu zu. Gelöschte Kategorien werden aus Regeln und Sichtbarkeitsdaten entfernt.
+
+Import unterstützt rating/status als Vorgabe sowie folderRatings/folderStatuses je ausgewähltem Ordner. Ausgewählte Unterordner überschreiben Eltern; Bewertungsregeln haben Vorrang. Bei überschrittenem Leselimit wirft assertReadingCapacity vor save einen Fehler, sodass Regeln und Import vollständig unverändert bleiben. Beide Einstellungen sind Teil von JSON-Sicherung und Sync, Bilder weiterhin nicht. Keine neuen Berechtigungen oder Schemaänderung. Tests: categories.test.js und categories-ui.test.js.
 
 ## Vertrag für Updates und Datenübernahme
 

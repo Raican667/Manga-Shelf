@@ -10,6 +10,7 @@
 'use strict';
 
 const DASHBOARD_URL = browser.runtime.getURL('dashboard/index.html');
+let overlayStyles = null;
 
 /** Öffnet die Sammlung oder aktiviert einen bereits geöffneten Dashboard-Tab. */
 async function openDashboard() {
@@ -104,7 +105,24 @@ browser.commands.onCommand.addListener(async (command) => {
 });
 
 // Nachrichten aus Overlay oder Dashboard.
-async function handleMessage(message) {
+async function handleMessage(message, sender) {
+  if (message?.type === 'manga-regal:overlay-css') {
+    if (overlayStyles === null) {
+      const response = await fetch(browser.runtime.getURL('content/overlay.css'));
+      if (!response.ok) throw new Error('Overlay stylesheet unavailable');
+      overlayStyles = await response.text();
+    }
+    return { ok: true, cssText: overlayStyles };
+  }
+  if (message?.type === 'manga-shelf:backup') {
+    // Only extension-owned dashboard pages may configure/download backups.
+    if (!sender?.url?.startsWith(browser.runtime.getURL('dashboard/'))) throw new Error('Backup request rejected');
+    if (message.action === 'status') return { ok: true, status: { ...await MangaBackups.status(), target: await MangaBackupTarget.status() } };
+    if (message.action === 'configure') return { ok: true, status: await MangaBackups.configure(message.enabled === true, message.limit) };
+    if (message.action === 'now') return { ok: true, status: await MangaBackups.run({ force: true }) };
+    if (message.action === 'target-changed') return { ok: true, status: await MangaBackups.destinationChanged() };
+    throw new Error('Unknown backup action');
+  }
   if (message?.type === 'manga-regal:request-cover-access') {
     if (!globalThis.MangaPlatform?.isChrome) return { ok: false, status: 'unsupported' };
     // Resolve the URL from our saved record, not an arbitrary URL supplied by
@@ -165,8 +183,8 @@ async function handleMessage(message) {
 // not claim a response channel belonging to another extension listener.
 browser.runtime.onMessage.addListener(globalThis.MangaPlatform?.isChrome
   ? (message, sender, sendResponse) => {
-    if (!['manga-regal:open-dashboard', 'manga-regal:cache-cover', 'manga-regal:request-cover-access', 'manga-regal:update-linked-bookmark'].includes(message?.type)) return false;
-    handleMessage(message).then((result) => sendResponse(result ?? { ok: true }),
+    if (!['manga-regal:overlay-css', 'manga-shelf:backup', 'manga-regal:open-dashboard', 'manga-regal:cache-cover', 'manga-regal:request-cover-access', 'manga-regal:update-linked-bookmark'].includes(message?.type)) return false;
+    handleMessage(message, sender).then((result) => sendResponse(result ?? { ok: true }),
       (error) => sendResponse({ ok: false, status: 'failed', message: String(error.message) }));
     return true;
   }
@@ -297,9 +315,10 @@ function scheduleSyncRestore() {
   }, 2500);
 }
 
-if (globalThis.MangaPlatform?.isChrome) {
+if (browser.alarms?.onAlarm) {
   browser.alarms.onAlarm.addListener(async (alarm) => {
     try {
+      if (alarm.name === globalThis.MangaBackups?.ALARM) { await MangaBackups.run(); return; }
       if (!(await MangaStore.load()).settings.syncEnabled) return;
       if (alarm.name === 'manga-regal:sync-upload') await MangaSync.upload();
       if (alarm.name === 'manga-regal:sync-restore') await MangaSync.restore();
@@ -355,8 +374,11 @@ async function initializeFirefoxSync(syncOnStart = !globalThis.MangaPlatform?.is
   }
 }
 
-if (globalThis.MangaPlatform?.isChrome) {
-  browser.runtime.onStartup.addListener(() => initializeFirefoxSync(true));
+if (browser.runtime.onStartup) {
+  browser.runtime.onStartup.addListener(async () => {
+    await globalThis.MangaBackups?.initialize().catch((error) => console.warn('Manga Shelf: startup backup', error));
+    if (globalThis.MangaPlatform?.isChrome) await initializeFirefoxSync(true);
+  });
 }
 
 initializeFirefoxSync().catch((error) => {
@@ -364,3 +386,4 @@ initializeFirefoxSync().catch((error) => {
   // defekter Sync-Stand darf deshalb niemals das gesamte Add-on stilllegen.
   console.error('Manga-Regal: Hintergrundinitialisierung fehlgeschlagen', error);
 });
+globalThis.MangaBackups?.initialize().catch((error) => console.warn('Manga Shelf: daily backup', error));

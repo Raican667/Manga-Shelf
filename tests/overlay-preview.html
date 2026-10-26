@@ -24,6 +24,7 @@
     let overlayMessageHandler;
     window.browser = {
       runtime: {
+        getURL: (file) => new URL('../' + file, location.href).href,
         onMessage: { addListener(handler) { overlayMessageHandler = handler; } },
         sendMessage: async () => ({ ok: true })
       }

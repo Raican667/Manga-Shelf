@@ -75,6 +75,8 @@
       },
       customCategories: [],
       categoryOrder: ['reading', 'active', 'hold', 'dropped', 'completed', 'all'],
+      hiddenCategories: [],
+      ratingCategoryRules: {},
       defaultNewStatus: 'active',
       tagPresets: DEFAULT_TAG_PRESETS,
       customTagPresets: [],
@@ -579,6 +581,11 @@
     // gespeicherter Wert 10 bleibt bei bestehenden Nutzern unverändert.
     const ratingScale = Number(input.settings?.ratingScale) === 10 ? 10 : 5;
     const availableStatuses = [...STANDARD_STATUSES, ...customCategories.map((category) => category.id)];
+    const hiddenCategories = [...new Set((Array.isArray(input.settings?.hiddenCategories)
+      ? input.settings.hiddenCategories : []).filter((view) => allCollectionViews.includes(view)))];
+    // Recover malformed backups without making the whole collection inaccessible.
+    if (hiddenCategories.length === allCollectionViews.length) hiddenCategories.splice(hiddenCategories.indexOf('all'), 1);
+    const ratingCategoryRules = normalizeRatingRules(input.settings?.ratingCategoryRules, ratingScale, availableStatuses);
     const defaultNewStatus = availableStatuses.includes(input.settings?.defaultNewStatus)
       ? input.settings.defaultNewStatus
       : 'active';
@@ -663,6 +670,8 @@
         categoryNames,
         customCategories,
         categoryOrder,
+        hiddenCategories,
+        ratingCategoryRules,
         ratingScale,
         onboardingComplete: input.settings?.onboardingComplete === true,
         showOnboardingOnStartup: input.settings?.showOnboardingOnStartup !== false,
@@ -726,6 +735,7 @@
       // Audit normalized values, not raw form inputs. Snapshot before mutation
       // so nested preferences can be compared and no-op saves stay silent.
       const previousSettings = JSON.parse(JSON.stringify(data.settings));
+      const previousRatings = new Map(data.items.map((item) => [item.id, item.rating]));
       if (changes.showCoversInTable !== undefined) {
         data.settings.showCoversInTable = Boolean(changes.showCoversInTable);
       }
@@ -798,6 +808,15 @@
           ...available.filter((view) => !changes.categoryOrder.includes(view))
         ];
       }
+      if (changes.hiddenCategories !== undefined) {
+        const available = [...COLLECTION_VIEWS, ...data.settings.customCategories.map((category) => category.id)];
+        const hidden = [...new Set((Array.isArray(changes.hiddenCategories) ? changes.hiddenCategories : [])
+          .filter((view) => available.includes(view)))];
+        if (hidden.length === available.length) throw new Error(data.settings.language === 'en'
+          ? 'Keep at least one category visible.' : 'Mindestens eine Kategorie muss sichtbar bleiben.');
+        data.settings.hiddenCategories = hidden;
+      }
+      if (changes.ratingCategoryRules !== undefined) data.settings.ratingCategoryRules = changes.ratingCategoryRules;
       if (changes.defaultNewStatus !== undefined) {
         const availableStatuses = [...STANDARD_STATUSES, ...data.settings.customCategories.map((category) => category.id)];
         data.settings.defaultNewStatus = availableStatuses.includes(changes.defaultNewStatus)
@@ -868,6 +887,18 @@
       if (changes.showSupportButton !== undefined) {
         data.settings.showSupportButton = Boolean(changes.showSupportButton);
       }
+      // Validate rules against the final category list and star scale. Rules
+      // act on explicit rating changes, never on load or chapter-only updates.
+      data.settings.ratingCategoryRules = normalizeRatingRules(data.settings.ratingCategoryRules, data.settings.ratingScale,
+        [...STANDARD_STATUSES, ...data.settings.customCategories.map((category) => category.id)]);
+      if (changes.ratingCategoryRules !== undefined || changes.ratingScale !== undefined) {
+        data.items.forEach((item) => {
+          if (changes.ratingCategoryRules !== undefined || previousRatings.get(item.id) !== item.rating) {
+            applyRatingCategory(data, item);
+          }
+        });
+        assertReadingCapacity(data);
+      }
       const english = data.settings.language === 'en';
       const labels = {
         showSupportButton: ['Ko-fi-Button', 'Ko-fi button'], language: ['Sprache', 'Language'],
@@ -878,6 +909,7 @@
         syncEnabled: ['Browser-Sync', 'Browser sync'], collectionView: ['Sammlungsansicht', 'Collection view'],
         collectionViews: ['Ansichten je Kategorie', 'Views by category'], categoryNames: ['Kategorienamen', 'Category names'],
         customCategories: ['Eigene Kategorien', 'Custom categories'], categoryOrder: ['Kategoriereihenfolge', 'Category order'],
+        hiddenCategories: ['Ausgeblendete Kategorien', 'Hidden categories'], ratingCategoryRules: ['Bewertungsregeln', 'Rating rules'],
         defaultNewStatus: ['Standardkategorie', 'Default category'], customTagPresets: ['Eigene Tag-Vorgaben', 'Custom tag presets'],
         hiddenTagPresets: ['Ausgeblendete Tag-Vorgaben', 'Hidden tag presets'], tagPresets: ['Aktivierte Tags', 'Enabled tags'],
         placeholderCoverByTag: ['Platzhalter-Zuordnung', 'Placeholder assignments'], placeholderCoversEnabled: ['Platzhalter-Cover', 'Placeholder covers'],
@@ -955,6 +987,32 @@
     if (data.settings.limitLogs !== false) data.logs = data.logs.slice(0, 100);
   }
 
+  /** Validate at most ten score-to-status pairs without rescanning the library. */
+  function normalizeRatingRules(rules, scale, statuses) {
+    return Object.fromEntries(Object.entries(rules || {})
+      .filter(([rating, status]) => /^(?:[1-9]|10)$/.test(rating) && Number(rating) <= scale && statuses.includes(status)));
+  }
+
+  /** Exact-score routing has a single owner shared by every write endpoint.
+   * Manual category overrides survive subsequent chapter-only saves. Removing
+   * a rule does not undo previous moves; no historical status is fabricated. */
+  function applyRatingCategory(data, item) {
+    const rating = Math.min(data.settings.ratingScale, item.rating);
+    const target = data.settings.ratingCategoryRules?.[rating];
+    if (target && item.status !== target) {
+      item.status = target;
+      item.modified = Date.now();
+    }
+  }
+
+  function assertReadingCapacity(data) {
+    const count = data.items.filter((item) => item.status === 'reading').length;
+    const limit = getReadingLimit(data);
+    if (count > limit) throw new Error(data.settings.language === 'en'
+      ? `Reading limit exceeded (${count}/${limit}). Increase the limit or choose another category.`
+      : `Leselimit überschritten (${count}/${limit}). Erhöhe das Limit oder wähle eine andere Kategorie.`);
+  }
+
   /** Fügt einen Manga ein oder aktualisiert den Eintrag mit gleicher ID/URL. */
   async function upsertItem(input) {
     const localCoverData = /^data:image\//i.test(String(input?.cover || '')) ? String(input.cover) : '';
@@ -986,6 +1044,7 @@
           created: existing.created,
           modified: Date.now()
         });
+        if (item.rating !== existing.rating) applyRatingCategory(data, item);
         const readingLimit = getReadingLimit(data);
         if (item.status === 'reading' && existing.status !== 'reading' && data.items.filter((entry) => entry.status === 'reading').length >= readingLimit) {
           throw new Error(`„Lese ich gerade“ ist voll (${readingLimit}/${readingLimit}). Verschiebe zuerst einen anderen Manga.`);
@@ -993,6 +1052,7 @@
         data.items[index] = item;
       } else {
         item = normalizeItem({ ...incoming, url: checkedUrl });
+        applyRatingCategory(data, item);
         const readingLimit = getReadingLimit(data);
         if (item.status === 'reading' && data.items.filter((entry) => entry.status === 'reading').length >= readingLimit) {
           throw new Error(`„Lese ich gerade“ ist voll (${readingLimit}/${readingLimit}). Verschiebe zuerst einen anderen Manga.`);
@@ -1030,16 +1090,14 @@
       const index = data.items.findIndex((item) => item.id === id);
       if (index < 0) return;
       const existing = data.items[index];
-      const readingLimit = getReadingLimit(data);
-      if (changes.status === 'reading' && existing.status !== 'reading' && data.items.filter((item) => item.status === 'reading').length >= readingLimit) {
-        throw new Error(`„Lese ich gerade“ ist voll (${readingLimit}/${readingLimit}). Verschiebe zuerst einen anderen Manga.`);
-      }
       data.items[index] = normalizeItem({
         ...existing,
         ...changes,
         id,
         modified: Date.now()
       });
+      if (data.items[index].rating !== existing.rating) applyRatingCategory(data, data.items[index]);
+      assertReadingCapacity(data);
     });
   }
 
@@ -1115,6 +1173,12 @@
     const selectedBookmarkIds = new Set((options.bookmarkIds || []).map(String));
     const keyword = String(options.keyword || '').trim().toLocaleLowerCase();
     const folderRatings = options.folderRatings || {};
+    const folderStatuses = options.folderStatuses || {};
+    const validStatuses = [...STANDARD_STATUSES, ...current.settings.customCategories.map((category) => category.id)];
+    const targetStatus = (folderId) => {
+      const value = folderStatuses[folderId] || options.status;
+      return validStatuses.includes(value) ? value : '';
+    };
     const flattened = [];
 
     function walk(nodes, path = [], activeFolderId = '') {
@@ -1130,13 +1194,13 @@
             folderPath: path,
             currentChapter: detectChapters ? chapterFromUrl(node.url) : '',
             chapterManual: false,
-            rating: Number(folderRatings[activeFolderId]) || 0,
+            rating: Math.min(current.settings.ratingScale, Number(folderRatings[activeFolderId] ?? options.rating) || 0),
             created: node.dateAdded || Date.now(),
             modified: node.dateGroupModified || node.dateAdded || Date.now()
           });
           // Firefox kann auch interne oder JavaScript-Lesezeichen enthalten.
           // Das Manga-Regal übernimmt bewusst nur normale Webseiten.
-          if (bookmark.url) flattened.push(bookmark);
+          if (bookmark.url) flattened.push({ bookmark, status: targetStatus(activeFolderId) });
         }
         if (node.children) {
           const nextPath = node.title ? [...path, node.title] : path;
@@ -1155,7 +1219,7 @@
     let rated = 0;
     await update((data) => {
       const byUrl = new Map(data.items.map((item) => [item.url, item]));
-      for (const bookmark of flattened) {
+      for (const { bookmark, status } of flattened) {
         const existing = byUrl.get(bookmark.url);
         if (existing) {
           if (!existing.bookmarkId) {
@@ -1168,16 +1232,25 @@
             existing.modified = Date.now();
             rated += 1;
           }
+          if (status && existing.status !== status) {
+            existing.status = status;
+            existing.modified = Date.now();
+          }
+          if (bookmark.rating > 0) applyRatingCategory(data, existing);
           if (!existing.currentChapter && bookmark.currentChapter) {
             existing.currentChapter = bookmark.currentChapter;
           }
           continue;
         }
-        bookmark.status = data.settings.defaultNewStatus;
+        bookmark.status = status || data.settings.defaultNewStatus;
+        applyRatingCategory(data, bookmark);
         data.items.push(bookmark);
         byUrl.set(bookmark.url, bookmark);
         imported += 1;
       }
+      // A bulk operation either commits in full or leaves storage untouched.
+      // Do not silently spill over the limited Reading category during save.
+      assertReadingCapacity(data);
       appendLog(
         data,
         'info',

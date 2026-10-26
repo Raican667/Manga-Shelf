@@ -1,10 +1,13 @@
 /*
  * Darstellung der Einblendung im aktuellen Browser-Tab.
- * Alle Selektoren beginnen mit #manga-regal-overlay, damit weder die Webseite
- * das Add-on noch das Add-on die Webseite versehentlich umgestaltet.
+ * Alle Selektoren sind zusätzlich im Shadow Root gekapselt. Ein Präfix allein
+ * verhindert keine einwirkenden Webseitenregeln; die CSS-Grenze entsteht durch
+ * den Shadow DOM in overlay.js. Das Präfix bleibt für interne Eindeutigkeit.
  */
 #manga-regal-overlay {
   all: initial;
+  direction: ltr;
+  unicode-bidi: isolate;
   position: fixed;
   inset: 0;
   z-index: 2147483647;

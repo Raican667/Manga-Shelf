@@ -6,6 +6,88 @@ Alle nennenswerten Änderungen an Manga-Regal werden in dieser Datei dokumentier
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/),
 die Versionsnummern folgen der [semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.20.20] – 2026-10-26
+
+### Hinzugefügt
+
+- „Zielordner auswählen“ mit sichtbarer Ordneranzeige unter Einstellungen → Technik & Daten → Datensicherung.
+- Chrome verwendet die echte Browser-Ordnerauswahl und speichert die Freigabe nur im jeweiligen Profil.
+- Firefox unter Windows verwendet einen optionalen lokalen Native-Messaging-Helfer. Separates Helfer-ZIP mit Installer, Quelltext und Deinstallation ohne Löschen von Sicherungen.
+- Eigener Index je Erweiterung schützt fremde Dateien bei der Aufbewahrungsbereinigung. Vollständige neue Datei wird vor Löschungen abgeschlossen.
+
+### Behoben
+
+- JSON-data:-Downloadweg entfernt; dadurch entfällt der gemeldete Firefox-Fehler „Access denied for URL … for downloads.download“.
+- Kein stiller Rückfall auf Downloads bei fehlendem Zielordner oder entzogener Freigabe. Alte ausführliche Fehler werden ohne enthaltenen Sicherungsinhalt angezeigt.
+
+### Qualitätssicherung
+
+- Kompilierten Windows-Helfer über echtes stdio-Protokoll mit Unicode, vollständigem JSON, Aufbewahrung, Erweiterungs-Allowlist und Pfadprüfung getestet; keine Registrierung im Benutzerprofil vorgenommen.
+- Echte Chromium-Verzeichniszugriffe und IndexedDB-Handle-Persistenz in einem isolierten Testprofil geprüft. Native Ordnerdialoge bzw. signierte Store-Upgrades sind nicht automatisiert getestet.
+- Zusammengefasste deutsch-/englischsprachige Release Notes für 0.20.15–0.20.20.
+
+## [0.20.19] – 2026-10-26
+
+### Verbessert
+
+- Einstellungsseite in Darstellung, Tag-Vorauswahl sowie Technik & Daten aufgeteilt. Sicherung, Sync, Browser-Integration, Lesezeichenexport und beide Protokolle sind im technischen Reiter gebündelt.
+- Reiter mit Tastatursteuerung, deutschen/englischen Namen und Erhalt des ausgewählten Bereichs beim Autospeichern. Beim reinen Reiterwechsel bleiben Formulare und ungespeicherte Eingaben erhalten.
+- Aufbewahrte Sicherungen als freies Zahlenfeld mit Vorgabe 7 statt fester Auswahl. Ungültige Eingaben werden rot markiert und nicht gespeichert; technische Obergrenze 365.
+- Keine Änderung der Sicherungsziel-Anbindung in dieser Version; freie Zielordner mit Firefox-Helfer bzw. Chrome-Ordnerzugriff sind noch nicht enthalten.
+
+### Qualitätssicherung
+
+- UI-Tests für alle drei Bereiche, Tastaturbedienung, mobile Darstellung, unveränderte Daten beim Wechsel und Zahlenvalidierung.
+
+## [0.20.18] – 2026-10-26
+
+### Behoben
+
+- Speicher-Pop-up mit Shadow DOM von Webseiten-CSS isoliert: keine überlagerten oder verschobenen Titel, Cover und Formulare durch globale Seitenregeln.
+- Hintergrund liefert die mitgelieferten Styles an ein isoliertes Stylesheet; strenge style-src-Regeln der Webseite verhindern die Darstellung nicht.
+- Geschützter Host einschließlich Schreibrichtung; Pop-up wird erst mit geladenen Styles eingeblendet.
+
+### Qualitätssicherung
+
+- Alle sechs Themes mit aggressiven Webseitenregeln, strenger CSP, zehn Sternen, Tags und schmaler Ansicht getestet.
+- Tag-Auswahl, Neuinjektion, Hilfe und normale Theme-Vorschauen weiter geprüft. Speicher-, Cover- und Sync-Logik unverändert.
+
+## [0.20.17] – 2026-10-26
+
+### Hinzugefügt
+
+- Optionale tägliche JSON-Dateisicherung inklusive Einstellungen und lokalen Bildern unter Downloads/MangaShelf/Backups. Download-Berechtigung wird erst bei Aktivierung angefragt.
+- 5–10 Sicherungen aufbewahren, Vorgabe 7. Erst nach erfolgreichem Download werden die ältesten eigenen Backup-Dateien dauerhaft gelöscht.
+- Sicherungsstatus, manuelle Sicherung und Nachholen beim Start; Konfiguration bleibt gerätebezogen.
+- Bewertungszuordnung direkt neben Sichtbarkeit in jeder echten Kategoriezeile, auch für eigene Kategorien.
+
+### Behoben
+
+- Leere, kleinere oder nicht mit der aktuellen Revision verbundene lokale Daten ersetzen einen vorhandenen Sync-Stand nicht mehr automatisch.
+- Einschalten von Sync und manuelles Synchronisieren bieten vorhandene Stände zur Auswahl an; Überschreiben verlangt zusätzliche Bestätigung.
+- Automatischer Restore hält bei ungesicherten lokalen Änderungen oder kleinerer entfernter Sammlung an. Entscheidungen sind an die geprüfte Revision gebunden.
+- Aktive Sync-Schlüssel werden nicht mehr vor jedem Upload vollständig entfernt. Vorherige Transport- und Restore-Metadaten werden lokal für Rückfall/Diagnose aufbewahrt.
+
+### Qualitätssicherung
+
+- Tests für simulierten Speicherverlust, Erhalt des Sync-Stands, Berechtigungsverweigerung, Download-Abbruch und sichere Dateibereinigung.
+- Hilfe unterscheidet temporäre Firefox-Installationen von Store-Updates. Tests verwenden isolierte Testdaten, keinen signierten Store-Upgrade.
+
+## [0.20.16] – 2026-10-26
+
+### Hinzugefügt
+
+- Sichtbarkeitsknopf vor dem Ansichts-Dropdown für Standard- und eigene Kategorien. Ausblenden entfernt nur den Reiter; mindestens einer bleibt sichtbar.
+- Kategorien lassen sich direkt in der oberen Navigation verschieben. Die Reihenfolge wird erst beim Ablegen gespeichert; Pfeile und Drag-and-drop in den Einstellungen bleiben verfügbar.
+- Exakte Sternebewertungen können automatisch echten Kategorien zugeordnet werden. Bestätigte Regeln verschieben bestehende Treffer und gelten für neue Einträge sowie geänderte Bewertungen.
+- Bewertung und Zielkategorie beim Ordner-, Einzel- und Schlüsselwort-Import, mit eigenen Werten je Ordner und Vorrang aktiver Bewertungsregeln.
+
+### Qualitätssicherung
+
+- Atomarer Abbruch bei überschrittenem Leselimit, statt stiller Teilverschiebungen.
+- Tests für Sichtbarkeit, Regeln, manuelle Kategorieausnahmen, Import, Sicherung, Sync und Datenübernahme mit fünf und zehn Sternen.
+- Deutsch-/englischsprachige Hilfe und technische Dokumentation ergänzt.
+
 ## [0.20.15] – 2026-10-20
 
 ### Behoben

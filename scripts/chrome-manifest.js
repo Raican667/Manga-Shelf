@@ -7,6 +7,9 @@ const path = require('node:path');
 function chromeManifest(source) {
   const manifest = structuredClone(source);
   delete manifest.browser_specific_settings;
+  // Chrome chooses directories through File System Access, not a native host.
+  manifest.optional_permissions = (manifest.optional_permissions || []).filter(permission => permission !== 'nativeMessaging');
+  if (!manifest.optional_permissions.length) delete manifest.optional_permissions;
   // activeTab covers user-triggered page inspection. Cross-origin cover access
   // is optional and requested for one concrete image host, never on install.
   delete manifest.host_permissions;

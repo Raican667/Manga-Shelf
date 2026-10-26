@@ -8,7 +8,7 @@ const vm = require('node:vm');
 const chromeManifest = require('../scripts/chrome-manifest.js');
 const root = path.resolve(__dirname, '..');
 const manifest = chromeManifest(JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'))));
-assert.equal(manifest.version, '0.20.15');
+assert.equal(manifest.version, '0.20.20');
 assert.equal(manifest.background.service_worker, 'background/service-worker.js');
 assert.equal(manifest.minimum_chrome_version, '148');
 assert.equal(manifest.browser_specific_settings, undefined);
@@ -51,19 +51,27 @@ const browser = {
 const png = fs.readFileSync(path.join(root, 'icons/manga-regal-32.png'));
 const context = vm.createContext({ browser, console, URL, Blob, Response, TextEncoder, TextDecoder,
   CompressionStream, DecompressionStream, btoa, atob, crypto: require('node:crypto').webcrypto,
-  setTimeout, clearTimeout, fetch: async () => { coverFetches++; return new Response(png, { headers: { 'content-type': 'image/png' } }); } });
+  setTimeout, clearTimeout, fetch: async (url) => {
+    if (String(url).endsWith('/content/overlay.css')) return new Response(fs.readFileSync(path.join(root, 'content/overlay.css'), 'utf8'));
+    coverFetches++; return new Response(png, { headers: { 'content-type': 'image/png' } });
+  } });
 context.importScripts = (...files) => files.forEach((file) => {
   vm.runInContext(fs.readFileSync(path.resolve(root, 'background', file), 'utf8'), context, { filename: file });
 });
 vm.runInContext(fs.readFileSync(path.join(root, 'background/service-worker.js'), 'utf8'), context);
-function message(request) {
+function message(request, sender = {}) {
   return new Promise((resolve, reject) => {
-    const accepted = events.message(request, {}, resolve);
+    const accepted = events.message(request, sender, resolve);
     if (accepted !== true) reject(new Error('Async response channel not kept open'));
   });
 }
 (async () => {
   assert.equal(await context.MangaSync.hasConsent(), false);
+  assert.match((await message({ type: 'manga-regal:overlay-css' })).cssText, /#manga-regal-overlay/);
+  assert.equal((await message({ type: 'manga-shelf:backup', action: 'status' })).ok, false, 'Untrusted sender must not access backups');
+  const backupStatus = await message({ type: 'manga-shelf:backup', action: 'status' }, { url: browser.runtime.getURL('dashboard/index.html') });
+  assert.equal(backupStatus.status.enabled, false);
+  assert.equal(backupStatus.status.limit, 7);
   assert.equal(await context.MangaSync.requestConsent(), false);
   await assert.rejects(context.MangaSync.upload(), /Zustimmung/);
   assert.equal(await context.MangaSync.requestConsent({ confirmed: true }), true);

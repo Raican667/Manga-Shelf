@@ -31,8 +31,15 @@ Dashboard/content scripts have separate JS contexts; globals are not shared stat
 Toolbar/`toggle-manga-regal` sends `manga-regal:toggle-overlay` to an HTTP(S) tab.
 Without a receiver, the background injects CSS, platform, store and overlay scripts,
 then sends again. Protected pages/injection failure open the dashboard instead.
-The overlay is injected UI, not `action.default_popup`. CSS is scoped to
-`#manga-regal-overlay`, not Shadow DOM. A context sentinel prevents duplicate
+The overlay is injected UI, not action.default_popup. The exposed host
+is #manga-regal-host with inline important resets. An open Shadow Root contains
+#manga-regal-overlay and isolates all descendants from page author rules.
+manga-regal:overlay-css returns the packaged stylesheet from the background;
+CSSStyleSheet.replaceSync/adoptedStyleSheets avoid page style-src restrictions.
+A static web-accessible CSS link is retained for preview/older-context fallback.
+The host stays invisible until styles load. Theme tokens remain on the inner
+root; no page html/body styles are changed. This is CSS isolation, not a security
+boundary against page JavaScript. A context sentinel prevents duplicate
 initialization; orphaned DOM after extension reload is removed. The tag picker
 uses a native dialog. Opening/closing acknowledges messages asynchronously.
 
@@ -163,8 +170,10 @@ Settings/custom tags are included, with onboardingComplete/syncEnabled true.
 `prepare()` serializes, signs, compresses and reuses unchanged cache.
 `upload()` writes revision-marked `mangaRegalSyncV1:chunk:…` and `…:meta` keys.
 Budget: 8,192 bytes per key/value, 512 keys, 102,400 total; safety threshold
-98,000 and payload target 7,400 characters. Other keys count. Old own keys are
-removed first; failure attempts rollback. This is not atomic.
+98,000 and payload target 7,400 characters. Other keys count. Common keys are
+replaced without clearing active metadata first; obsolete keys are removed
+afterward, or before writing only if needed for quota. A previous transport
+snapshot is retained locally and failed writes attempt rollback. Not atomic.
 
 `readRemote()` verifies chunk revision/length and supports uncompressed legacy
 formats. `restore()` replaces the collection, retaining local cover/bookmark
@@ -259,6 +268,28 @@ replace the last valid local dataset.
 
 Reference separated from user help/procedures, following
 [Diátaxis](https://www.diataxis.fr/reference/).
+
+## Settings navigation
+
+Three static tabpanels retain all controls and event bindings: appearance, tags, technical. currentSettingsSection is transient UI state, optionally initialized by ?view=admin&settings=technical. Switching toggles hidden/aria-selected/tabIndex without replacing form nodes or writing preferences. Arrow keys and Home/End implement roving tab focus. Logs/patchlog remain a nested tablist in the technical panel. The global save button still reads all settings controls. Backup count is a text input with immediate aria-invalid/customValidity validation; only positive integers through 365 persist, default 7. The backend rejects invalid configure requests independently. The folder implementation is described in the following section.
+
+## Daily files and Sync loss protection
+
+shared/backups.js schedules profile-local daily backups (default count 7, valid 1..365). shared/backup-target.js owns destinations. Chrome stores a FileSystemDirectoryHandle in IndexedDB; the user gesture invokes showDirectoryPicker before awaiting. Background jobs only query grants and pause if access is missing. Firefox uses optional nativeMessaging through io.mangashelf.backup_helper; the Windows .NET Framework host stores per-extension folder choices and offers its own folder dialog. Nothing falls back to data-URL downloads.
+
+Retention uses an owner-specific hidden index inside the chosen folder. Only recorded safe backup names may be deleted after a new complete file/index commit. Native writes stage/fsync/rename; Chrome closes the writable stream before indexing. Native requests accept only status/choose/save and two explicit Firefox IDs; no generic path or shell API. Windows installation is per-user HKCU and is not performed by tests. The separate helper ZIP includes source and uninstall instructions. Tests: helper-native.test.js and backup-target-ui.test.js (real isolated directory I/O, picker stubbed).
+
+MangaSync.plan reports local/remote counts and the remote revision after validating the full snapshot. Unknown remote revisions and smaller local collections require an explicit revision-bound allowReplaceRevision decision; force only bypasses content-cache checks. The UI does not enable Sync until choosing restore/upload; upload needs additional confirmation. Automatic restore rejects smaller remote collections or unsynced local edits. Metadata is retained in mangaRegalPreSyncRecoveryV1 before a nonempty local restore; previous transport values in mangaRegalRemoteRecoveryV1 before upload. These device-only diagnostic fallbacks are not independent backups and do not survive uninstall.
+
+Temporary add-on removal can clear Firefox extension storage, unlike a normal store update. External backup files survive extension removal; use a separate test profile and a JSON export before testing. No protection can recover data already removed before a backup existed. Sync remains a revisioned snapshot protocol, not transactional multi-device merging. Tests: backups.test.js, sync-safety.test.js and backup-sync-ui.test.js.
+
+## Category routing and visibility
+
+settings.hiddenCategories contains validated built-in/custom view IDs. Only navigation is filtered; status pickers, stored items and bookmark exports retain the full category model. The UI rejects hiding the last visible tab; normalization recovers malformed all-hidden backups by exposing All. Top-nav drag writes categoryOrder once on drop and retains hidden entries in that order. Settings arrows remain the keyboard-accessible alternative.
+
+settings.ratingCategoryRules maps exact integer scores (1..ratingScale) to real statuses; All is not a destination. applyRatingCategory is shared by upsertItem, patchItem and bookmark import. Rules run on creation or explicit rating changes, not ordinary load, sync restore or chapter-only updates. Applying rules in settings explicitly reroutes existing matches after UI confirmation. Removing a rule does not revert earlier moves. Reducing the rating scale removes out-of-range rules and applies the remaining rules to clamped ratings. Deleting a category removes dangling rule/visibility references during normalization.
+
+Import options accept rating/status defaults plus folderRatings/folderStatuses overrides. Selected nested folders override selected parents; rules take precedence over explicit import categories. Reimports update existing URL matches without duplicating them. assertReadingCapacity rejects an entire overfull operation before save; no partial import or rule configuration is committed. JSON backup and compressed Sync include both new settings, but not image bytes. No new permissions or schema version are required. tests/categories.test.js and tests/categories-ui.test.js cover routing, visibility, import modes, 5/10 stars, rollback and responsive layouts.
 
 ## Upgrade persistence contract
 

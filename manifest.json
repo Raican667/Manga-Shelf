@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "default_locale": "de",
   "name": "__MSG_extensionName__",
-  "version": "0.20.15",
+  "version": "0.20.20",
   "description": "__MSG_extensionDescription__",
   "icons": {
     "32": "icons/manga-regal.svg",
@@ -11,6 +11,7 @@
     "96": "icons/manga-regal.svg"
   },
   "permissions": [
+    "alarms",
     "activeTab",
     "bookmarks",
     "search",
@@ -22,6 +23,8 @@
   "host_permissions": [
     "<all_urls>"
   ],
+  "optional_permissions": ["nativeMessaging"],
+  "web_accessible_resources": [{ "resources": ["content/overlay.css"], "matches": ["<all_urls>"] }],
   "action": {
     "default_title": "__MSG_actionTitle__",
     "default_icon": {
@@ -36,6 +39,8 @@
       "shared/platform.js",
       "shared/store.js",
       "shared/sync.js",
+      "shared/backup-target.js",
+      "shared/backups.js",
       "background/background.js"
     ]
   },

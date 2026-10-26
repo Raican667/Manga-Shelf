@@ -75,6 +75,7 @@ const { chromium } = require('playwright');
         assert.equal(counts.themeApplications, 0, 'Unchanged theme must not rewrite presentation tokens');
         assert.equal(counts.placeholderReads, 0, 'Unrelated saves must not reread custom image data');
         await page.evaluate(() => MangaStore.saveCustomPlaceholderCover({ id: 'arcane', dataUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/a9sAAAAASUVORK5CYII=' }));
+        await page.locator('#settingsTagsTab').click();
         await page.locator('[data-placeholder-restore-image="arcane"]').waitFor();
         assert.ok(await page.evaluate(() => placeholderReads > 0), 'Artwork changes must invalidate the image cache');
         await page.evaluate(() => { window.pausePerformanceRead = true; emitPerformanceChange(); });

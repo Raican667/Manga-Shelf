@@ -47,6 +47,8 @@ function start(memory) {
       searchEngine: 'custom:engine-reader', syncEnabled: true
     });
     delete data.settings.theme; // Older releases store only the light/dark choice.
+    delete data.settings.hiddenCategories;
+    delete data.settings.ratingCategoryRules;
     data.items = ['reading', 'active', 'hold', 'dropped', 'completed', 'custom-later'].map((status, i) =>
       clone(seed.normalizeItem({ id: `upgrade-${i}`, title: `Manga ${i}`, status,
         url: `https://example.org/series-${i}/chapter-150`, currentChapter: '150',
@@ -58,7 +60,7 @@ function start(memory) {
       'mangaRegalCustomPlaceholderV1:forest': { dataUrl: 'custom-placeholder-bytes' },
       unrelatedDevicePreference: { enabled: false } };
     const before = clone(memory);
-    const expectedSettings = { ...clone(data.settings), theme: colorMode };
+    const expectedSettings = { ...clone(data.settings), theme: colorMode, hiddenCategories: [], ratingCategoryRules: {} };
     const first = start(memory);
     const loaded = clone(await first.store.load());
     assert.deepEqual(loaded.settings, expectedSettings, 'Every explicit legacy setting must survive');
@@ -69,10 +71,11 @@ function start(memory) {
 
     // A normal preference write must persist the migration without resetting
     // other choices; another VM simulates restarting after the extension update.
-    await first.store.setPreferences({ theme: 'blue-light' });
+    await first.store.setPreferences({ theme: 'blue-light', hiddenCategories: ['hold'], ratingCategoryRules: { 1: 'dropped' } });
     const second = start(memory);
     const restarted = clone(await second.store.load());
-    assert.deepEqual(restarted.settings, { ...expectedSettings, theme: 'blue-light', colorMode: 'light' });
+    assert.deepEqual(restarted.settings, { ...expectedSettings, theme: 'blue-light', colorMode: 'light',
+      hiddenCategories: ['hold'], ratingCategoryRules: { 1: 'dropped' } });
     assert.deepEqual(restarted.items, before[key].items);
     assert.deepEqual(memory['mangaRegalCoverV1:upgrade-0'], before['mangaRegalCoverV1:upgrade-0']);
     assert.deepEqual(memory['mangaRegalCustomPlaceholderV1:forest'], before['mangaRegalCustomPlaceholderV1:forest']);

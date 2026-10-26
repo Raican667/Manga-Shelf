@@ -6,6 +6,88 @@ All notable changes to Manga-Regal are documented in this file. The format is
 based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.20.20] – 2026-10-26
+
+### Added
+
+- Select backup folder button with visible destination in Settings → Technical & Data → Data backup.
+- Chrome uses its real directory picker with profile-local handle storage.
+- Firefox on Windows uses an optional native-messaging helper. Separate helper ZIP includes installer, source and unregister script that preserves backups.
+- Per-extension ownership indexes protect unrelated files during retention; new files complete before old files are removed.
+
+### Fixed
+
+- Removed JSON data-URL downloads, eliminating the reported Firefox Access denied error in downloads.download.
+- Missing folders/revoked access never silently fall back to Downloads. Legacy verbose errors no longer display embedded backup contents.
+
+### Quality assurance
+
+- Compiled Windows helper tested through real framed stdio, Unicode/full JSON, retention, extension allowlist and path validation; no registration in the user's profile.
+- Real Chromium directory I/O and IndexedDB handle persistence tested in an isolated profile. Native folder dialogs and signed store upgrades are not automated.
+- Combined English/German release notes cover 0.20.15–0.20.20.
+
+## [0.20.19] – 2026-10-26
+
+### Improved
+
+- Settings grouped into Appearance, Tag Presets and Technical & Data. Backups, Sync, browser integration, bookmark export and both logs are in the technical tab.
+- Keyboard-accessible tabs, German/English names and section retention through autosave. Switching sections alone retains existing forms and unsaved inputs.
+- Editable backup count, default 7, replaces the fixed dropdown. Invalid input turns red and is not saved; internal upper bound is 365.
+- Backup destination integration is unchanged in this version; the Firefox helper and Chrome directory-access implementation are not included yet.
+
+### Quality assurance
+
+- UI tests cover grouping, keyboard navigation, narrow layout, write-free section switching and count validation.
+
+## [0.20.18] – 2026-10-26
+
+### Fixed
+
+- Shadow DOM isolates the save popup from page CSS, preventing global page rules from hiding or displacing titles, covers and form controls.
+- Packaged styles delivered by the background avoid page style-src restrictions.
+- Hardened host, explicit text direction and hidden-until-styled initialization.
+
+### Quality assurance
+
+- All six themes tested with hostile page CSS, strict CSP, ten stars, tags and a narrow viewport.
+- Tag selection, reinjection, help and standard theme previews remain covered. Persistence, cover storage and Sync logic are unchanged.
+
+## [0.20.17] – 2026-10-26
+
+### Added
+
+- Opt-in daily JSON file backups including settings and local artwork in Downloads/MangaShelf/Backups. Download permission is requested only on activation.
+- Retain 5–10 files, default 7. Only after a successful download are the oldest own backup files permanently removed.
+- Backup status, manual downloads and startup catch-up; configuration stays device-local.
+- Assign ratings directly beside visibility in each real category row, including custom categories.
+
+### Fixed
+
+- Empty, smaller or not-yet-connected local data cannot automatically replace the existing Sync snapshot.
+- Enabling or manually running Sync offers an explicit snapshot choice; overwriting requires additional confirmation.
+- Automatic restore pauses for unsynced local changes or smaller remote collections. Choices are bound to the inspected revision.
+- Uploads no longer remove all active Sync keys first. Previous transport and pre-restore metadata remain local for recovery diagnostics.
+
+### Quality assurance
+
+- Isolated tests cover storage removal, unchanged remote data, permission denial, interrupted downloads and safe oldest-first cleanup.
+- Help distinguishes temporary Firefox installs from store updates. Simulated browser APIs, not a signed-store upgrade test.
+
+## [0.20.16] – 2026-10-26
+
+### Added
+
+- Visibility control before each layout dropdown for built-in and custom categories. Hiding only removes the tab; at least one remains visible.
+- Reorder categories directly in the top navigation. Order is persisted once on drop; settings arrows and drag handles remain available.
+- Route exact star ratings to real categories. Confirmed rules move existing matches and apply to new entries and changed ratings.
+- Rating and category choices for folder, manual and keyword imports, with per-folder overrides and active rating rules taking priority.
+
+### Quality assurance
+
+- Atomic rejection when an operation exceeds the Reading limit instead of silently moving part of the selection.
+- Regression tests for visibility, routing, manual exceptions, import, backup, sync and upgrade persistence with five and ten stars.
+- Updated German/English help and developer documentation.
+
 ## [0.20.15] – 2026-10-20
 
 ### Fixed

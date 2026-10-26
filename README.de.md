@@ -7,11 +7,11 @@ Tags und Re-Reads in einer lokalen Sammlung verwalten.
 
 [English](README.md) · **Deutsch**
 
-[Firefox herunterladen](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.15/manga-shelf-firefox-0.20.15.zip) ·
-[Chrome herunterladen](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.15/manga-shelf-chrome-0.20.15.zip) ·
+[Firefox herunterladen](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.20/manga-shelf-firefox-0.20.20.zip) ·
+[Chrome herunterladen](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.20/manga-shelf-chrome-0.20.20.zip) ·
 [Alle Releases](https://github.com/Raican667/Manga-Shelf/releases) · [Änderungsverlauf](CHANGELOG.md)
 
-**Version 0.20.15** · Firefox 142+ · Chrome 148+ · Deutsch / Englisch · GPLv3
+**Version 0.20.20** · Firefox 142+ · Chrome 148+ · Deutsch / Englisch · GPLv3
 
 ![Sammlung – schematische Vorschau](help/images/collection.svg)
 

@@ -20,7 +20,7 @@ function installFixture(settings) {
   };
   window.browser = {
     storage: { local: storage, sync: storage, onChanged: { addListener: (fn) => listeners.push(fn) } },
-    runtime: { getManifest: () => ({ browser_specific_settings: { gecko: {} } }), getURL: (url) => url, sendMessage: async () => ({ ok: true }), onMessage: { addListener: (handler) => { window.themeOverlayHandler = handler; } } },
+    runtime: { getManifest: () => ({ browser_specific_settings: { gecko: {} } }), getURL: (url) => new URL('../' + url, location.href).href, sendMessage: async () => ({ ok: true }), onMessage: { addListener: (handler) => { window.themeOverlayHandler = handler; } } },
     commands: { getAll: async () => [] }, search: { get: async () => [] }
   };
 }
@@ -34,9 +34,10 @@ function installFixture(settings) {
       await page.goto(pathToFileURL(path.join(root, 'tests/overlay-preview.html')).href + '?demo=1&theme=' + theme);
       await page.locator('.mr-panel').waitFor();
       await page.evaluate(() => {
-        document.getElementById('mr-entry-url').value = 'https://manga.example/chapter-42';
-        document.getElementById('mr-entry-cover-url').value = 'https://manga.example/cover.jpg';
-        document.getElementById('mr-entry-url').dispatchEvent(new Event('input', { bubbles: true }));
+        const shadow = document.getElementById('manga-regal-host').shadowRoot;
+        shadow.getElementById('mr-entry-url').value = 'https://manga.example/chapter-42';
+        shadow.getElementById('mr-entry-cover-url').value = 'https://manga.example/cover.jpg';
+        shadow.getElementById('mr-entry-url').dispatchEvent(new Event('input', { bubbles: true }));
       });
       const glass = !['dark', 'light'].includes(theme);
       assert.equal(await page.locator('#manga-regal-overlay').getAttribute('data-manga-theme'), theme);
