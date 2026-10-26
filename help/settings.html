@@ -14,7 +14,7 @@
       <span><strong>Manga-Regal</strong><small>Einstellungen erklärt</small></span>
     </a>
     <div class="top-actions">
-      <span class="version">Version 0.20.15</span>
+      <span class="version">Version 0.20.20</span>
       <a class="button" href="settings.en.html" data-mobile-label="EN">EN</a>
       <a class="button" href="index.html" data-mobile-label="Allgemeine Hilfe">Allgemeine Hilfe</a>
       <a class="button" href="../dashboard/index.html?view=admin" data-mobile-label="Einstellungen">← Zu den Einstellungen</a>
@@ -54,14 +54,15 @@
           <article><b>2</b><span>Auswirkung der Einstellung nachlesen</span></article>
           <article><b>3</b><span>Änderung automatisch oder gesammelt speichern</span></article>
         </div>
-        <div class="note"><strong>Version 0.20.15:</strong> Die Einstellungsanleitung erklärt auch die lokalen Platzhalter-Cover, die Sprachumschaltung und die aktuellen Schutzmechanismen beim Cover-Download.</div>
+        <div class="note"><strong>Version 0.20.20:</strong> Die Einstellungsanleitung erklärt auch die lokalen Platzhalter-Cover, die Sprachumschaltung und die aktuellen Schutzmechanismen beim Cover-Download.</div>
         <p><strong>Designs:</strong> Unter Einstellungen → Oberfläche → Design stehen Light Mode, Dark Mode, Coral Dark, Coral Light, Blue Light und Blue Dark zur Auswahl. Die Wahl gilt auch für die Hilfe und das Speicherformular. Die vier neuen Designs zeigen Cover und Schnell-Speichern oben; mit Details öffnest du die Bearbeitung. Klassische Designs behalten die bisherige Formularansicht.</p>
         <p><strong>Chrome:</strong> Falls ein Cover zusätzliche Rechte braucht, wähle nach dem Speichern <em>Cover-Domain freigeben</em>. Auf der neuen Seite gibst du nur diese Bild-Domain frei. Bei Ablehnung bleibt der Manga gespeichert. Lokale Cover benötigen keine Freigabe. Alternativ kannst du unter Einstellungen → Oberfläche den Schalter <em>Cover automatisch von allen Webseiten laden</em> einschalten und Chrome einmalig Zugriff auf alle HTTP-/HTTPS-Webseiten erlauben. Standardmäßig ist er aus. Ausschalten widerruft die umfassende Freigabe, ohne lokale Cover zu löschen. Die Freigabe gilt nur in diesem Browser und wird nicht synchronisiert. Firefox bleibt unverändert.</p>
       </section>
 
       <section id="speichern">
         <span class="section-number">01</span>
-        <h2>Autospeichern und der große Speicherknopf</h2>
+        <h2>Einstellungsbereiche und Speichern</h2>
+        <p>Direkt unter „Einstellungen & Datensicherung“ wählst du Darstellung, Tag-Vorauswahl oder Technik & Daten. Darstellung enthält Designs, Sprache und Kategorien. Tag-Vorauswahl bündelt Tags und Platzhalter-Cover. Im technischen Bereich findest du Sicherung, Sync, Browser-Integration, Import, Lesezeichenexport und die Reiter für Import-/Fehlerprotokoll und Patchlog. Mit Links/Rechts bzw. Pos1/Ende kannst du zwischen den fokussierten Reitern wechseln. Der Bereich bleibt beim Autospeichern geöffnet; reines Umschalten verändert keine Daten.</p>
         <div class="split-card">
           <div><h3>Autospeichern</h3><p>Schalter und einzelne Auswahlfelder werden sofort lokal gespeichert. Dazu gehören Sprache, Farbschema, Coveranzeige, Kapitel-Erkennung, Suchmaschine, Importart und die Bewertungsskala.</p></div>
           <div><h3>„Einstellungen speichern“</h3><p>Der große Knopf übernimmt alle momentan sichtbaren Felder noch einmal gemeinsam. Er ist eine zusätzliche bewusste Bestätigung und ersetzt das Autospeichern nicht.</p></div>
@@ -72,6 +73,9 @@
       <section id="sicherung">
         <span class="section-number">02</span>
         <h2>Datensicherung als JSON-Datei</h2>
+        <p>Wähle zuerst über <strong>„Zielordner auswählen“</strong> einen Ordner. Chrome öffnet seinen Ordnerdialog; der Browser gibt nur den Ordnernamen frei. Firefox unter Windows benötigt den separat angebotenen lokalen Helfer: ZIP entpacken, Install.cmd ausführen, dann die optionale Verbindung erlauben und hier den Ordner auswählen. Keine Administratorrechte nötig. Zuerst „Dateisicherung jetzt erstellen“ prüfen, danach die tägliche Sicherung einschalten.</p>
+        <p>Die vollständige JSON-Datei enthält Einstellungen, Protokolle und lokale Bilder. Einmal pro Kalendertag bei geöffnetem Browser, sonst beim nächsten Start. Vorgabe für die Aufbewahrung ist 7; ungültige Eingaben werden rot markiert. Nur eigene, im versteckten Index verzeichnete alte Sicherungen werden nach erfolgreicher neuer Datei dauerhaft gelöscht. Indexdateien im Zielordner nicht löschen. Fehlt der Ordnerzugriff, wird die Sicherung angehalten; es gibt keinen Rückfall auf Downloads. Bei Firefox ist der vollständige Pfad sichtbar, bei Chrome nur der gewählte Ordnername. Auswahl und Berechtigungen werden nicht synchronisiert.</p>
+        <div class="warning"><strong>Testversionen:</strong> Entfernen einer temporären Firefox-Erweiterung ist kein reguläres Store-Update und kann den Erweiterungsspeicher entfernen. Vor Tests eine JSON-Datei außerhalb der Erweiterung sichern; möglichst ein separates Testprofil verwenden. Bereits heruntergeladene Dateien bleiben unabhängig vom Add-on erhalten. Nach Neuinstallation oder Profilwechsel die automatische Dateisicherung erneut aktivieren.</div>
         <ul class="check-list">
           <li><strong>Export:</strong> Lädt Sammlung, Einstellungen, Protokolle und lokal gespeicherte Cover als transportierbare JSON-Sicherung herunter.</li>
           <li><strong>Import:</strong> Stellt eine zuvor erzeugte Manga-Regal-Sicherung wieder her.</li>
@@ -83,6 +87,7 @@
       <section id="sync">
         <span class="section-number">03</span>
         <h2>Firefox Sync</h2>
+        <p>Beim Einschalten oder manuellen Synchronisieren wird ein vorhandener Sync-Stand zuerst angezeigt. Wähle „Vorhandenen Sync-Stand übernehmen“, wenn der lokale Speicher leer ist. Hochladen ersetzt den entfernten Stand einschließlich Einstellungen erst nach zusätzlicher Bestätigung. Ein leerer oder kleinerer lokaler Stand wird nicht automatisch darübergeschrieben; bei Konflikten oder lokalen Änderungen hält die Automatik an. Sync ist keine unabhängige Dateisicherung und führt Sammlungen nicht zusammen.</p>
         <div class="feature-grid">
           <article><h3>Automatisch synchronisieren</h3><p>Überträgt Manga-Metadaten und Einstellungen zwischen angemeldeten Desktop-Firefox-Profilen. Beim ersten Einschalten fragt Firefox die optionalen Datenberechtigungen ab. Ohne Zustimmung wird nichts übertragen.</p></article>
           <article><h3>Komprimierter Cache</h3><p>Eine gzip-komprimierte Sync-Kopie wird dauerhaft lokal vorbereitet. „Jetzt synchronisieren“ lädt diese Kopie hoch, ohne unveränderte Daten erneut zu komprimieren.</p></article>
@@ -107,7 +112,7 @@
         <h2>Lesezeichen-Import</h2>
         <div class="feature-grid">
           <article><h3>Standardkategorie</h3><p>Legt fest, wo neue Manga aus Tab-Formular, manuellem Formular und Firefox-Import zunächst einsortiert werden.</p></article>
-          <article><h3>Ordner auswählen</h3><p>Zeigt die Firefox-Ordner und importiert nur markierte Ordner. Für einen Ordner kann direkt eine gemeinsame Bewertung vergeben werden.</p></article>
+          <article><h3>Ordner auswählen</h3><p>Importiert nur markierte Ordner. Oben wählst du Startbewertung und Zielkategorie für die gesamte Auswahl; jeder Ordner kann diese Werte überschreiben. Bei einzeln ausgewählten Lesezeichen und Schlüsselwort-Import gilt die Auswahl oben. Aktive Bewertungsregeln haben Vorrang vor der Zielkategorie.</p></article>
           <article><h3>Schlüsselwort</h3><p>Importiert alle Lesezeichen, deren Titel oder Adresse den eingetragenen Begriff enthält, beispielsweise „Chapter“.</p></article>
           <article><h3>Manuelle Auswahl</h3><p>Zeigt alle Webseiten-Lesezeichen zur einzelnen Auswahl. Der Importknopf im Kopfbereich kann vollständig ausgeblendet werden.</p></article>
         </div>
@@ -156,7 +161,8 @@
         <div class="feature-grid">
           <article><h3>Name</h3><p>Standardkategorien können umbenannt werden. Ein leeres Feld beziehungsweise der Zurücksetzen-Knopf verwendet wieder den Standardnamen.</p></article>
           <article><h3>Ansicht</h3><p>Jede Kategorie besitzt ihre eigene Tabellen- oder Kachelansicht. Die Wahl wird beim nächsten Öffnen beibehalten.</p></article>
-          <article><h3>Reihenfolge</h3><p>Ziehe eine Zeile am Griff oder verwende die Pfeiltasten. Navigation und Kategorienverwaltung übernehmen dieselbe Reihenfolge.</p></article>
+          <article><h3>Reihenfolge und Sichtbarkeit</h3><p>Ziehe eine Zeile am Griff, nutze die Pfeile oder verschiebe einen Reiter direkt in der oberen Navigation. Der Sichtbarkeitsknopf vor dem Ansichts-Dropdown blendet auch Standardkategorien aus. Es wird nichts gelöscht; ausgeblendete Kategorien bleiben für Zuordnungen verfügbar. Mindestens ein Reiter bleibt sichtbar.</p></article>
+          <article><h3>Kategorien nach Bewertung</h3><p>Öffne in der gewünschten Kategoriezeile neben „Sichtbar“ die Auswahl „Bewertungen zuordnen“. Markiere eine oder mehrere exakte Sternebewertungen. Jede Sternezahl hat eine Zielkategorie; eine neue Auswahl ersetzt ihre bisherige Zuordnung. Nach Bestätigung werden passende vorhandene Manga verschoben. Künftig greifen Regeln bei neuen Einträgen und geänderten Bewertungen, auch beim Import. Manuelle Kategorieänderungen bleiben bis zur nächsten Bewertungsänderung erhalten; Kapitel-Updates lösen keine Neuzuordnung aus. Entfernen einer Regel macht frühere Verschiebungen nicht rückgängig. Reicht das Leselimit nicht aus, wird die gesamte Aktion ohne Teiländerungen abgebrochen. Regeln über fünf Sternen entfallen beim Wechsel auf die Fünf-Sterne-Skala.</p></article>
           <article><h3>Eigene Kategorien</h3><p>Neue Kategorien können ergänzt und wieder entfernt werden. Manga aus einer entfernten eigenen Kategorie werden sicher nach „Aktiv“ verschoben.</p></article>
         </div>
         <p class="muted">„Alle“ ist eine Gesamtansicht und kein eigener Status, dem ein Manga zugewiesen wird.</p>
@@ -182,7 +188,7 @@
 
       <footer>
         <img src="../icons/manga-regal.svg" alt="">
-        <p><strong>Manga-Regal</strong><br><span>Einstellungen erklärt · Version 0.20.15</span></p>
+        <p><strong>Manga-Regal</strong><br><span>Einstellungen erklärt · Version 0.20.20</span></p>
         <a href="#start">Nach oben ↑</a>
       </footer>
     </main>
