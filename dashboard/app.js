@@ -341,12 +341,8 @@
   // Nur die Hinweise der installierten Version bleiben in der Anwendung. Die
   // vollständige Historie liegt zentral im CHANGELOG.md des Repositories.
   const patchNotes = {
-    de: [
-      { version: '0.20.20', date: '26.10.2026', title: 'Zielordner für Dateisicherungen', notes: ['Zielordner auswählen mit sichtbarer Ordneranzeige in der Datensicherung.', 'Chrome nutzt seinen Ordnerdialog; Firefox unter Windows den optionalen lokalen Helfer.', 'JSON-data:-Downloadfehler behoben. Fehlende Rechte führen nicht zu einer Sicherung an einem anderen Ort.', 'Eigene Indexdateien schützen fremde Dateien bei der Aufbewahrung.', 'Enthält die Verbesserungen seit 0.20.15: Kategorien, Bewertungsregeln, Sync-Verlustschutz, isoliertes Pop-up und Einstellungsreiter.'] },
-    ],
-    en: [
-      { version: '0.20.20', date: '2026-10-26', title: 'Choose a backup folder', notes: ['Select a backup folder and see the destination in Data backup.', 'Chrome uses its directory picker; Firefox on Windows uses the optional local helper.', 'JSON data-URL download errors fixed. Missing access never silently changes the destination.', 'Ownership indexes protect unrelated files during retention cleanup.', 'Includes changes since 0.20.15: categories, rating rules, Sync loss protection, isolated popup and settings tabs.'] },
-    ]
+    de: [{ version: '0.20.21', date: '26.10.2026', title: 'Dateisicherungen ohne Zusatzprogramm', notes: ['Automatische Sicherungen liegen im Downloadordner unter MangaShelf/Backups.', 'Der lokale Helfer und die freie Ordnerwahl wurden entfernt.', 'Firefox nutzt Blob-Downloads gegen den Fehler bei JSON-Datenadressen.', 'Aufbewahrung: Vorgabe 7, frei einstellbar; nur eigene protokollierte Dateien werden nach erfolgreicher Sicherung bereinigt.'] }],
+    en: [{ version: '0.20.21', date: '2026-10-26', title: 'File backups without an external program', notes: ['Automatic backups use MangaShelf/Backups within your browser download folder.', 'The local helper and directory picker have been removed.', 'Firefox uses Blob downloads to avoid the JSON data-URL access error.', 'Retention defaults to 7 and is configurable; only recorded own files are pruned after a successful backup.'] }]
   };
   Object.assign(translations.de, { coverAccess: 'Cover-Domain freigeben', coverPermission: 'Manga gespeichert. Für den Cover-Download kannst du die Bild-Domain freigeben.' });
   Object.assign(translations.en, { coverAccess: 'Allow cover domain', coverPermission: 'Manga saved. You can allow the image domain to download its cover.' });
@@ -423,18 +419,13 @@
   }
 
   Object.assign(translations.de, {
-    dailyBackupTitle: 'Tägliche Dateisicherung', dailyBackupHint: 'Vollständige JSON-Datei mit Einstellungen und lokalen Covern im gewählten Zielordner. Einmal täglich bei geöffnetem Browser, sonst beim nächsten Start. Alte eigene Sicherungen über dem gewählten Limit werden erst nach einer erfolgreichen neuen Sicherung dauerhaft gelöscht.',
-    backupFolderTitle: 'Zielordner', chooseBackupFolder: 'Zielordner auswählen', backupFolderUnset: 'Noch kein Zielordner ausgewählt.',
-    backupHelperHint: 'Firefox: Windows-Helfer herunterladen, entpacken und Install.cmd ausführen. Danach hier den Zielordner auswählen. Keine Administratorrechte erforderlich.',
-    backupHelperDownload: 'Firefox-Helfer für Windows herunterladen',
-    backupChromeFolderHint: 'Chrome zeigt aus Datenschutzgründen nur den Ordnernamen, nicht den vollständigen Pfad. Die Auswahl wird nur in diesem Profil gespeichert.',
-    backupFolderPermission: 'Bitte zuerst einen Zielordner auswählen oder den Ordnerzugriff erneut freigeben.',
-    backupHelperMissing: 'Der Firefox-Helfer fehlt oder ist nicht erreichbar. Bitte über den Link herunterladen und Install.cmd ausführen.',
-    backupHelperPermission: 'Bitte die optionale Verbindung zum lokalen Helfer beim Auswählen des Zielordners erlauben.',
-    backupEmpty: 'Leere Sammlung: keine automatische Sicherungsdatei erstellt.', backupPickerUnavailable: 'Dieser Browser unterstützt die Ordnerauswahl nicht.',
-    backupLegacyError: 'Der bisherige Download-Sicherungsweg wurde ersetzt. Bitte einen Zielordner auswählen und die Sicherung erneut starten.',
-    backupFailed: 'Sicherung fehlgeschlagen. Zielordner und Schreibzugriff prüfen.',
+    dailyBackupTitle: 'Tägliche Dateisicherung', dailyBackupHint: 'Vollständige JSON-Datei mit Einstellungen und lokalen Covern unter Downloads/MangaShelf/Backups. Einmal täglich bei geöffnetem Browser, sonst beim nächsten Start. Alte eigene Sicherungen über dem gewählten Limit werden erst nach einer erfolgreichen neuen Sicherung dauerhaft gelöscht.',
+    backupFolderTitle: 'Speicherort im Downloadordner', backupFolderUnset: 'MangaShelf/Backups',
+    backupEmpty: 'Leere Sammlung: keine automatische Sicherungsdatei erstellt.',
+    backupLegacyError: 'Der bisherige Download-Sicherungsweg wurde ersetzt. Bitte die Sicherung erneut starten.',
+    backupFailed: 'Sicherung fehlgeschlagen. Bitte Download-Berechtigung und freien Speicher prüfen.',
     settingsSections: 'Einstellungsbereiche', settingsAppearance: 'Darstellung', settingsTags: 'Tag-Vorauswahl', settingsTechnical: 'Technik & Daten',
+    backupCleanupFailed: 'Sicherung erstellt. Alte Dateien konnten nicht vollständig entfernt werden. Bei gelöschtem Downloadverlauf müssen alte Sicherungen manuell entfernt werden.',
     dailyBackupLimit: 'Aufbewahrte Sicherungen', invalidBackupLimit: 'Bitte eine gültige Anzahl eingeben.',
     dailyBackupNow: 'Dateisicherung jetzt erstellen', dailyBackupNever: 'Noch keine erfolgreiche Dateisicherung.',
     dailyBackupPending: 'Dateisicherung wird heruntergeladen …', dailyBackupLast: (time, file) => `Letzte erfolgreiche Sicherung: ${time} · ${file}`,
@@ -445,18 +436,13 @@
     syncReplaceConfirm: 'Achtung: Der vorhandene Sync-Stand einschließlich Einstellungen wird durch die lokale Sammlung ersetzt. Wirklich überschreiben?'
   });
   Object.assign(translations.en, {
-    dailyBackupTitle: 'Daily file backup', dailyBackupHint: 'Full JSON including settings and local covers in the selected folder. Once per day while the browser is open, or on next startup. Oldest own files above your retention count are permanently deleted only after a successful new backup.',
-    backupFolderTitle: 'Backup folder', chooseBackupFolder: 'Select backup folder', backupFolderUnset: 'No backup folder selected.',
-    backupHelperHint: 'Firefox: download and extract the Windows helper, then run Install.cmd. Afterwards select your folder here. Administrator access is not required.',
-    backupHelperDownload: 'Download Firefox backup helper for Windows',
-    backupChromeFolderHint: 'Chrome exposes only the folder name, not the full path. The selection stays in this browser profile.',
-    backupFolderPermission: 'Select a backup folder first or grant folder access again.',
-    backupHelperMissing: 'The Firefox helper is missing or unavailable. Download it using the link and run Install.cmd.',
-    backupHelperPermission: 'Allow the optional local-helper connection when selecting the folder.',
-    backupEmpty: 'Empty collection: no automatic backup file created.', backupPickerUnavailable: 'This browser does not support directory selection.',
-    backupLegacyError: 'The previous download-based backup path has been replaced. Select a backup folder and try again.',
-    backupFailed: 'Backup failed. Check the selected folder and write access.',
+    dailyBackupTitle: 'Daily file backup', dailyBackupHint: 'Full JSON including settings and local covers under Downloads/MangaShelf/Backups. Once per day while the browser is open, or on next startup. Oldest own files above your retention count are permanently deleted only after a successful new backup.',
+    backupFolderTitle: 'Location within your downloads folder', backupFolderUnset: 'MangaShelf/Backups',
+    backupEmpty: 'Empty collection: no automatic backup file created.',
+    backupLegacyError: 'The previous download-based backup path has been replaced. Try the backup again.',
+    backupFailed: 'Backup failed. Check download permission and free disk space.',
     settingsSections: 'Settings sections', settingsAppearance: 'Appearance', settingsTags: 'Tag Presets', settingsTechnical: 'Technical & Data',
+    backupCleanupFailed: 'Backup created. Some old files could not be removed. After clearing download history, remove old backups manually.',
     dailyBackupLimit: 'Backups to retain', invalidBackupLimit: 'Please enter a valid backup count.',
     dailyBackupNow: 'Create file backup now', dailyBackupNever: 'No successful file backup yet.',
     dailyBackupPending: 'Backup download in progress …', dailyBackupLast: (time, file) => `Last successful backup: ${time} · ${file}`,
@@ -478,8 +464,6 @@
       const state = await backupRequest('status');
       const target = state.target || {};
       document.getElementById('backupDestination').textContent = target.label || t('backupFolderUnset');
-      document.getElementById('backupHelperHint').textContent = t(globalThis.MangaPlatform?.isChrome ? 'backupChromeFolderHint' : 'backupHelperHint');
-      document.getElementById('backupHelperDownload').hidden = Boolean(globalThis.MangaPlatform?.isChrome);
       const limitInput = document.getElementById('dailyBackupLimit');
       if (document.activeElement !== limitInput && limitInput.getAttribute('aria-invalid') !== 'true') limitInput.value = String(state.limit || 7);
       setSwitchState(document.getElementById('dailyBackupSetting'), state.enabled === true,
@@ -494,8 +478,7 @@
     if (typeof message !== 'string') return t('backupFailed');
     if (/data:application\/json/i.test(message)) return t('backupLegacyError');
     if (message.length > 500) return t('backupFailed');
-    const keys = { HELPER_PERMISSION_REQUIRED: 'backupHelperPermission', HELPER_NOT_INSTALLED: 'backupHelperMissing',
-      FOLDER_PERMISSION_REQUIRED: 'backupFolderPermission', EMPTY_BACKUP: 'backupEmpty', DIRECTORY_PICKER_UNAVAILABLE: 'backupPickerUnavailable' };
+    const keys = { DOWNLOAD_PERMISSION_REQUIRED: 'downloadPermissionDenied', EMPTY_BACKUP: 'backupEmpty', BACKUP_DOWNLOAD_FAILED: 'backupFailed', BACKUP_DOWNLOAD_MISSING: 'backupFailed', BACKUP_DOWNLOAD_PENDING: 'dailyBackupPending', BACKUP_CLEANUP_FAILED: 'backupCleanupFailed' };
     return keys[message] ? t(keys[message]) : message;
   }
 
@@ -2028,23 +2011,20 @@
     }
   });
 
-  document.getElementById('chooseBackupFolder').addEventListener('click', async () => {
-    try {
-      if (!globalThis.MangaPlatform?.isChrome && !(await browser.permissions.request({ permissions: ['nativeMessaging'] }))) throw new Error('HELPER_PERMISSION_REQUIRED');
-      const result = await MangaBackupTarget.choose();
-      if (!result.cancelled) await backupRequest('target-changed');
-    } catch (error) { if (error.name !== 'AbortError') toast(backupError(error.message)); }
-    await refreshBackupStatus();
-  });
+  async function allowBackupDownloads() {
+    if (!(await browser.permissions.request({ permissions: ['downloads'] }))) throw new Error('DOWNLOAD_PERMISSION_REQUIRED');
+  }
   document.getElementById('dailyBackupSetting').addEventListener('click', async () => {
     const enabled = document.getElementById('dailyBackupSetting').getAttribute('aria-checked') !== 'true';
     try {
+      if (enabled) await allowBackupDownloads();
       await backupRequest('configure', { enabled });
     } catch (error) { toast(backupError(error.message)); }
     await refreshBackupStatus();
   });
   document.getElementById('dailyBackupNow').addEventListener('click', async () => {
     try {
+      await allowBackupDownloads();
       await backupRequest('now');
     } catch (error) { toast(backupError(error.message)); }
     await refreshBackupStatus();

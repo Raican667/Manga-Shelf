@@ -59,12 +59,9 @@ if ($node) {
 }
 
 New-Item -ItemType Directory -Path $buildDirectory -Force | Out-Null
-if ($IsWindows) {
-  & (Join-Path $projectRoot 'scripts\build-helper.ps1')
-  if ($node) {
-    & $node.Source (Join-Path $projectRoot 'tests\helper-native.test.js')
-    if ($LASTEXITCODE -ne 0) { throw 'Windows helper protocol tests failed' }
-  }
+if ($node) {
+  & $node.Source (Join-Path $projectRoot 'tests\backup-downloads.test.js')
+  if ($LASTEXITCODE -ne 0) { throw 'Backup download tests failed' }
 }
 if ($Browser -ne 'chrome' -and (Test-Path -LiteralPath $packagePath)) {
   Remove-Item -LiteralPath $packagePath -Force

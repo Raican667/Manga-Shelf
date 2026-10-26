@@ -14,7 +14,7 @@
       <span><strong>Manga Shelf</strong><small>Settings guide</small></span>
     </a>
     <div class="top-actions">
-      <span class="version">Version 0.20.20</span>
+      <span class="version">Version 0.20.21</span>
       <a class="button" href="settings.html" data-mobile-label="DE">DE</a>
       <a class="button" href="index.en.html" data-mobile-label="General help">General help</a>
       <a class="button" href="../dashboard/index.html?view=admin" data-mobile-label="Settings">← Back to settings</a>
@@ -54,7 +54,7 @@
           <article><b>2</b><span>Review the effect of the setting</span></article>
           <article><b>3</b><span>Save automatically or as a group</span></article>
         </div>
-        <div class="note"><strong>Version 0.20.20:</strong> This settings guide also covers local placeholder covers, language switching, and the current protections used for cover downloads.</div>
+        <div class="note"><strong>Version 0.20.21:</strong> This settings guide also covers local placeholder covers, language switching, and the current protections used for cover downloads.</div>
         <p><strong>Themes:</strong> In Settings → Appearance → Theme, choose Light Mode, Dark Mode, Coral Dark, Coral Light, Blue Light or Blue Dark. The choice also applies to help and the save form. The four new themes show the cover and quick-save action at the top; open Details to edit. Classic themes retain the existing form layout.</p>
         <p><strong>Chrome:</strong> If a cover needs extra permission, choose <em>Allow cover domain</em> after saving. The new page requests access only to that image domain. Declining leaves your manga saved. Local covers need no permission. Alternatively, in Settings → Interface, enable <em>Automatically load covers from all websites</em> to allow all HTTP/HTTPS websites once. The switch is off by default. Switching off revokes broad access without deleting local covers. Consent is local to this browser and is not synchronized. Firefox is unchanged.</p>
       </section>
@@ -73,8 +73,8 @@
       <section id="backup">
         <span class="section-number">02</span>
         <h2>JSON backup</h2>
-        <p>First click <strong>Select backup folder</strong>. Chrome opens its built-in directory picker and exposes the folder name only. Firefox on Windows needs the separate local helper: extract its ZIP, run Install.cmd, allow the optional local connection, then select your folder here. No administrator access is required. Verify Create file backup now before enabling daily backups.</p>
-        <p>Full JSON files include settings, logs and local artwork. Backups run once per local calendar day while the browser is open or on next startup. Retention defaults to 7; invalid input turns red. Only old files recorded in our hidden ownership index are permanently removed after a successful new backup. Keep index files with the backups. Missing/revoked access pauses backups without falling back to Downloads. Firefox shows the full path, Chrome only the folder name. Selection and grants are not synchronized.</p>
+        <p>Daily file backups use <strong>MangaShelf/Backups inside your browser’s download folder</strong>. No helper or directory picker is needed. Allow download permission when enabling daily backups or selecting Create file backup now. Your browser’s download settings determine the root folder.</p>
+        <p>Full JSON includes settings, logs and local images. Once per calendar day while the browser runs, otherwise on next startup. Retention defaults to 7; invalid input turns red. After a new file completes, only recorded own backups exceeding the count are deleted. If download history has been cleared or the extension removed, older files cannot be safely located and must be removed manually. Downloaded files stay independent of the extension.</p>
         <div class="warning"><strong>Test versions:</strong> Removing a temporary Firefox extension is not a regular store update and may remove extension storage. Export a JSON file outside the extension before testing; preferably use a separate test profile. Downloaded backup files remain independent of the add-on. Re-enable automatic file backups after reinstalling or changing profiles.</div>
         <ul class="check-list">
           <li><strong>Export:</strong> Downloads the collection, settings, logs, and locally stored covers as one portable JSON backup.</li>
@@ -188,7 +188,7 @@
 
       <footer>
         <img src="../icons/manga-regal.svg" alt="">
-        <p><strong>Manga Shelf</strong><br><span>Settings guide · Version 0.20.20</span></p>
+        <p><strong>Manga Shelf</strong><br><span>Settings guide · Version 0.20.21</span></p>
         <a href="#start">Back to top ↑</a>
       </footer>
     </main>

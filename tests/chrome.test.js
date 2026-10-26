@@ -8,7 +8,7 @@ const vm = require('node:vm');
 const chromeManifest = require('../scripts/chrome-manifest.js');
 const root = path.resolve(__dirname, '..');
 const manifest = chromeManifest(JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'))));
-assert.equal(manifest.version, '0.20.20');
+assert.equal(manifest.version, '0.20.21');
 assert.equal(manifest.background.service_worker, 'background/service-worker.js');
 assert.equal(manifest.minimum_chrome_version, '148');
 assert.equal(manifest.browser_specific_settings, undefined);
@@ -44,7 +44,7 @@ const browser = {
   bookmarks: { onChanged: event('bookmarkChanged'), onRemoved: event('bookmarkRemoved'), getTree: async () => [{ id: '0', children: [{ id: '1', title: 'Bookmarks bar', children: [{ id: '10', title: 'Manga', children: [{ id: '11', title: 'Chrome manga Chapter 42', url: 'https://example.org/chapter-42', dateAdded: 1700000000000 }] }] }, { id: '2', title: 'Other bookmarks', children: [] }] }] },
   search: { query: async (details) => { search = details; } },
   // Deliberately no data_collection or commands.update: they are Firefox-only.
-  permissions: { contains: async ({ origins }) => { checkedOrigins.push(...origins); return origins.every((origin) => grantedOrigins.has(origin) || grantedOrigins.has(new URL(origin.replace('*', '')).protocol + '//*/*')); }, request: async ({ origins }) => { permissionRequests.push(...origins); if (acceptBroadAccess) origins.forEach((origin) => grantedOrigins.add(origin)); return acceptBroadAccess; },
+  permissions: { contains: async ({ origins = [], permissions = [] }) => { if (permissions.length) return false; checkedOrigins.push(...origins); return origins.every((origin) => grantedOrigins.has(origin) || grantedOrigins.has(new URL(origin.replace('*', '')).protocol + '//*/*')); }, request: async ({ origins }) => { permissionRequests.push(...origins); if (acceptBroadAccess) origins.forEach((origin) => grantedOrigins.add(origin)); return acceptBroadAccess; },
     remove: async ({ origins }) => { permissionRemovals.push(...origins); origins.forEach((origin) => grantedOrigins.delete(origin)); return true; },
     getAll: async () => { throw new Error('Mozilla permission used in Chrome'); } }
 };

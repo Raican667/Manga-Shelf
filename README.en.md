@@ -7,11 +7,11 @@ tags and re-reads in a local collection.
 
 **English** · [Deutsch](README.de.md)
 
-[Download Firefox](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.20/manga-shelf-firefox-0.20.20.zip) ·
-[Download Chrome](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.20/manga-shelf-chrome-0.20.20.zip) ·
+[Download Firefox](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.21/manga-shelf-firefox-0.20.21.zip) ·
+[Download Chrome](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.21/manga-shelf-chrome-0.20.21.zip) ·
 [All releases](https://github.com/Raican667/Manga-Shelf/releases) · [Changelog](CHANGELOG.en.md)
 
-**Version 0.20.20** · Firefox 142+ · Chrome 148+ · German / English · GPLv3
+**Version 0.20.21** · Firefox 142+ · Chrome 148+ · German / English · GPLv3
 
 ![Collection – schematic preview](help/images/collection.svg)
 
@@ -130,7 +130,3 @@ Copyright © 2026 Raican667.
 The current project is licensed under the [GNU General Public License, version 3](LICENSE)
 (SPDX: `GPL-3.0-only`). You may redistribute and modify it under that license.
 The software is provided without warranty.
-
-GPLv3 permits commercial redistribution; it does not prohibit selling copies.
-Previously published MIT versions retain the rights granted under that license.
-[License history](docs/LICENSING.md)

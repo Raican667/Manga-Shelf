@@ -14,7 +14,7 @@ global.MangaBackupTarget = {
 require('../shared/backups.js');
 (async () => {
   await MangaBackups.initialize(); assert.equal(writes.length, 0);
-  await assert.rejects(MangaBackups.configure(true), /FOLDER_PERMISSION_REQUIRED/);
+  await assert.rejects(MangaBackups.configure(true), /DOWNLOAD_PERMISSION_REQUIRED/);
   assert.equal((await MangaBackups.status()).enabled, false);
   ready = true;
   await MangaBackups.configure(true); assert.equal(writes.length, 1);
@@ -27,7 +27,7 @@ require('../shared/backups.js');
   await assert.rejects(MangaBackups.run({ now: tomorrow }), /DISK_WRITE_FAILED/);
   assert.equal((await MangaBackups.status()).lastSuccessDay, success);
   fail = false; ready = false;
-  await assert.rejects(MangaBackups.run({ now: tomorrow }), /FOLDER_PERMISSION_REQUIRED/);
+  await assert.rejects(MangaBackups.run({ now: tomorrow }), /DOWNLOAD_PERMISSION_REQUIRED/);
   assert.equal(writes.length, 1, 'Revoked permission must not fall back to Downloads');
   ready = true;
   await MangaBackups.run({ now: tomorrow }); assert.equal(writes.length, 2);
@@ -40,7 +40,5 @@ require('../shared/backups.js');
   await assert.rejects(MangaBackups.configure(false, 366), /INVALID_BACKUP_COUNT/);
   await assert.rejects(MangaBackups.configure(false, 1.5), /INVALID_BACKUP_COUNT/);
   await MangaBackups.configure(false, 1); assert.equal((await MangaBackups.status()).limit, 1);
-  await MangaBackups.destinationChanged(); assert.equal((await MangaBackups.status()).lastSuccessDay, '');
-  assert.equal(writes.length, 2, 'Changing folders while disabled does not write a file');
-  console.log('Backups: selected target required, no data-URL path, full JSON, retry, startup, empty guard and free-count validation verified.');
+  console.log('Backups: download permission required, target adapter, full JSON, retry, startup, empty guard and free-count validation verified.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

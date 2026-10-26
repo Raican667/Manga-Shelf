@@ -6,7 +6,19 @@ Alle nennenswerten Änderungen an Manga-Regal werden in dieser Datei dokumentier
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/),
 die Versionsnummern folgen der [semantischen Versionierung](https://semver.org/lang/de/).
 
+## [0.20.21] – 2026-10-26
+
+### Geändert
+
+- Tägliche Sicherungen liegen bei Firefox und Chrome unter MangaShelf/Backups im Downloadordner des Browsers. Kein Zusatzprogramm oder freigegebener Zielordner nötig.
+- Windows-Helfer, nativeMessaging-Berechtigung, Ordnerauswahl, alte Integrationsaktionen, Installer-/Buildskripte und zugehöriges Release-Asset entfernt.
+- Firefox verwendet Blob-Downloads statt abgewiesener JSON-Datenadressen. Chrome-Worker behalten einen kompatiblen UTF-8-Datenadressen-Weg.
+- Aufbewahrung weiterhin einstellbar, Vorgabe 7, maximal 365. Erst nach vollständiger neuer Sicherung werden eigene protokollierte ältere Downloads entfernt. Nach Leeren des Downloadverlaufs ist für nicht zuordenbare alte Dateien manuelle Bereinigung nötig.
+- Einstellungen, Hilfe und Release-Hinweise auf Deutsch/Englisch aktualisiert. Sammlung, Cover, Sync und Einstellungen bleiben erhalten.
+
 ## [0.20.20] – 2026-10-26
+
+> Durch 0.20.21 ersetzt. Der Helfer-Download wurde zurückgezogen; nachfolgend ist die ursprüngliche Umsetzung dokumentiert.
 
 ### Hinzugefügt
 

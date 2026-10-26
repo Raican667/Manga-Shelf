@@ -12,7 +12,7 @@ const { chromium } = require('playwright');
     page.on('pageerror', error => errors.push(error.message));
     await page.addInitScript(() => {
       const local = { mangaRegalDataV1: { version: 20, items: [], settings: { onboardingComplete: true, language: 'en' } } }, remote = {}, listeners = [];
-      window.fixtureLocal = local; window.fixtureFiles = []; window.allowHelper = false; window.helperFolder = '';
+      window.fixtureLocal = local; window.fixtureFiles = []; window.allowDownloads = false;
       const area = (source, notify) => ({ get: async keys => keys == null ? structuredClone(source)
         : Object.fromEntries((Array.isArray(keys) ? keys : [keys]).filter(key => key in source).map(key => [key, structuredClone(source[key])])),
       set: async values => { Object.assign(source, structuredClone(values)); if (notify) queueMicrotask(() => listeners.forEach(fn => fn(Object.fromEntries(Object.keys(values).map(key => [key, {}])), 'local'))); },
@@ -20,32 +20,27 @@ const { chromium } = require('playwright');
       getBytesInUse: async () => JSON.stringify(source).length });
       const alarms = new Map();
       window.browser = { runtime: { id: 'manga-shelf@local.example', getManifest: () => ({ browser_specific_settings: { gecko: {} } }), getURL: url => url,
-        sendNativeMessage: async (host, request) => {
-          if (request.action === 'status') return { ok: true, folder: helperFolder, ready: Boolean(helperFolder) };
-          if (request.action === 'choose') { helperFolder = 'C:\\Selected backups'; return { ok: true, folder: helperFolder, ready: true }; }
-          if (request.action === 'save') { const filename = helperFolder + '/manga-shelf-test-' + fixtureFiles.length + '.json';
-            fixtureFiles.push({ filename, content: request.snapshot, exists: true }); return { ok: true, filename }; }
-          return { ok: false };
-        },
         sendMessage: async message => {
           try {
             const status = message.action === 'status' ? { ...await MangaBackups.status(), target: await MangaBackupTarget.status() }
               : message.action === 'configure' ? await MangaBackups.configure(message.enabled, message.limit)
-              : message.action === 'target-changed' ? await MangaBackups.destinationChanged() : await MangaBackups.run({ force: true });
+              : await MangaBackups.run({ force: true });
             return { ok: true, status };
           } catch (error) { return { ok: false, message: error.message }; }
         } },
         storage: { local: area(local, true), sync: area(remote, false), onChanged: { addListener: fn => listeners.push(fn) } },
         permissions: { getAll: async () => ({ data_collection: ['bookmarksInfo','browsingActivity','technicalAndInteraction','websiteActivity','websiteContent'] }),
-          request: async details => details.permissions ? window.allowHelper : true, contains: async () => window.allowHelper },
+          request: async details => details.permissions ? window.allowDownloads : true, contains: async () => window.allowDownloads },
         alarms: { get: async name => alarms.get(name), create: async (name, info) => alarms.set(name, info), clear: async name => alarms.delete(name) },
         downloads: { onChanged: { addListener() {} }, download: async details => {
-          const id = fixtureFiles.length + 1; fixtureFiles.push({ ...details, filename: 'C:/Downloads/' + details.filename, id, byExtensionId: 'manga-shelf@test', state: 'complete', exists: true }); return id;
+          const content = await (await fetch(details.url)).text();
+          const id = fixtureFiles.length + 1; fixtureFiles.push({ ...details, content, filename: 'C:/Downloads/' + details.filename, id, byExtensionId: 'manga-shelf@local.example', state: 'complete', exists: true }); return id;
         }, search: async ({ id, state }) => fixtureFiles.filter(file => (id === undefined || file.id === id) && (!state || file.state === state)),
         removeFile: async id => { fixtureFiles.find(file => file.id === id).exists = false; } },
         commands: { getAll: async () => [] }, search: { get: async () => [] } };
     });
     await page.goto(pathToFileURL(path.resolve(__dirname, '../dashboard/index.html')).href + '?view=admin&settings=technical');
+    await page.addScriptTag({ path: path.resolve(__dirname, '../shared/backup-target.js') });
     await page.addScriptTag({ path: path.resolve(__dirname, '../shared/backups.js') });
     await page.evaluate(async () => {
       await MangaStore.save({ items: [{ id: 'keep', title: 'Keep me', url: 'https://example.org/chapter-42', status: 'active' }], settings: { onboardingComplete: true, language: 'en', theme: 'blue-light' } });
@@ -68,11 +63,9 @@ const { chromium } = require('playwright');
     await page.evaluate(async cover => { await MangaStore.storeCover('keep', cover); }, 'data:image/png;base64,' + fs.readFileSync(path.resolve(__dirname, '../icons/manga-regal-32.png')).toString('base64'));
     await page.locator('#dailyBackupSetting').click();
     assert.equal(await page.evaluate(() => fixtureFiles.length), 0, 'Missing folder must not write');
-    await page.locator('#chooseBackupFolder').click();
-    assert.equal(await page.evaluate(() => helperFolder), '', 'Denied native permission must not select a folder');
-    await page.evaluate(() => { allowHelper = true; });
-    await page.locator('#chooseBackupFolder').click();
-    await page.waitForFunction(() => document.getElementById('backupDestination').textContent.includes('Selected backups'));
+    assert.equal(await page.locator('#chooseBackupFolder').count(), 0);
+    assert.match(await page.locator('#backupDestination').textContent(), /MangaShelf\/Backups/);
+    await page.evaluate(() => { allowDownloads = true; });
     await page.locator('#dailyBackupSetting').click();
     await page.waitForFunction(() => fixtureFiles.length === 1);
     await page.waitForFunction(() => document.getElementById('dailyBackupStatus').textContent.includes('Last successful'));

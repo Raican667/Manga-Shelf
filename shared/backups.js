@@ -1,5 +1,5 @@
-/* Background-only scheduling. Targets are explicit; no Downloads fallback.
- * A day succeeds only after a full backup and its ownership index commit. */
+/* Background-only scheduling. A day succeeds only after a full download
+ * completes and its device-local download journal is committed. */
 (function createBackups(global) {
   'use strict';
   const KEY = 'mangaShelfDailyBackupV1', ALARM = 'manga-shelf:daily-backup';
@@ -22,7 +22,7 @@
     const config = await status(), day = dayOf(now);
     if (!force && (!config.enabled || config.lastSuccessDay === day)) return { skipped: true, ...config };
     const target = await MangaBackupTarget.status();
-    if (!target.ready) throw new Error(target.error || 'FOLDER_PERMISSION_REQUIRED');
+    if (!target.ready) throw new Error(target.error || 'DOWNLOAD_PERMISSION_REQUIRED');
     const data = await MangaStore.exportData();
     if (!data.items.length) throw new Error('EMPTY_BACKUP');
     const result = await MangaBackupTarget.write(data, day, config.limit);
@@ -43,19 +43,13 @@
     if (limit !== undefined && (!Number.isInteger(Number(limit)) || Number(limit) < 1 || Number(limit) > 365)) throw new Error('INVALID_BACKUP_COUNT');
     if (enabled) {
       const target = await MangaBackupTarget.status();
-      if (!target.ready) throw new Error(target.error || 'FOLDER_PERMISSION_REQUIRED');
+      if (!target.ready) throw new Error(target.error || 'DOWNLOAD_PERMISSION_REQUIRED');
     }
     await write({ enabled: Boolean(enabled), ...(limit !== undefined ? { limit: Number(limit) } : {}) });
     await schedule();
     if (enabled) await run();
     return status();
   }
-  async function destinationChanged() {
-    if (running) await running.catch(() => {});
-    await write({ lastSuccessDay: '', lastFilename: '', error: '', pending: null });
-    if ((await status()).enabled) await run();
-    return status();
-  }
   async function initialize() { await schedule(); if ((await status()).enabled) await run(); }
-  global.MangaBackups = { KEY, ALARM, status, configure, run, initialize, destinationChanged };
+  global.MangaBackups = { KEY, ALARM, status, configure, run, initialize };
 })(globalThis);

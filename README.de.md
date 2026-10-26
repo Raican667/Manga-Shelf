@@ -7,11 +7,11 @@ Tags und Re-Reads in einer lokalen Sammlung verwalten.
 
 [English](README.md) · **Deutsch**
 
-[Firefox herunterladen](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.20/manga-shelf-firefox-0.20.20.zip) ·
-[Chrome herunterladen](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.20/manga-shelf-chrome-0.20.20.zip) ·
+[Firefox herunterladen](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.21/manga-shelf-firefox-0.20.21.zip) ·
+[Chrome herunterladen](https://github.com/Raican667/Manga-Shelf/releases/download/v0.20.21/manga-shelf-chrome-0.20.21.zip) ·
 [Alle Releases](https://github.com/Raican667/Manga-Shelf/releases) · [Änderungsverlauf](CHANGELOG.md)
 
-**Version 0.20.20** · Firefox 142+ · Chrome 148+ · Deutsch / Englisch · GPLv3
+**Version 0.20.21** · Firefox 142+ · Chrome 148+ · Deutsch / Englisch · GPLv3
 
 ![Sammlung – schematische Vorschau](help/images/collection.svg)
 
@@ -130,7 +130,3 @@ Copyright © 2026 Raican667.
 Der aktuelle Projektstand steht unter der [GNU General Public License, Version 3](LICENSE)
 (SPDX: `GPL-3.0-only`). Weitergabe und Änderungen erfolgen unter den Bedingungen
 dieser Lizenz. Die Software wird ohne Gewährleistung bereitgestellt.
-
-GPLv3 erlaubt kommerzielle Weitergabe; sie ist kein Verkaufsverbot.
-Früher unter MIT veröffentlichte Stände behalten ihre damaligen Lizenzrechte.
-[Lizenzhistorie](docs/LICENSING.md)

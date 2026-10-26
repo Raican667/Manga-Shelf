@@ -14,7 +14,7 @@
       <span><strong>Manga-Regal</strong><small>Einstellungen erklärt</small></span>
     </a>
     <div class="top-actions">
-      <span class="version">Version 0.20.20</span>
+      <span class="version">Version 0.20.21</span>
       <a class="button" href="settings.en.html" data-mobile-label="EN">EN</a>
       <a class="button" href="index.html" data-mobile-label="Allgemeine Hilfe">Allgemeine Hilfe</a>
       <a class="button" href="../dashboard/index.html?view=admin" data-mobile-label="Einstellungen">← Zu den Einstellungen</a>
@@ -54,7 +54,7 @@
           <article><b>2</b><span>Auswirkung der Einstellung nachlesen</span></article>
           <article><b>3</b><span>Änderung automatisch oder gesammelt speichern</span></article>
         </div>
-        <div class="note"><strong>Version 0.20.20:</strong> Die Einstellungsanleitung erklärt auch die lokalen Platzhalter-Cover, die Sprachumschaltung und die aktuellen Schutzmechanismen beim Cover-Download.</div>
+        <div class="note"><strong>Version 0.20.21:</strong> Die Einstellungsanleitung erklärt auch die lokalen Platzhalter-Cover, die Sprachumschaltung und die aktuellen Schutzmechanismen beim Cover-Download.</div>
         <p><strong>Designs:</strong> Unter Einstellungen → Oberfläche → Design stehen Light Mode, Dark Mode, Coral Dark, Coral Light, Blue Light und Blue Dark zur Auswahl. Die Wahl gilt auch für die Hilfe und das Speicherformular. Die vier neuen Designs zeigen Cover und Schnell-Speichern oben; mit Details öffnest du die Bearbeitung. Klassische Designs behalten die bisherige Formularansicht.</p>
         <p><strong>Chrome:</strong> Falls ein Cover zusätzliche Rechte braucht, wähle nach dem Speichern <em>Cover-Domain freigeben</em>. Auf der neuen Seite gibst du nur diese Bild-Domain frei. Bei Ablehnung bleibt der Manga gespeichert. Lokale Cover benötigen keine Freigabe. Alternativ kannst du unter Einstellungen → Oberfläche den Schalter <em>Cover automatisch von allen Webseiten laden</em> einschalten und Chrome einmalig Zugriff auf alle HTTP-/HTTPS-Webseiten erlauben. Standardmäßig ist er aus. Ausschalten widerruft die umfassende Freigabe, ohne lokale Cover zu löschen. Die Freigabe gilt nur in diesem Browser und wird nicht synchronisiert. Firefox bleibt unverändert.</p>
       </section>
@@ -73,8 +73,8 @@
       <section id="sicherung">
         <span class="section-number">02</span>
         <h2>Datensicherung als JSON-Datei</h2>
-        <p>Wähle zuerst über <strong>„Zielordner auswählen“</strong> einen Ordner. Chrome öffnet seinen Ordnerdialog; der Browser gibt nur den Ordnernamen frei. Firefox unter Windows benötigt den separat angebotenen lokalen Helfer: ZIP entpacken, Install.cmd ausführen, dann die optionale Verbindung erlauben und hier den Ordner auswählen. Keine Administratorrechte nötig. Zuerst „Dateisicherung jetzt erstellen“ prüfen, danach die tägliche Sicherung einschalten.</p>
-        <p>Die vollständige JSON-Datei enthält Einstellungen, Protokolle und lokale Bilder. Einmal pro Kalendertag bei geöffnetem Browser, sonst beim nächsten Start. Vorgabe für die Aufbewahrung ist 7; ungültige Eingaben werden rot markiert. Nur eigene, im versteckten Index verzeichnete alte Sicherungen werden nach erfolgreicher neuer Datei dauerhaft gelöscht. Indexdateien im Zielordner nicht löschen. Fehlt der Ordnerzugriff, wird die Sicherung angehalten; es gibt keinen Rückfall auf Downloads. Bei Firefox ist der vollständige Pfad sichtbar, bei Chrome nur der gewählte Ordnername. Auswahl und Berechtigungen werden nicht synchronisiert.</p>
+        <p>Tägliche Dateisicherungen liegen unter <strong>MangaShelf/Backups im Downloadordner deines Browsers</strong>. Kein Helfer und keine Ordnerauswahl nötig. Beim Einschalten oder über „Dateisicherung jetzt erstellen“ die Download-Berechtigung erlauben. Der Basisordner richtet sich nach den Download-Einstellungen des Browsers.</p>
+        <p>Die vollständige JSON-Datei enthält Einstellungen, Protokolle und lokale Bilder. Einmal pro Kalendertag bei geöffnetem Browser, sonst beim nächsten Start. Die Aufbewahrung hat den Standardwert 7; ungültige Eingaben werden rot markiert. Erst nach vollständiger neuer Sicherung werden eigene protokollierte Dateien über der gewählten Anzahl gelöscht. Nach Löschen des Downloadverlaufs oder Entfernen der Erweiterung lassen sich ältere Dateien nicht mehr sicher zuordnen; diese bitte manuell entfernen. Heruntergeladene Dateien bleiben unabhängig von der Erweiterung erhalten.</p>
         <div class="warning"><strong>Testversionen:</strong> Entfernen einer temporären Firefox-Erweiterung ist kein reguläres Store-Update und kann den Erweiterungsspeicher entfernen. Vor Tests eine JSON-Datei außerhalb der Erweiterung sichern; möglichst ein separates Testprofil verwenden. Bereits heruntergeladene Dateien bleiben unabhängig vom Add-on erhalten. Nach Neuinstallation oder Profilwechsel die automatische Dateisicherung erneut aktivieren.</div>
         <ul class="check-list">
           <li><strong>Export:</strong> Lädt Sammlung, Einstellungen, Protokolle und lokal gespeicherte Cover als transportierbare JSON-Sicherung herunter.</li>
@@ -188,7 +188,7 @@
 
       <footer>
         <img src="../icons/manga-regal.svg" alt="">
-        <p><strong>Manga-Regal</strong><br><span>Einstellungen erklärt · Version 0.20.20</span></p>
+        <p><strong>Manga-Regal</strong><br><span>Einstellungen erklärt · Version 0.20.21</span></p>
         <a href="#start">Nach oben ↑</a>
       </footer>
     </main>

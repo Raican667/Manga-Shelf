@@ -120,7 +120,6 @@ async function handleMessage(message, sender) {
     if (message.action === 'status') return { ok: true, status: { ...await MangaBackups.status(), target: await MangaBackupTarget.status() } };
     if (message.action === 'configure') return { ok: true, status: await MangaBackups.configure(message.enabled === true, message.limit) };
     if (message.action === 'now') return { ok: true, status: await MangaBackups.run({ force: true }) };
-    if (message.action === 'target-changed') return { ok: true, status: await MangaBackups.destinationChanged() };
     throw new Error('Unknown backup action');
   }
   if (message?.type === 'manga-regal:request-cover-access') {

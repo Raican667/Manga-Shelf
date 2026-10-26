@@ -45,7 +45,7 @@ jobs:
         run: |
           $version = (Get-Content manifest.json -Raw | ConvertFrom-Json).version
           $tag = "v$version"
-          $assets = @("build/manga-shelf-firefox-$version.zip", "build/manga-shelf-chrome-$version.zip", "build/manga-shelf-backup-helper-windows-$version.zip")
+          $assets = @("build/manga-shelf-firefox-$version.zip", "build/manga-shelf-chrome-$version.zip")
           gh release view $tag --json tagName 2>$null
           if ($LASTEXITCODE -eq 0) {
             gh release upload $tag @assets --clobber

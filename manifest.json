@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "default_locale": "de",
   "name": "__MSG_extensionName__",
-  "version": "0.20.20",
+  "version": "0.20.21",
   "description": "__MSG_extensionDescription__",
   "icons": {
     "32": "icons/manga-regal.svg",
@@ -23,7 +23,7 @@
   "host_permissions": [
     "<all_urls>"
   ],
-  "optional_permissions": ["nativeMessaging"],
+  "optional_permissions": ["downloads"],
   "web_accessible_resources": [{ "resources": ["content/overlay.css"], "matches": ["<all_urls>"] }],
   "action": {
     "default_title": "__MSG_actionTitle__",

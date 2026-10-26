@@ -6,7 +6,19 @@ All notable changes to Manga-Regal are documented in this file. The format is
 based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.20.21] – 2026-10-26
+
+### Changed
+
+- Daily backups now use MangaShelf/Backups inside the browser download folder on Firefox and Chrome. No external program or folder grant is required.
+- Removed the Windows helper, nativeMessaging permission, directory picker, old integration actions, installer/build scripts and related release asset.
+- Firefox uses Blob downloads instead of rejected JSON data URLs. Chrome workers retain a compatible UTF-8 data-URL path.
+- Retention defaults to 7 and remains configurable up to 365. New files must complete before removing recorded own older downloads. Cleared download history requires manual cleanup of unlocatable old files.
+- Settings/help/release notes updated in English and German. Existing collection, covers, Sync and preferences are preserved.
+
 ## [0.20.20] – 2026-10-26
+
+> Superseded by 0.20.21. The helper download was withdrawn; the following records the original implementation.
 
 ### Added
 
